@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExecutiveOrderController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Guest Routes ─────────────────────────────────────────────────────────────
@@ -30,6 +31,11 @@ Route::middleware('auth')->group(function () {
     // Notifications
     Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+
+    // ── Profile ────────────────────────────────────────────────────────────────
+    Route::get('/profile',          [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile/info',   [ProfileController::class, 'updateInfo'])->name('profile.update-info');
+    Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
 
     // ── Executive Orders ───────────────────────────────────────────────────────
     Route::prefix('executive-orders')->name('executive-orders.')->group(function () {

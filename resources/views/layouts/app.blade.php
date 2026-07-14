@@ -75,15 +75,19 @@
 
         {{-- User Profile Block --}}
         <div class="p-4 border-t border-white/10">
-            <div class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/10 transition-colors">
+            <a href="{{ route('profile.edit') }}"
+               class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/10 transition-colors group">
                 <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0 text-white text-xs font-bold">
                     {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
                 </div>
                 <div class="flex-1 min-w-0">
-                    <p class="text-white text-sm font-semibold truncate">{{ auth()->user()->name }}</p>
+                    <p class="text-white text-sm font-semibold truncate group-hover:text-violet-200 transition-colors">{{ auth()->user()->name }}</p>
                     <p class="text-violet-300 text-[11px] truncate">{{ auth()->user()->position ?? ucfirst(auth()->user()->role) }}</p>
                 </div>
-            </div>
+                <svg class="w-3.5 h-3.5 text-violet-400 group-hover:text-violet-200 shrink-0 transition-colors" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+            </a>
             <form action="{{ route('logout') }}" method="POST" class="mt-2">
                 @csrf
                 <button type="submit"
