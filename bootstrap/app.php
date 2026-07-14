@@ -10,6 +10,16 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
+    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule): void {
+        // ── Daily backup at 2:00 AM ───────────────────────────────────────
+        $schedule->command('backup:run')->dailyAt('02:00');
+
+        // ── Clean up old backups at 3:00 AM (keeps rolling 7-day window) ──
+        $schedule->command('backup:clean')->dailyAt('03:00');
+
+        // ── Permanently purge soft-deleted EOs older than 30 days ─────────
+        $schedule->command('eo:prune-deleted')->dailyAt('04:00');
+    })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'role' => \App\Http\Middleware\EnsureRole::class,

@@ -60,6 +60,15 @@ return [
             'report' => false,
         ],
 
+        // ── Dedicated backup disk ──────────────────────────────────────────
+        // Stores daily backup archives outside the web root.
+        'backups' => [
+            'driver' => 'local',
+            'root'   => storage_path('app/backups'),
+            'throw'  => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

@@ -25,12 +25,12 @@ class EoDeleted extends Notification
     public function toDatabase(object $notifiable): array
     {
         return [
-            'type'            => 'eo_deleted',
-            'eo_number'       => $this->eoNumber,
-            'title'           => $this->eoTitle,
-            'deleted_by_id'   => $this->deletedBy->id,
-            'deleted_by_name' => $this->deletedBy->name,
-            'message'         => "{$this->eoNumber} ({$this->eoTitle}) was deleted by {$this->deletedBy->name}",
+            'type'             => 'eo_archived',
+            'eo_number'        => $this->eoNumber,
+            'title'            => $this->eoTitle,
+            'deleted_by_id'    => $this->deletedBy->id,
+            'deleted_by_name'  => $this->deletedBy->name,
+            'message'          => "{$this->eoNumber} ({$this->eoTitle}) was archived by {$this->deletedBy->name}",
         ];
     }
 }

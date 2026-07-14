@@ -223,10 +223,17 @@ class ExecutiveOrderController extends Controller
             $oldValues = $executiveOrder->only(['title', 'subject', 'status', 'date_issued', 'date_effective', 'signed_by']);
             $oldStatus = $executiveOrder->status;
 
-            // Handle PDF replacement
+            // Handle PDF replacement — archive the old file instead of deleting it
             if ($request->hasFile('pdf_file')) {
-                // Delete old file
-                Storage::disk('local')->delete($executiveOrder->pdf_path);
+                // Move old PDF into a versioned archive folder
+                $oldPath = $executiveOrder->pdf_path;
+                if ($oldPath && Storage::disk('local')->exists($oldPath)) {
+                    $archivePath = 'executive-orders-archive/'
+                        . $executiveOrder->id . '/'
+                        . now()->format('Y-m-d_His') . '_' . basename($oldPath);
+                    Storage::disk('local')->move($oldPath, $archivePath);
+                }
+
                 $file = $request->file('pdf_file');
                 $validated['pdf_path']          = $file->store('executive-orders', 'local');
                 $validated['original_filename'] = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', $file->getClientOriginalName());
@@ -305,7 +312,7 @@ class ExecutiveOrderController extends Controller
             ->with('success', 'Executive Order updated successfully.');
     }
 
-    // ─── Destroy ──────────────────────────────────────────────────────────────
+    // ─── Destroy (soft delete) ────────────────────────────────────────────────
 
     public function destroy(ExecutiveOrder $executiveOrder)
     {
@@ -336,6 +343,59 @@ class ExecutiveOrderController extends Controller
         return redirect()
             ->route('executive-orders.index')
             ->with('success', "Executive Order {$eoNumber} has been deleted.");
+    }
+
+    // ─── Archive: list soft-deleted EOs ──────────────────────────────────────
+
+    public function archive()
+    {
+        $orders = ExecutiveOrder::onlyTrashed()
+            ->with('uploader')
+            ->latest('deleted_at')
+            ->paginate(15);
+
+        return view('executive-orders.archive', compact('orders'));
+    }
+
+    // ─── Restore a soft-deleted EO ───────────────────────────────────────────
+
+    public function restore(int $id)
+    {
+        $executiveOrder = ExecutiveOrder::onlyTrashed()->findOrFail($id);
+        $executiveOrder->restore();
+
+        EoActivityLog::record($executiveOrder, 'restored', null, [
+            'eo_number' => $executiveOrder->eo_number,
+        ]);
+
+        return redirect()
+            ->route('executive-orders.archive')
+            ->with('success', "Executive Order {$executiveOrder->eo_number} has been restored.");
+    }
+
+    // ─── Force-delete (permanent) ─────────────────────────────────────────────
+
+    public function forceDestroy(int $id)
+    {
+        $executiveOrder = ExecutiveOrder::onlyTrashed()->findOrFail($id);
+
+        // Permanently remove the live PDF if it still exists
+        if ($executiveOrder->pdf_path && Storage::disk('local')->exists($executiveOrder->pdf_path)) {
+            Storage::disk('local')->delete($executiveOrder->pdf_path);
+        }
+
+        // Remove any archived (versioned) PDFs
+        $archiveDir = 'executive-orders-archive/' . $executiveOrder->id;
+        if (Storage::disk('local')->directoryExists($archiveDir)) {
+            Storage::disk('local')->deleteDirectory($archiveDir);
+        }
+
+        $eoNumber = $executiveOrder->eo_number;
+        $executiveOrder->forceDelete();
+
+        return redirect()
+            ->route('executive-orders.archive')
+            ->with('success', "Executive Order {$eoNumber} has been permanently deleted.");
     }
 
     // ─── View PDF (inline) ────────────────────────────────────────────────────

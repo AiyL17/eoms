@@ -70,6 +70,18 @@
                 </svg>
                 <span>System Logs</span>
             </a>
+
+            <a href="{{ route('executive-orders.archive') }}"
+               class="nav-link {{ request()->routeIs('executive-orders.archive') ? 'active' : '' }}">
+                @php $archiveCount = \App\Models\ExecutiveOrder::onlyTrashed()->count(); @endphp
+                <svg class="w-4.5 h-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z" />
+                </svg>
+                <span>Archive</span>
+                @if($archiveCount > 0)
+                <span class="ml-auto text-[10px] font-bold bg-amber-500 text-white px-1.5 py-0.5 rounded-full leading-none">{{ $archiveCount }}</span>
+                @endif
+            </a>
             @endif
         </nav>
 

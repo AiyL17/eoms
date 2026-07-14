@@ -46,13 +46,22 @@ Route::middleware('auth')->group(function () {
         Route::get('/',               [ExecutiveOrderController::class, 'index'])->name('index');
         Route::get('/create',         [ExecutiveOrderController::class, 'create'])->name('create');
         Route::post('/',              [ExecutiveOrderController::class, 'store'])->name('store');
-        Route::get('/{executiveOrder}',       [ExecutiveOrderController::class, 'show'])->name('show');
-        Route::get('/{executiveOrder}/edit',  [ExecutiveOrderController::class, 'edit'])->name('edit');
-        Route::put('/{executiveOrder}',       [ExecutiveOrderController::class, 'update'])->name('update');
-        Route::get('/{executiveOrder}/pdf',   [ExecutiveOrderController::class, 'viewPdf'])->name('pdf');
+
+        // ── Archive routes (static segments — must come before wildcard routes) ──
+        Route::middleware('role:admin')->group(function () {
+            Route::get('/archive',               [ExecutiveOrderController::class, 'archive'])->name('archive');
+            Route::post('/archive/{id}/restore', [ExecutiveOrderController::class, 'restore'])->name('restore');
+            Route::delete('/archive/{id}',       [ExecutiveOrderController::class, 'forceDestroy'])->name('force-destroy');
+        });
+
+        // ── Wildcard routes (must come after static segments) ─────────────────
+        Route::get('/{executiveOrder}',          [ExecutiveOrderController::class, 'show'])->name('show');
+        Route::get('/{executiveOrder}/edit',     [ExecutiveOrderController::class, 'edit'])->name('edit');
+        Route::put('/{executiveOrder}',          [ExecutiveOrderController::class, 'update'])->name('update');
+        Route::get('/{executiveOrder}/pdf',      [ExecutiveOrderController::class, 'viewPdf'])->name('pdf');
         Route::get('/{executiveOrder}/download', [ExecutiveOrderController::class, 'download'])->name('download');
 
-        // Admin-only
+        // Admin-only destroy
         Route::delete('/{executiveOrder}', [ExecutiveOrderController::class, 'destroy'])
             ->name('destroy')
             ->middleware('role:admin');
