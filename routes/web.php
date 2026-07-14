@@ -1,0 +1,54 @@
+<?php
+
+use App\Http\Controllers\Admin\LogController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExecutiveOrderController;
+use Illuminate\Support\Facades\Route;
+
+// ─── Guest Routes ─────────────────────────────────────────────────────────────
+
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+// ─── Authenticated Routes ─────────────────────────────────────────────────────
+
+Route::middleware('auth')->group(function () {
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Root redirect
+    Route::get('/', fn () => redirect()->route('dashboard'));
+
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // ── Executive Orders ───────────────────────────────────────────────────────
+    Route::prefix('executive-orders')->name('executive-orders.')->group(function () {
+        Route::get('/',               [ExecutiveOrderController::class, 'index'])->name('index');
+        Route::get('/create',         [ExecutiveOrderController::class, 'create'])->name('create');
+        Route::post('/',              [ExecutiveOrderController::class, 'store'])->name('store');
+        Route::get('/{executiveOrder}',       [ExecutiveOrderController::class, 'show'])->name('show');
+        Route::get('/{executiveOrder}/edit',  [ExecutiveOrderController::class, 'edit'])->name('edit');
+        Route::put('/{executiveOrder}',       [ExecutiveOrderController::class, 'update'])->name('update');
+        Route::get('/{executiveOrder}/pdf',   [ExecutiveOrderController::class, 'viewPdf'])->name('pdf');
+        Route::get('/{executiveOrder}/download', [ExecutiveOrderController::class, 'download'])->name('download');
+
+        // Admin-only
+        Route::delete('/{executiveOrder}', [ExecutiveOrderController::class, 'destroy'])
+            ->name('destroy')
+            ->middleware('role:admin');
+    });
+
+    // ── Admin-Only Routes ──────────────────────────────────────────────────────
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        // User management
+        Route::resource('users', UserController::class)->except(['show']);
+
+        // Activity logs
+        Route::get('logs', [LogController::class, 'index'])->name('logs.index');
+    });
+});

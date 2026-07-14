@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..700;1,14..32,300..700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+/* ── Custom Scrollbar ───────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: #c4b5fd; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #a78bfa; }
+
+/* ── Sidebar scrollbar ──────────────────────────────────────────── */
+.sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+.sidebar-scroll::-webkit-scrollbar-thumb { background: #4c1d95; }
+
+/* ── Status Badge Variants ──────────────────────────────────────── */
+.badge-active       { @apply bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border border-emerald-100; }
+.badge-amended      { @apply bg-amber-50 text-amber-700 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border border-amber-100; }
+.badge-repealed     { @apply bg-red-50 text-red-700 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border border-red-100; }
+.badge-suspended    { @apply bg-orange-50 text-orange-700 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border border-orange-100; }
+.badge-superseded   { @apply bg-violet-50 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border border-violet-100; }
+.badge-under_review { @apply bg-sky-50 text-sky-700 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border border-sky-100; }
+
+/* ── Action Icon Variants ───────────────────────────────────────── */
+.action-created        { @apply bg-emerald-100 text-emerald-600; }
+.action-updated        { @apply bg-sky-100 text-sky-600; }
+.action-status_changed { @apply bg-amber-100 text-amber-600; }
+.action-deleted        { @apply bg-red-100 text-red-600; }
+.action-downloaded     { @apply bg-violet-100 text-violet-600; }
+.action-pdf_viewed     { @apply bg-slate-100 text-slate-500; }
+
+/* ── Action Badge Labels (for logs table) ───────────────────────── */
+.action-badge-created        { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100; }
+.action-badge-updated        { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-100; }
+.action-badge-status_changed { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-100; }
+.action-badge-deleted        { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-100; }
+.action-badge-downloaded     { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-violet-50 text-violet-700 border border-violet-100; }
+.action-badge-pdf_viewed     { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200; }
+
+/* ── Sidebar nav link ───────────────────────────────────────────── */
+.nav-link {
+    @apply flex items-center gap-3 px-4 py-2.5 rounded-xl text-violet-200/70
+           text-sm font-medium transition-all duration-200
+           hover:text-white hover:bg-white/10;
+}
+.nav-link.active {
+    @apply text-white bg-white/15 shadow-none font-semibold;
+}
+.nav-link.active svg { @apply opacity-100; }
+.nav-link svg { @apply opacity-60; }
+
+/* ── Form input base ────────────────────────────────────────────── */
+.form-input {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm
+           text-slate-900
+           placeholder:text-slate-400
+           focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-400
+           transition-all duration-200;
+}
+
+/* Custom select arrow — removes browser default chevron and adds a consistent one with proper right margin */
+select.form-input {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.5rem;
+}
+
+/* Use on inputs that have a leading icon — adds left padding to clear the icon */
+.form-input-icon {
+    padding-left: 2.5rem !important;
+}
+.form-input.error { @apply border-red-400 focus:border-red-400 focus:ring-red-500/20; }
+.form-label { @apply block text-sm font-semibold text-slate-700 mb-1.5; }
+.form-hint  { @apply text-xs text-slate-500 mt-1.5; }
+.form-error { @apply text-xs text-red-500 mt-1.5 font-medium; }
+
+/* ── Card ───────────────────────────────────────────────────────── */
+.card {
+    @apply bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden;
+}
+.card-header {
+    @apply px-6 py-5 flex items-center justify-between bg-white border-b border-slate-100;
+}
+.card-body { @apply p-6; }
+
+/* ── Btn variants ───────────────────────────────────────────────── */
+.btn-primary {
+    @apply inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
+           transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-violet-500/25
+           bg-violet-600 text-white hover:bg-violet-700 shadow-sm hover:shadow-md hover:shadow-violet-600/20;
+}
+.btn-secondary {
+    @apply inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
+           transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-slate-200
+           bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300;
+}
+.btn-danger {
+    @apply inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
+           transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-red-500/20
+           bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 hover:text-red-700;
+}
+.btn-success {
+    @apply inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
+           transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-emerald-500/20
+           bg-emerald-600 text-white hover:bg-emerald-700;
+}
+.btn-sm {
+    @apply px-3.5 py-1.5 text-xs rounded-lg;
+}
+
+/* ── Table ──────────────────────────────────────────────────────── */
+.table-auto {
+    width: 100%;
+}
+/* Apply to wide tables that need horizontal scroll protection */
+.table-wide {
+    min-width: 500px;
+}
+.table-auto th {
+    @apply px-5 py-3.5 text-left text-[11px] font-semibold text-slate-400 uppercase tracking-widest bg-slate-50 border-b border-slate-100;
+}
+.table-auto td {
+    @apply px-5 py-4 text-sm text-slate-700 border-b border-slate-50;
+}
+.table-auto tr:last-child td { @apply border-b-0; }
+.table-auto tbody tr:hover td { @apply bg-violet-50/30; }
+/* Sticky header — works when the scroll container is overflow-y-auto wrapping the table */
+.table-auto thead th { position: sticky; top: 0; z-index: 10; }
+
+/* ── Alert ──────────────────────────────────────────────────────── */
+.alert-success { @apply flex items-start gap-3 p-4 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-100; }
+.alert-error   { @apply flex items-start gap-3 p-4 rounded-xl bg-red-50 text-red-800 border border-red-100; }
+.alert-warning { @apply flex items-start gap-3 p-4 rounded-xl bg-amber-50 text-amber-800 border border-amber-100; }
+.alert-info    { @apply flex items-start gap-3 p-4 rounded-xl bg-violet-50 text-violet-800 border border-violet-100; }
+
+/* ── Stat card ──────────────────────────────────────────────────── */
+.stat-card {
+    @apply bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex items-center gap-4 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5;
+}
+.stat-icon {
+    @apply w-12 h-12 rounded-xl flex items-center justify-center shrink-0;
+}
+
+/* ── Section label inside forms ─────────────────────────────────── */
+.form-section-title {
+    @apply text-xs font-bold text-slate-500 uppercase tracking-widest pb-3 mb-5 border-b border-slate-100;
+}
