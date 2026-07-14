@@ -81,7 +81,7 @@ class ExecutiveOrderController extends Controller
             'year'            => 'required|integer|min:2000|max:2100',
             'title'           => 'required|string|max:500',
             'subject'         => 'required|string|max:500',
-            'content_summary' => 'nullable|string',
+            'content_summary' => 'nullable|string|max:5000',
             'date_issued'     => 'required|date',
             'date_effective'  => 'nullable|date',
             'signed_by'       => 'required|string|max:255',
@@ -90,7 +90,7 @@ class ExecutiveOrderController extends Controller
             'status_notes'    => 'nullable|string|max:1000',
             'amends_id'       => 'nullable|exists:executive_orders,id',
             'tags'            => 'nullable|string',
-            'signature_data'  => 'nullable|string',
+            'signature_data'  => ['nullable', 'string', 'max:200000', 'regex:/^data:image\/png;base64,[A-Za-z0-9+\/]+=*$/'],
         ], [
             'item_number.unique' => 'An executive order with this item number already exists for the selected year.',
             'pdf_file.max'       => 'The PDF file must not exceed 20 MB.',
@@ -99,7 +99,7 @@ class ExecutiveOrderController extends Controller
         DB::transaction(function () use ($request, $validated) {
             // Store the PDF
             $file             = $request->file('pdf_file');
-            $originalFilename = $file->getClientOriginalName();
+            $originalFilename = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', $file->getClientOriginalName());
             $storedPath       = $file->store('executive-orders', 'local');
 
             // Parse tags
@@ -207,7 +207,7 @@ class ExecutiveOrderController extends Controller
         $validated = $request->validate([
             'title'           => 'required|string|max:500',
             'subject'         => 'required|string|max:500',
-            'content_summary' => 'nullable|string',
+            'content_summary' => 'nullable|string|max:5000',
             'date_issued'     => 'required|date',
             'date_effective'  => 'nullable|date',
             'signed_by'       => 'required|string|max:255',
@@ -215,7 +215,8 @@ class ExecutiveOrderController extends Controller
             'status_notes'    => 'nullable|string|max:1000',
             'tags'            => 'nullable|string',
             'pdf_file'        => 'nullable|file|mimes:pdf|max:20480',
-            'signature_data'  => 'nullable|string',
+            'signature_data'  => ['nullable', 'string', 'max:200000', 'regex:/^data:image\/png;base64,[A-Za-z0-9+\/]+=*$/'],
+            'log_notes'       => 'nullable|string|max:1000',
         ]);
 
         DB::transaction(function () use ($request, $validated, $executiveOrder) {
@@ -227,9 +228,9 @@ class ExecutiveOrderController extends Controller
                 // Delete old file
                 Storage::disk('local')->delete($executiveOrder->pdf_path);
                 $file = $request->file('pdf_file');
-                $validated['pdf_path']         = $file->store('executive-orders', 'local');
-                $validated['original_filename'] = $file->getClientOriginalName();
-                $validated['file_size']         = $file->getSize();
+                $validated['pdf_path']          = $file->store('executive-orders', 'local');
+                $validated['original_filename'] = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', $file->getClientOriginalName());
+                $validated['file_size']          = $file->getSize();
             }
 
             // Parse tags
@@ -253,13 +254,14 @@ class ExecutiveOrderController extends Controller
             }
 
             $validated['updated_by'] = auth()->id();
+            unset($validated['log_notes']); // audit-only field, not a model column
             $executiveOrder->update($validated);
 
             $newValues = $executiveOrder->only(['title', 'subject', 'status', 'date_issued', 'date_effective', 'signed_by']);
 
             // Log status change separately if status changed
             if ($oldStatus !== $executiveOrder->status) {
-                EoActivityLog::record($executiveOrder, 'status_changed', ['status' => $oldStatus], ['status' => $executiveOrder->status], $validated['status_notes'] ?? null);
+                EoActivityLog::record($executiveOrder, 'status_changed', ['status' => $oldStatus], ['status' => $executiveOrder->status], $validated['status_notes'] ?? $validated['log_notes'] ?? null);
 
                 // Notify the original uploader if someone else changed the status
                 $uploader = $executiveOrder->uploader;
@@ -278,7 +280,7 @@ class ExecutiveOrderController extends Controller
                     $admin->notify(new EoStatusChanged($executiveOrder, $oldStatus, $executiveOrder->status, auth()->user()));
                 }
             } else {
-                EoActivityLog::record($executiveOrder, 'updated', $oldValues, $newValues);
+                EoActivityLog::record($executiveOrder, 'updated', $oldValues, $newValues, $validated['log_notes'] ?? null);
 
                 // Notify the original uploader if someone else updated their EO
                 $uploader = $executiveOrder->uploader;

@@ -54,7 +54,7 @@ class UserController extends Controller
         $validated = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
-            'password' => ['required', Password::min(8)->letters()->numbers()],
+            'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()],
             'role'     => 'required|in:admin,staff',
             'position' => 'nullable|string|max:255',
         ]);
@@ -79,7 +79,7 @@ class UserController extends Controller
             'email'    => ['required', 'email', Rule::unique('users')->ignore($user->id)],
             'role'     => 'required|in:admin,staff',
             'position' => 'nullable|string|max:255',
-            'password' => ['nullable', Password::min(8)->letters()->numbers()],
+            'password' => ['nullable', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()],
         ]);
 
         if (empty($validated['password'])) {

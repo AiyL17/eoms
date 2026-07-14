@@ -42,7 +42,7 @@ class ProfileController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'current_password' => ['required', 'current_password'],
-            'password'         => ['required', 'confirmed', Password::min(8)->letters()->numbers()],
+            'password'         => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()],
         ]);
 
         if ($validator->fails()) {
@@ -60,7 +60,7 @@ class ProfileController extends Controller
     public function updateSignature(Request $request)
     {
         $request->validate([
-            'signature_data' => ['nullable', 'string'],
+            'signature_data' => ['nullable', 'string', 'max:200000', 'regex:/^data:image\/png;base64,[A-Za-z0-9+\/]+=*$/'],
         ]);
 
         // Accept a cleared signature (empty string means remove it)
