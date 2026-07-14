@@ -100,12 +100,12 @@
                     @endif
                     <div class="flex justify-between items-start">
                         <span class="text-xs text-slate-400 font-medium">Signed By</span>
-                        <div class="relative max-w-[60%]">
+                        <div class="relative pt-6 max-w-[60%]">
                             <span class="text-sm font-semibold text-slate-800 pt-0.5 block text-right">{{ $eo->signed_by }}</span>
                             @if($eo->signature_data)
                             <img src="{{ $eo->signature_data }}"
                                  alt="E-Signature of {{ $eo->signed_by }}"
-                                 class="absolute right-0 w-full h-8 object-contain object-right pointer-events-none"
+                                 class="absolute right-0 w-full h-6 object-contain object-right pointer-events-none"
                                  style="bottom: 4px;">
                             @endif
                         </div>

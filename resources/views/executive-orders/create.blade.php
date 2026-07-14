@@ -252,7 +252,7 @@
     </div>
 
     {{-- ── RIGHT: Live summary panel ────────────────────────────────────── --}}
-    <div class="sticky top-20 self-start space-y-5">
+    <div class="sticky top-6 self-start space-y-5">
 
         {{-- EO Preview card --}}
         <div class="card">
@@ -260,7 +260,7 @@
                 <h3 class="text-sm font-bold text-slate-800">Preview</h3>
                 <p class="text-xs text-slate-400 mt-0.5">Updates as you fill in the form</p>
             </div>
-            <div class="p-5 space-y-4">
+            <div class="p-5 space-y-4 overflow-y-auto" style="max-height: calc(100vh - 160px);">
 
                 <div>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">EO Number</p>
@@ -277,25 +277,26 @@
                     <p id="prev-subject" class="text-xs text-slate-500 leading-relaxed">—</p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date Issued</p>
                         <p id="prev-date" class="text-xs font-semibold text-slate-700">—</p>
                     </div>
+
                     <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Signed By</p>
-                        <div class="relative">
-                            <p id="prev-signed" class="text-xs font-semibold text-slate-700 truncate pt-0.5">—</p>
-                            <img id="prev-signature-img" src="" alt="E-Signature"
-                                 class="absolute left-0 w-full h-8 object-contain object-left hidden"
-                                 style="bottom: 4px;">
-                        </div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Status</p>
+                        <p id="prev-status" class="text-xs font-semibold text-slate-700">Active</p>
                     </div>
                 </div>
 
                 <div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Status</p>
-                    <p id="prev-status" class="text-xs font-semibold text-slate-700">Active</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Signed By</p>
+                    <div class="relative pt-6">
+                        <p id="prev-signed" class="text-xs font-semibold text-slate-700 truncate pt-0.5">—</p>
+                        <img id="prev-signature-img" src="" alt="E-Signature"
+                             class="absolute left-0 w-full h-6 object-contain object-left hidden"
+                             style="bottom: 4px;">
+                    </div>
                 </div>
 
                 <div id="prev-file-wrap" class="hidden pt-3 border-t border-slate-100">

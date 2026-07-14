@@ -238,13 +238,13 @@
     </div>
 
     {{-- ── RIGHT: Live preview panel ────────────────────────────────────── --}}
-    <div class="sticky top-20 self-start space-y-5">
+    <div class="sticky top-6 self-start space-y-5">
         <div class="card">
             <div class="p-5 border-b border-slate-100">
                 <h3 class="text-sm font-bold text-slate-800">Preview</h3>
                 <p class="text-xs text-slate-400 mt-0.5">Updates as you edit</p>
             </div>
-            <div class="p-5 space-y-4">
+            <div class="p-5 space-y-4 overflow-y-auto" style="max-height: calc(100vh - 160px);">
 
                 <div>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">EO Number</p>
@@ -261,27 +261,28 @@
                     <p id="prev-subject" class="text-xs text-slate-500 leading-relaxed break-words">{{ $eo->subject }}</p>
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
+                <div class="grid grid-cols-2 gap-4">
                     <div>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date Issued</p>
                         <p id="prev-date" class="text-xs font-semibold text-slate-700">{{ $eo->date_issued->format('M d, Y') }}</p>
                     </div>
+
                     <div>
-                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Signed By</p>
-                        <div class="relative">
-                            <p id="prev-signed" class="text-xs font-semibold text-slate-700 break-words pt-0.5">{{ $eo->signed_by }}</p>
-                            <img id="prev-signature-img"
-                                 src="{{ $eo->signature_data ?? '' }}"
-                                 alt="E-Signature"
-                                 class="absolute left-0 w-full h-8 object-contain object-left {{ $eo->signature_data ? '' : 'hidden' }}"
-                                 style="bottom: 4px;">
-                        </div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Status</p>
+                        <p id="prev-status" class="text-xs font-semibold text-slate-700">{{ $eo->status_label }}</p>
                     </div>
                 </div>
 
                 <div>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Status</p>
-                    <p id="prev-status" class="text-xs font-semibold text-slate-700">{{ $eo->status_label }}</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Signed By</p>
+                    <div class="relative pt-6">
+                        <p id="prev-signed" class="text-xs font-semibold text-slate-700 break-words pt-0.5">{{ $eo->signed_by }}</p>
+                        <img id="prev-signature-img"
+                             src="{{ $eo->signature_data ?? '' }}"
+                             alt="E-Signature"
+                             class="absolute left-0 w-full h-6 object-contain object-left {{ $eo->signature_data ? '' : 'hidden' }}"
+                             style="bottom: 4px;">
+                    </div>
                 </div>
 
                 <div class="pt-3 border-t border-slate-100">
