@@ -89,6 +89,7 @@ class ExecutiveOrderController extends Controller
             'status_notes'    => 'nullable|string|max:1000',
             'amends_id'       => 'nullable|exists:executive_orders,id',
             'tags'            => 'nullable|string',
+            'signature_data'  => 'nullable|string',
         ], [
             'item_number.unique' => 'An executive order with this item number already exists for the selected year.',
             'pdf_file.max'       => 'The PDF file must not exceed 20 MB.',
@@ -128,6 +129,7 @@ class ExecutiveOrderController extends Controller
                 'status_notes'    => $validated['status_notes'] ?? null,
                 'amends_id'       => $validated['amends_id'] ?? null,
                 'tags'            => $tags,
+                'signature_data'  => $validated['signature_data'] ?? null,
                 'uploaded_by'     => auth()->id(),
             ]);
 
@@ -198,6 +200,7 @@ class ExecutiveOrderController extends Controller
             'status_notes'    => 'nullable|string|max:1000',
             'tags'            => 'nullable|string',
             'pdf_file'        => 'nullable|file|mimes:pdf|max:20480',
+            'signature_data'  => 'nullable|string',
         ]);
 
         DB::transaction(function () use ($request, $validated, $executiveOrder) {
@@ -219,6 +222,14 @@ class ExecutiveOrderController extends Controller
                 $tags = array_filter(array_map('trim', explode(',', $validated['tags'])));
                 $validated['tags'] = array_values($tags) ?: null;
             }
+
+            // Handle signature: keep existing if blank, clear if 'CLEAR', otherwise save new
+            if (empty($validated['signature_data'])) {
+                unset($validated['signature_data']); // keep existing
+            } elseif ($validated['signature_data'] === 'CLEAR') {
+                $validated['signature_data'] = null; // explicitly cleared
+            }
+            // else: new base64 PNG from the pad — save as-is
 
             $validated['updated_by'] = auth()->id();
             $executiveOrder->update($validated);

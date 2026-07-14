@@ -20,6 +20,7 @@ class ExecutiveOrder extends Model
         'date_issued',
         'date_effective',
         'signed_by',
+        'signature_data',
         'pdf_path',
         'original_filename',
         'file_size',

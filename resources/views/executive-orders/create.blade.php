@@ -154,6 +154,31 @@
                             @error('tags') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
                     </div>
+
+                    {{-- E-Signature Pad --}}
+                    <div>
+                        <label class="form-label">
+                            E-Signature
+                            <span class="text-slate-400 font-normal ml-1">(optional)</span>
+                        </label>
+                        <div class="rounded-2xl border border-slate-200 bg-white overflow-hidden">
+                            <canvas id="signature-pad"
+                                    class="w-full touch-none block"
+                                    style="height: 160px; cursor: crosshair;"></canvas>
+                        </div>
+                        <input type="hidden" name="signature_data" id="signature-data">
+                        <div class="flex items-center justify-between mt-2">
+                            <p class="form-hint flex items-center gap-1.5">
+                                <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
+                                Draw the signatory's signature above using mouse or touch.
+                            </p>
+                            <button type="button" id="clear-signature"
+                                    class="text-xs font-semibold text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                                Clear
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -259,7 +284,12 @@
                     </div>
                     <div>
                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Signed By</p>
-                        <p id="prev-signed" class="text-xs font-semibold text-slate-700 truncate">—</p>
+                        <div class="relative">
+                            <p id="prev-signed" class="text-xs font-semibold text-slate-700 truncate pt-0.5">—</p>
+                            <img id="prev-signature-img" src="" alt="E-Signature"
+                                 class="absolute left-0 w-full h-8 object-contain object-left hidden"
+                                 style="bottom: 4px;">
+                        </div>
                     </div>
                 </div>
 
@@ -289,8 +319,69 @@
 </form>
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
 (function () {
+    // ── Signature Pad ─────────────────────────────────────────────────────
+    const canvas   = document.getElementById('signature-pad');
+    const sigData  = document.getElementById('signature-data');
+    const clearBtn = document.getElementById('clear-signature');
+
+    // Size canvas to its CSS dimensions (responsive)
+    function resizeCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width  = canvas.offsetWidth  * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext('2d').scale(ratio, ratio);
+        signaturePad.clear();
+    }
+
+    const signaturePad = new SignaturePad(canvas, {
+        minWidth: 0.8,
+        maxWidth: 2.5,
+        penColor: '#1e293b',
+        backgroundColor: 'rgba(0,0,0,0)',
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // ── Live preview of signature ─────────────────────────────────────────
+    const prevSigImg  = document.getElementById('prev-signature-img');
+
+    // Export with transparent background — ink is dark so it shows over light surfaces
+    function getSignatureDataUrl() {
+        return signaturePad.toDataURL('image/png');
+    }
+
+    function updateSigPreview() {
+        if (!signaturePad.isEmpty()) {
+            prevSigImg.src = getSignatureDataUrl();
+            prevSigImg.classList.remove('hidden');
+        } else {
+            prevSigImg.classList.add('hidden');
+            prevSigImg.src = '';
+        }
+    }
+
+    signaturePad.addEventListener('endStroke', updateSigPreview);
+
+    clearBtn.addEventListener('click', () => {
+        signaturePad.clear();
+        sigData.value = '';
+        prevSigImg.classList.add('hidden');
+        prevSigImg.src = '';
+    });
+
+    // Capture signature on form submit
+    document.getElementById('eo-form').addEventListener('submit', function () {
+        if (!signaturePad.isEmpty()) {
+            sigData.value = getSignatureDataUrl();
+        }
+        submitBtn.disabled = true;
+        submitLabel.textContent = 'Uploading…';
+        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+    });
     // ── Elements ──────────────────────────────────────────────────────────
     const fileInput     = document.getElementById('pdf_file');
     const dropZone      = document.getElementById('drop-zone');
@@ -393,11 +484,7 @@
     document.getElementById('prev-status').textContent  = statusSel.options[statusSel.selectedIndex].text;
 
     // ── Submit loading state ──────────────────────────────────────────────
-    document.getElementById('eo-form').addEventListener('submit', function () {
-        submitBtn.disabled = true;
-        submitLabel.textContent = 'Uploading…';
-        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
-    });
+    // (handled by signature pad submit listener above)
 })();
 </script>
 @endpush
