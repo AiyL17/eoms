@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\LogController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
@@ -18,7 +19,7 @@ Route::middleware('guest')->group(function () {
 
 // ─── Authenticated Routes ─────────────────────────────────────────────────────
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'maintenance'])->group(function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -74,5 +75,10 @@ Route::middleware('auth')->group(function () {
 
         // Activity logs
         Route::get('logs', [LogController::class, 'index'])->name('logs.index');
+
+        // Settings
+        Route::get('settings',          [SettingsController::class, 'index'])->name('settings.index');
+        Route::patch('settings',        [SettingsController::class, 'update'])->name('settings.update');
+        Route::get('settings/health',   [SettingsController::class, 'health'])->name('settings.health');
     });
 });

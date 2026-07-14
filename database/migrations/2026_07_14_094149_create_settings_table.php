@@ -17,23 +17,14 @@ return new class extends Migration
 
         // Seed default values
         $defaults = [
-            // System
-            'app_name'                  => 'EOMS',
-            'org_name'                  => 'City Government',
-
             // EO Management
             'archive_retention_days'    => '30',
-            'default_upload_status'     => 'active',
-            'max_pdf_size_mb'           => '20',
-
-            // Notifications
-            'notify_on_upload'          => '1',
-            'notify_on_status_change'   => '1',
-            'notify_on_archive'         => '1',
-            'notify_on_restore'         => '1',
 
             // Access
             'staff_can_upload'          => '1',
+
+            // Maintenance
+            'maintenance_mode'          => '0',
         ];
 
         foreach ($defaults as $key => $value) {
