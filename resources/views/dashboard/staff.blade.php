@@ -27,7 +27,7 @@
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
     {{-- My Total Uploads --}}
-    <div class="stat-card">
+    <a href="{{ route('executive-orders.index') }}" class="stat-card hover:ring-2 hover:ring-violet-200 hover:shadow-md transition-all">
         <div class="stat-icon bg-violet-100 text-violet-600">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
@@ -38,7 +38,7 @@
             <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ number_format($myTotalUploads) }}</p>
             <p class="text-[11px] text-slate-400 mt-0.5">{{ $myThisMonth }} this month</p>
         </div>
-    </div>
+    </a>
 
     {{-- My Downloads --}}
     <div class="stat-card">
@@ -55,7 +55,7 @@
     </div>
 
     {{-- System Total EOs --}}
-    <div class="stat-card">
+    <a href="{{ route('executive-orders.index') }}" class="stat-card hover:ring-2 hover:ring-emerald-200 hover:shadow-md transition-all">
         <div class="stat-icon bg-emerald-100 text-emerald-600">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
@@ -66,10 +66,10 @@
             <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ number_format($totalEos) }}</p>
             <p class="text-[11px] text-slate-400 mt-0.5">{{ $activeEos }} active</p>
         </div>
-    </div>
+    </a>
 
     {{-- This Year --}}
-    <div class="stat-card">
+    <a href="{{ route('executive-orders.index', ['year' => date('Y')]) }}" class="stat-card hover:ring-2 hover:ring-amber-200 hover:shadow-md transition-all">
         <div class="stat-icon bg-amber-100 text-amber-600">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
@@ -80,7 +80,7 @@
             <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ number_format($thisYearEos) }}</p>
             <p class="text-[11px] text-slate-400 mt-0.5">EOs issued in {{ date('Y') }}</p>
         </div>
-    </div>
+    </a>
 
 </div>
 

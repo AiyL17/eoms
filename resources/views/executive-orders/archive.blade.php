@@ -20,33 +20,113 @@
 
 @section('content')
 
+{{-- Filters --}}
+<div class="card mb-5">
+    <div class="px-5 py-4">
+        <form action="{{ route('executive-orders.archive') }}" method="GET">
+            <div class="flex flex-col lg:flex-row gap-3 items-center">
+
+                {{-- Search --}}
+                <div class="flex-1 w-full relative">
+                    <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                    </div>
+                    <input type="text" name="search" id="search" value="{{ request('search') }}"
+                           placeholder="Search by EO number, title, subject, signatory…"
+                           class="form-input form-input-icon">
+                </div>
+
+                {{-- Actions --}}
+                <div class="flex gap-2 w-full lg:w-auto shrink-0">
+                    <button type="submit" class="btn-primary h-[42px] px-5 w-full lg:w-auto">
+                        Filter
+                    </button>
+                    @if(request()->anyFilled(['search']))
+                        <a href="{{ route('executive-orders.archive') }}"
+                           class="btn-secondary h-[42px] px-4 w-full lg:w-auto text-slate-400 hover:text-slate-600"
+                           title="Clear filters">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Table --}}
 <div class="card">
 
-    {{-- Header --}}
-    <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-4 flex-wrap">
+    {{-- Result count + active filter chips --}}
+    <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-4 flex-wrap">
         <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
-                <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z" />
                 </svg>
             </div>
             <div>
-                <p class="text-sm font-bold text-slate-800">Archive</p>
-                <p class="text-xs text-slate-400">
-                    {{ number_format($orders->total()) }} {{ Str::plural('record', $orders->total()) }} — permanently removed after 30 days
+                <p class="text-xs font-semibold text-slate-500">
+                    {{ number_format($orders->total()) }} {{ Str::plural('record', $orders->total()) }} found
                 </p>
+                <p class="text-[11px] text-slate-400">Permanently removed after 30 days of archiving</p>
             </div>
         </div>
+        @if(request()->anyFilled(['search']))
+        <div class="flex items-center gap-2 flex-wrap">
+            @if(request('search'))
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-700 text-xs font-medium rounded-full border border-amber-100">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+                    "{{ Str::limit(request('search'), 30) }}"
+                </span>
+            @endif
+        </div>
+        @endif
     </div>
 
     <div class="overflow-x-auto">
         <table class="w-full table-auto table-wide">
             <thead>
+                @php
+                    $sortUrl = function (string $col) use ($sort, $dir) {
+                        $newDir = ($sort === $col && $dir === 'asc') ? 'desc' : 'asc';
+                        return request()->fullUrlWithQuery(['sort' => $col, 'dir' => $newDir, 'page' => 1]);
+                    };
+                    $sortIcon = function (string $col) use ($sort, $dir) {
+                        if ($sort !== $col) {
+                            return '<svg class="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>';
+                        }
+                        if ($dir === 'asc') {
+                            return '<svg class="w-3.5 h-3.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>';
+                        }
+                        return '<svg class="w-3.5 h-3.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>';
+                    };
+                @endphp
                 <tr>
-                    <th class="w-36">EO Number</th>
-                    <th>Title</th>
-                    <th class="w-40">Archived On</th>
-                    <th class="w-40">Uploaded By</th>
+                    <th class="w-36">
+                        <a href="{{ $sortUrl('eo_number') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            EO Number {!! $sortIcon('eo_number') !!}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ $sortUrl('title') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            Title & Subject {!! $sortIcon('title') !!}
+                        </a>
+                    </th>
+                    <th class="w-40">
+                        <a href="{{ $sortUrl('deleted_at') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            Archived On {!! $sortIcon('deleted_at') !!}
+                        </a>
+                    </th>
+                    <th class="w-40">
+                        <a href="{{ $sortUrl('uploaded_by') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            Uploaded By {!! $sortIcon('uploaded_by') !!}
+                        </a>
+                    </th>
                     <th class="w-48 text-right pr-6">Actions</th>
                 </tr>
             </thead>
@@ -106,8 +186,23 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z" />
                                 </svg>
                             </div>
-                            <p class="text-sm font-bold text-slate-800 mb-1">Archive is empty</p>
-                            <p class="text-sm text-slate-500">No archived executive orders found.</p>
+                            <p class="text-sm font-bold text-slate-800 mb-1">
+                                @if(request()->anyFilled(['search']))
+                                    No records match your search
+                                @else
+                                    Archive is empty
+                                @endif
+                            </p>
+                            <p class="text-sm text-slate-500 mb-5">
+                                @if(request()->anyFilled(['search']))
+                                    Try a different search term.
+                                @else
+                                    No archived executive orders found.
+                                @endif
+                            </p>
+                            @if(request()->anyFilled(['search']))
+                                <a href="{{ route('executive-orders.archive') }}" class="btn-secondary btn-sm">Clear Search</a>
+                            @endif
                         </div>
                     </td>
                 </tr>

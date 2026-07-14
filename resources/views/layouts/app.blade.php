@@ -73,14 +73,10 @@
 
             <a href="{{ route('executive-orders.archive') }}"
                class="nav-link {{ request()->routeIs('executive-orders.archive') ? 'active' : '' }}">
-                @php $archiveCount = \App\Models\ExecutiveOrder::onlyTrashed()->count(); @endphp
                 <svg class="w-4.5 h-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z" />
                 </svg>
                 <span>Archive</span>
-                @if($archiveCount > 0)
-                <span class="ml-auto text-[10px] font-bold bg-amber-500 text-white px-1.5 py-0.5 rounded-full leading-none">{{ $archiveCount }}</span>
-                @endif
             </a>
             @endif
         </nav>
@@ -402,7 +398,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 </div>
                 <div>
                     <h3 id="confirm-modal-title" class="text-sm font-bold text-slate-800">Confirm Deletion</h3>
-                    <p class="text-xs text-slate-400 mt-0.5">This action cannot be undone.</p>
+                    <p id="confirm-modal-subtitle" class="text-xs text-slate-400 mt-0.5">This action cannot be undone.</p>
                 </div>
             </div>
             <button type="button" id="confirm-close-btn"
@@ -424,11 +420,11 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 Cancel
             </button>
             <button type="button" id="confirm-ok-btn" class="btn-danger">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <svg id="confirm-ok-icon" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                 </svg>
-                Delete
+                <span id="confirm-ok-label">Delete</span>
             </button>
         </div>
     </div>
@@ -446,16 +442,35 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
     const modal      = document.getElementById('confirm-modal');
     const backdrop   = document.getElementById('confirm-backdrop');
     const msgEl      = document.getElementById('confirm-modal-message');
+    const titleEl    = document.getElementById('confirm-modal-title');
+    const subtitleEl = document.getElementById('confirm-modal-subtitle');
     const cancelBtn  = document.getElementById('confirm-cancel-btn');
     const closeBtn   = document.getElementById('confirm-close-btn');
     const okBtn      = document.getElementById('confirm-ok-btn');
+    const okIcon     = document.getElementById('confirm-ok-icon');
+    const okLabel    = document.getElementById('confirm-ok-label');
     const panel      = document.getElementById('confirm-panel');
+
+    // Icon paths for known action types
+    const icons = {
+        archive: 'M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z',
+        delete:  'M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0',
+    };
 
     let pendingForm = null;
 
-    function openConfirm(message, form) {
+    function openConfirm(message, form, opts) {
+        opts = opts || {};
         pendingForm = form;
         msgEl.textContent = message;
+        titleEl.textContent    = opts.title    || 'Confirm Deletion';
+        subtitleEl.textContent = opts.subtitle || 'This action cannot be undone.';
+        okLabel.textContent    = opts.action   || 'Delete';
+
+        // Swap icon if a known action type is provided
+        const iconPath = icons[opts.action ? opts.action.toLowerCase() : 'delete'] || icons.delete;
+        okIcon.querySelector('path').setAttribute('d', iconPath);
+
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
         // Re-trigger animation on each open
@@ -499,7 +514,13 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
             ? document.getElementById(formId)
             : (trigger.tagName === 'FORM' ? trigger : trigger.closest('form'));
 
-        if (form) openConfirm(message, form);
+        const opts = {
+            title:    trigger.dataset.confirmTitle    || null,
+            subtitle: trigger.dataset.confirmSubtitle || null,
+            action:   trigger.dataset.confirmAction   || null,
+        };
+
+        if (form) openConfirm(message, form, opts);
     });
 
     // Intercept form submits that carry data-confirm on the form element
@@ -508,7 +529,12 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
         if (!form.dataset.confirm) return;
         if (form._confirmed) { form._confirmed = false; return; }
         e.preventDefault();
-        openConfirm(form.dataset.confirm, form);
+        const opts = {
+            title:    form.dataset.confirmTitle    || null,
+            subtitle: form.dataset.confirmSubtitle || null,
+            action:   form.dataset.confirmAction   || null,
+        };
+        openConfirm(form.dataset.confirm, form, opts);
     });
 })();
 </script>

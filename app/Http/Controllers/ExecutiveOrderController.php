@@ -347,14 +347,33 @@ class ExecutiveOrderController extends Controller
 
     // ─── Archive: list soft-deleted EOs ──────────────────────────────────────
 
-    public function archive()
+    public function archive(Request $request)
     {
-        $orders = ExecutiveOrder::onlyTrashed()
-            ->with('uploader')
-            ->latest('deleted_at')
-            ->paginate(15);
+        $query = ExecutiveOrder::onlyTrashed()->with('uploader');
 
-        return view('executive-orders.archive', compact('orders'));
+        if ($request->filled('search')) {
+            $query->search($request->search);
+        }
+
+        // Sorting
+        $sortable = ['eo_number', 'title', 'deleted_at', 'uploaded_by'];
+        $sort     = in_array($request->sort, $sortable) ? $request->sort : null;
+        $dir      = $request->dir === 'asc' ? 'asc' : 'desc';
+
+        if ($sort === 'uploaded_by') {
+            // Join users table to sort by uploader name
+            $query->leftJoin('users', 'users.id', '=', 'executive_orders.uploaded_by')
+                  ->orderBy('users.name', $dir)
+                  ->select('executive_orders.*');
+        } elseif ($sort) {
+            $query->orderBy($sort, $dir);
+        } else {
+            $query->latest('deleted_at');
+        }
+
+        $orders = $query->paginate(15)->withQueryString();
+
+        return view('executive-orders.archive', compact('orders', 'sort', 'dir'));
     }
 
     // ─── Restore a soft-deleted EO ───────────────────────────────────────────
