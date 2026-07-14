@@ -133,6 +133,12 @@ class ExecutiveOrderController extends Controller
                 'uploaded_by'     => auth()->id(),
             ]);
 
+            // If user has no profile signature yet and drew one here, save it to their profile
+            $sigValue = $validated['signature_data'] ?? null;
+            if ($sigValue && ! auth()->user()->signature_data) {
+                auth()->user()->update(['signature_data' => $sigValue]);
+            }
+
             // If this EO amends another, update the original EO's status
             if (! empty($validated['amends_id'])) {
                 $original = ExecutiveOrder::find($validated['amends_id']);
@@ -229,7 +235,13 @@ class ExecutiveOrderController extends Controller
             } elseif ($validated['signature_data'] === 'CLEAR') {
                 $validated['signature_data'] = null; // explicitly cleared
             }
-            // else: new base64 PNG from the pad — save as-is
+            // else: new base64 PNG — save as-is
+
+            // If user has no profile signature yet and drew one here, save it to their profile
+            $newSig = $validated['signature_data'] ?? null;
+            if ($newSig && $newSig !== 'CLEAR' && ! auth()->user()->signature_data) {
+                auth()->user()->update(['signature_data' => $newSig]);
+            }
 
             $validated['updated_by'] = auth()->id();
             $executiveOrder->update($validated);

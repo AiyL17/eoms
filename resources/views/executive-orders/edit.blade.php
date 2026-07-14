@@ -120,21 +120,45 @@
                         </div>
                     </div>
 
-                    {{-- E-Signature Pad --}}
+                    {{-- E-Signature --}}
                     <div>
                         <label class="form-label">
                             E-Signature
                             <span class="text-slate-400 font-normal ml-1">(optional)</span>
                         </label>
 
-                        {{-- Show existing signature if present --}}
+                        @php $profileSig = auth()->user()->signature_data; @endphp
+
+                        @if($profileSig)
+                        {{-- User has a profile signature — checkbox + update button --}}
+                        <div class="flex items-center gap-2">
+                            <label class="flex-1 flex items-center gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:bg-violet-50/50 hover:border-violet-200 transition-colors">
+                                <input type="checkbox" id="use-profile-sig"
+                                       class="w-4 h-4 rounded text-violet-600 accent-violet-600"
+                                       {{ old('signature_data', $eo->signature_data) === $profileSig ? 'checked' : '' }}>
+                                <img id="sig-preview-thumb" src="{{ $profileSig }}" alt="Your profile signature"
+                                     class="h-8 object-contain bg-white rounded border border-slate-100 px-2 shrink-0">
+                                <span class="text-sm font-medium text-slate-700">Use my saved profile signature</span>
+                            </label>
+                            <button type="button" id="open-update-sig"
+                                    class="btn-secondary shrink-0 px-3 py-2 text-xs"
+                                    title="Update your signature">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                                </svg>
+                                Update
+                            </button>
+                        </div>
+                        <input type="hidden" name="signature_data" id="signature-data"
+                               value="{{ old('signature_data', $eo->signature_data) }}">
+
+                        @else
+                        {{-- No profile signature — show draw pad; drawn sig also saves to profile --}}
                         @if($eo->signature_data)
-                        <div class="mb-3 p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center justify-between gap-3">
-                            <div class="flex items-center gap-3">
-                                <img src="{{ $eo->signature_data }}" alt="Current signature"
-                                     class="h-10 object-contain bg-white rounded border border-slate-100 px-2">
-                                <p class="text-xs text-slate-500">Current signature on file</p>
-                            </div>
+                        <div class="mb-3 p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-3">
+                            <img src="{{ $eo->signature_data }}" alt="Current signature"
+                                 class="h-10 object-contain bg-white rounded border border-slate-100 px-2">
+                            <p class="text-xs text-slate-500">Current signature on file — draw below to replace.</p>
                         </div>
                         @endif
 
@@ -148,7 +172,7 @@
                         <div class="flex items-center justify-between mt-2">
                             <p class="form-hint flex items-center gap-1.5">
                                 <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
-                                Draw a new signature to replace the existing one, or leave blank to keep it.
+                                Draw a new signature — it will also be saved to your profile.
                             </p>
                             <button type="button" id="clear-signature"
                                     class="text-xs font-semibold text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1">
@@ -156,6 +180,7 @@
                                 Clear
                             </button>
                         </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -327,13 +352,188 @@
 </div>
 </form>
 
+@if(auth()->user()->signature_data)
+{{-- ── Update Signature Modal ── --}}
+<div id="update-sig-modal"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden"
+     role="dialog" aria-modal="true">
+    <div id="update-sig-backdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <div>
+                <h3 class="text-sm font-bold text-slate-800">Update Your Signature</h3>
+                <p class="text-xs text-slate-400 mt-0.5">This will replace your saved profile signature.</p>
+            </div>
+            <button type="button" id="close-update-sig"
+                    class="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="p-6">
+            <div class="rounded-2xl border-2 border-dashed border-slate-200 bg-white overflow-hidden">
+                <canvas id="update-sig-canvas" class="w-full touch-none block" style="height: 200px; cursor: crosshair;"></canvas>
+            </div>
+            <div class="flex items-center justify-between mt-3">
+                <p class="form-hint flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                    </svg>
+                    Draw using mouse or touch.
+                </p>
+                <button type="button" id="clear-update-sig"
+                        class="text-xs font-semibold text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Clear
+                </button>
+            </div>
+        </div>
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/60">
+            <button type="button" id="cancel-update-sig" class="btn-secondary">Cancel</button>
+            <button type="button" id="save-update-sig" class="btn-primary" disabled>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                </svg>
+                Save & Use
+            </button>
+        </div>
+    </div>
+</div>
+@endif
+
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
 (function () {
-    // ── Signature Pad ─────────────────────────────────────────────────────
+    const sigData       = document.getElementById('signature-data');
+    const prevSigImg    = document.getElementById('prev-signature-img');
+    const useProfileChk = document.getElementById('use-profile-sig');
+    const submitBtn     = document.getElementById('submit-btn');
+    const submitLabel   = document.getElementById('submit-label');
+
+    @if(auth()->user()->signature_data)
+    // ── HAS profile signature: checkbox + update modal ────────────────────
+    let profileSigData = @json(auth()->user()->signature_data);
+
+    const thumb      = document.getElementById('sig-preview-thumb');
+    const openBtn    = document.getElementById('open-update-sig');
+    const modal      = document.getElementById('update-sig-modal');
+    const backdrop   = document.getElementById('update-sig-backdrop');
+    const closeBtn   = document.getElementById('close-update-sig');
+    const cancelBtn  = document.getElementById('cancel-update-sig');
+    const saveBtn    = document.getElementById('save-update-sig');
+    const clearBtn   = document.getElementById('clear-update-sig');
+    const canvas     = document.getElementById('update-sig-canvas');
+
+    const updatePad = new SignaturePad(canvas, {
+        minWidth: 0.8, maxWidth: 2.5,
+        penColor: '#1e293b', backgroundColor: 'rgba(0,0,0,0)',
+    });
+
+    function resizeUpdateCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width  = canvas.offsetWidth  * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext('2d').scale(ratio, ratio);
+        updatePad.clear();
+        saveBtn.disabled = true;
+    }
+
+    updatePad.addEventListener('endStroke', () => {
+        saveBtn.disabled = updatePad.isEmpty();
+    });
+
+    function openModal() {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        requestAnimationFrame(() => resizeUpdateCanvas());
+    }
+
+    function closeModal() {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        updatePad.clear();
+        saveBtn.disabled = true;
+    }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+    });
+    window.addEventListener('resize', () => {
+        if (!modal.classList.contains('hidden')) resizeUpdateCanvas();
+    });
+
+    clearBtn.addEventListener('click', () => {
+        updatePad.clear();
+        saveBtn.disabled = true;
+    });
+
+    saveBtn.addEventListener('click', () => {
+        if (updatePad.isEmpty()) return;
+        const newSig = updatePad.toDataURL('image/png');
+
+        // Persist to profile via AJAX
+        fetch('{{ route('profile.update-signature') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-HTTP-Method-Override': 'PATCH',
+            },
+            body: JSON.stringify({ signature_data: newSig, _method: 'PATCH' }),
+        });
+
+        // Update local state
+        profileSigData = newSig;
+        if (thumb) thumb.src = newSig;
+
+        // If checkbox is checked, also apply to this EO
+        if (useProfileChk && useProfileChk.checked) {
+            sigData.value = newSig;
+            prevSigImg.src = newSig;
+            prevSigImg.classList.remove('hidden');
+        }
+
+        closeModal();
+    });
+
+    // Sync preview on page load if checkbox starts checked
+    if (useProfileChk && useProfileChk.checked) {
+        sigData.value = profileSigData;
+        prevSigImg.src = profileSigData;
+        prevSigImg.classList.remove('hidden');
+    }
+
+    if (useProfileChk) {
+        useProfileChk.addEventListener('change', function () {
+            if (this.checked) {
+                sigData.value = profileSigData;
+                prevSigImg.src = profileSigData;
+                prevSigImg.classList.remove('hidden');
+            } else {
+                sigData.value = sigData.defaultValue;
+                const orig = sigData.defaultValue;
+                if (orig) {
+                    prevSigImg.src = orig;
+                    prevSigImg.classList.remove('hidden');
+                } else {
+                    prevSigImg.classList.add('hidden');
+                    prevSigImg.src = '';
+                }
+            }
+        });
+    }
+
+    @else
+    // ── NO profile signature: draw pad ────────────────────────────────────
     const canvas   = document.getElementById('signature-pad');
-    const sigData  = document.getElementById('signature-data');
     const clearBtn = document.getElementById('clear-signature');
 
     function resizeCanvas() {
@@ -345,30 +545,18 @@
     }
 
     const signaturePad = new SignaturePad(canvas, {
-        minWidth: 0.8,
-        maxWidth: 2.5,
-        penColor: '#1e293b',
-        backgroundColor: 'rgba(0,0,0,0)',
+        minWidth: 0.8, maxWidth: 2.5,
+        penColor: '#1e293b', backgroundColor: 'rgba(0,0,0,0)',
     });
 
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // ── Live preview of signature ─────────────────────────────────────────
-    const prevSigImg  = document.getElementById('prev-signature-img');
-
-    function getSignatureDataUrl() {
-        return signaturePad.toDataURL('image/png');
-    }
-
-    function updateSigPreview() {
-        if (!signaturePad.isEmpty()) {
-            prevSigImg.src = getSignatureDataUrl();
-            prevSigImg.classList.remove('hidden');
-        }
-    }
-
-    signaturePad.addEventListener('endStroke', updateSigPreview);
+    signaturePad.addEventListener('endStroke', () => {
+        const url = signaturePad.toDataURL('image/png');
+        prevSigImg.src = url;
+        prevSigImg.classList.remove('hidden');
+    });
 
     clearBtn.addEventListener('click', () => {
         signaturePad.clear();
@@ -377,16 +565,14 @@
         prevSigImg.src = '';
     });
 
-    // On submit: if user drew a new signature, use it; if pad is empty and not cleared, keep existing
     document.getElementById('eo-form').addEventListener('submit', function () {
         if (!signaturePad.isEmpty()) {
-            sigData.value = getSignatureDataUrl();
+            sigData.value = signaturePad.toDataURL('image/png');
         }
-        // If pad is empty and sigData is not 'CLEAR', the existing value is preserved
-        submitBtn.disabled = true;
-        submitLabel.textContent = 'Saving…';
-        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
     });
+    @endif
+
+    // ── File replacement ──────────────────────────────────────────────────
     const fileInput    = document.getElementById('pdf_file');
     const dropZone     = document.getElementById('drop-zone');
     const uploadIdle   = document.getElementById('upload-idle');
@@ -396,14 +582,10 @@
 
     const statusSel    = document.getElementById('status');
     const statusNotes  = document.getElementById('status-notes-wrap');
-
     const titleInput   = document.getElementById('title');
     const subjectInput = document.getElementById('subject');
     const dateInput    = document.getElementById('date_issued');
     const signedInput  = document.getElementById('signed_by');
-
-    const submitBtn    = document.getElementById('submit-btn');
-    const submitLabel  = document.getElementById('submit-label');
 
     function formatBytes(bytes) {
         if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' MB';
@@ -416,7 +598,6 @@
         return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
-    // ── File replacement ──────────────────────────────────────────────────
     fileInput.addEventListener('change', function () {
         if (this.files && this.files.length > 0) {
             const f = this.files[0];
@@ -430,21 +611,22 @@
         }
     });
 
-    // ── Status notes visibility ───────────────────────────────────────────
     statusSel.addEventListener('change', function () {
         statusNotes.classList.toggle('hidden', this.value === 'active');
-        document.getElementById('prev-status').textContent =
-            this.options[this.selectedIndex].text;
+        document.getElementById('prev-status').textContent = this.options[this.selectedIndex].text;
     });
 
-    // ── Live preview ──────────────────────────────────────────────────────
     titleInput.addEventListener('input',   () => document.getElementById('prev-title').textContent   = titleInput.value   || '—');
     subjectInput.addEventListener('input', () => document.getElementById('prev-subject').textContent = subjectInput.value || '—');
     dateInput.addEventListener('change',   () => document.getElementById('prev-date').textContent    = formatDatePreview(dateInput.value));
     signedInput.addEventListener('input',  () => document.getElementById('prev-signed').textContent  = signedInput.value  || '—');
 
     // ── Submit loading state ──────────────────────────────────────────────
-    // (handled by signature pad submit listener above)
+    document.getElementById('eo-form').addEventListener('submit', function () {
+        submitBtn.disabled = true;
+        submitLabel.textContent = 'Saving…';
+        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
+    });
 })();
 </script>
 @endpush

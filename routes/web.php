@@ -33,9 +33,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
 
     // ── Profile ────────────────────────────────────────────────────────────────
-    Route::get('/profile',          [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile/info',   [ProfileController::class, 'updateInfo'])->name('profile.update-info');
-    Route::patch('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::get('/profile',              [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile/info',       [ProfileController::class, 'updateInfo'])->name('profile.update-info');
+    Route::patch('/profile/password',   [ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    Route::patch('/profile/signature',  [ProfileController::class, 'updateSignature'])->name('profile.update-signature');
 
     // ── Executive Orders ───────────────────────────────────────────────────────
     Route::prefix('executive-orders')->name('executive-orders.')->group(function () {

@@ -82,6 +82,60 @@
                 </div>
             </div>
 
+            {{-- ── E-Signature card ──────────────────────────────────────── --}}
+            <div class="card">
+                <div class="p-5 border-b border-slate-100">
+                    <h3 class="text-sm font-bold text-slate-800">E-Signature</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">Used when signing executive orders.</p>
+                </div>
+                <div class="p-5 space-y-4">
+
+                    {{-- Preview of saved signature, or placeholder --}}
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden" style="height: 90px;">
+                        @if($user->signature_data)
+                            <img id="sig-preview-img" src="{{ $user->signature_data }}" alt="Your e-signature"
+                                 class="max-h-full max-w-full object-contain object-center p-2">
+                        @else
+                            <div id="sig-preview-empty" class="flex flex-col items-center gap-1 text-slate-300">
+                                <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                                </svg>
+                                <span class="text-xs font-medium">No signature yet</span>
+                            </div>
+                            <img id="sig-preview-img" src="" alt="Your e-signature"
+                                 class="hidden max-h-full max-w-full object-contain object-center p-2">
+                        @endif
+                    </div>
+
+                    {{-- Action buttons --}}
+                    <div class="flex gap-2">
+                        <button type="button" id="open-sig-modal"
+                                class="btn-primary flex-1 justify-center">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                            </svg>
+                            {{ $user->signature_data ? 'Update Signature' : 'Add Signature' }}
+                        </button>
+                        @if($user->signature_data)
+                        <form action="{{ route('profile.update-signature') }}" method="POST" id="clear-sig-form">
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="signature_data" value="">
+                            <button type="submit"
+                                    class="btn-secondary px-3"
+                                    title="Remove signature"
+                                    onclick="return confirm('Remove your saved signature?')">
+                                <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                                </svg>
+                            </button>
+                        </form>
+                        @endif
+                    </div>
+
+                </div>
+            </div>
+
         </div>
 
         {{-- ── RIGHT: Tab Panels ────────────────────────────────────────────── --}}
@@ -244,4 +298,168 @@
 
     </div>{{-- end two-column --}}
 </div>
+
+{{-- ══════════════════════════════════════ E-SIGNATURE MODAL ══ --}}
+<div id="sig-modal"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden"
+     role="dialog" aria-modal="true" aria-labelledby="sig-modal-title">
+
+    {{-- Backdrop --}}
+    <div id="sig-backdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+
+    {{-- Panel --}}
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg flex flex-col overflow-hidden">
+
+        {{-- Header --}}
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <div>
+                <h3 id="sig-modal-title" class="text-sm font-bold text-slate-800">Draw Your E-Signature</h3>
+                <p class="text-xs text-slate-400 mt-0.5">Use mouse or touch to sign in the box below.</p>
+            </div>
+            <button type="button" id="close-sig-modal"
+                    class="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        {{-- Canvas --}}
+        <div class="p-6">
+            <div class="rounded-2xl border-2 border-dashed border-slate-200 bg-white overflow-hidden">
+                <canvas id="signature-pad"
+                        class="w-full touch-none block"
+                        style="height: 200px; cursor: crosshair;"></canvas>
+            </div>
+            <div class="flex items-center justify-between mt-3">
+                <p class="form-hint flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                    </svg>
+                    Draw the signatory's signature above.
+                </p>
+                <button type="button" id="clear-sig-canvas"
+                        class="text-xs font-semibold text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Clear
+                </button>
+            </div>
+        </div>
+
+        {{-- Footer --}}
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/60">
+            <button type="button" id="cancel-sig-modal" class="btn-secondary">Cancel</button>
+            <form action="{{ route('profile.update-signature') }}" method="POST" id="signature-form">
+                @csrf
+                @method('PATCH')
+                <input type="hidden" name="signature_data" id="signature-data" value="">
+                <button type="submit" id="save-sig-btn" class="btn-primary" disabled>
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                    </svg>
+                    Save Signature
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+<script>
+(function () {
+    const modal      = document.getElementById('sig-modal');
+    const backdrop   = document.getElementById('sig-backdrop');
+    const openBtn    = document.getElementById('open-sig-modal');
+    const closeBtn   = document.getElementById('close-sig-modal');
+    const cancelBtn  = document.getElementById('cancel-sig-modal');
+    const clearBtn   = document.getElementById('clear-sig-canvas');
+    const saveBtn    = document.getElementById('save-sig-btn');
+    const canvas     = document.getElementById('signature-pad');
+    const sigData    = document.getElementById('signature-data');
+    const previewImg = document.getElementById('sig-preview-img');
+    const emptyEl    = document.getElementById('sig-preview-empty');
+
+    // ── Signature Pad ──────────────────────────────────────────────────────
+    const signaturePad = new SignaturePad(canvas, {
+        minWidth: 0.8,
+        maxWidth: 2.5,
+        penColor: '#1e293b',
+        backgroundColor: 'rgba(0,0,0,0)',
+    });
+
+    function resizeCanvas() {
+        const ratio = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width  = canvas.offsetWidth  * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        canvas.getContext('2d').scale(ratio, ratio);
+        signaturePad.clear();
+        saveBtn.disabled = true;
+    }
+
+    // Sync save button state
+    signaturePad.addEventListener('endStroke', () => {
+        saveBtn.disabled = signaturePad.isEmpty();
+    });
+
+    // ── Modal open / close ─────────────────────────────────────────────────
+    function openModal() {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        // Resize canvas after it becomes visible
+        requestAnimationFrame(() => resizeCanvas());
+    }
+
+    function closeModal() {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        signaturePad.clear();
+        saveBtn.disabled = true;
+        sigData.value = '';
+    }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+    });
+
+    // ── Clear canvas ───────────────────────────────────────────────────────
+    clearBtn.addEventListener('click', () => {
+        signaturePad.clear();
+        saveBtn.disabled = true;
+        sigData.value = '';
+    });
+
+    // ── On submit: capture data URL + update preview ───────────────────────
+    document.getElementById('signature-form').addEventListener('submit', (e) => {
+        if (signaturePad.isEmpty()) {
+            e.preventDefault();
+            return;
+        }
+        const dataUrl = signaturePad.toDataURL('image/png');
+        sigData.value = dataUrl;
+
+        // Update inline preview immediately
+        if (previewImg) {
+            previewImg.src = dataUrl;
+            previewImg.classList.remove('hidden');
+        }
+        if (emptyEl) emptyEl.classList.add('hidden');
+    });
+
+    window.addEventListener('resize', () => {
+        if (!modal.classList.contains('hidden')) resizeCanvas();
+    });
+})();
+</script>
+@endpush

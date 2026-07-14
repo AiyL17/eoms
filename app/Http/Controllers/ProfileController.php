@@ -55,4 +55,18 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Password changed successfully.');
     }
+
+    public function updateSignature(Request $request)
+    {
+        $request->validate([
+            'signature_data' => ['nullable', 'string'],
+        ]);
+
+        // Accept a cleared signature (empty string means remove it)
+        Auth::user()->update([
+            'signature_data' => $request->filled('signature_data') ? $request->signature_data : null,
+        ]);
+
+        return back()->with('success', 'E-signature saved successfully.');
+    }
 }
