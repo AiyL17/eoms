@@ -137,10 +137,7 @@
                     </td>
                     <td>
                         <div class="flex items-center gap-2.5">
-                            <div class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[10px] font-bold shrink-0"
-                                 style="background: linear-gradient(135deg, #6d28d9, #7c3aed);">
-                                {{ strtoupper(substr($log->user->name ?? 'S', 0, 2)) }}
-                            </div>
+                            <x-user-avatar :user="$log->user ?? new \App\Models\User(['name' => 'System'])" :size="7" />
                             <div>
                                 <p class="text-[13px] font-semibold text-slate-800">{{ $log->user->name ?? 'System' }}</p>
                                 <p class="text-[11px] text-slate-400">{{ $log->user->email ?? '' }}</p>

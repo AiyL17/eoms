@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\EoActivityLog;
 use App\Models\ExecutiveOrder;
 use App\Models\User;
+use App\Notifications\EoDeleted;
 use App\Notifications\EoUploaded;
 use App\Notifications\EoStatusChanged;
 use App\Notifications\EoUpdated;
@@ -143,13 +144,21 @@ class ExecutiveOrderController extends Controller
             if (! empty($validated['amends_id'])) {
                 $original = ExecutiveOrder::find($validated['amends_id']);
                 if ($original) {
+                    $originalOldStatus = $original->status;
                     $original->update([
                         'status'        => 'amended',
                         'status_notes'  => "Amended by {$eoNumber}",
                         'amended_by_id' => $eo->id,
                         'updated_by'    => auth()->id(),
                     ]);
-                    EoActivityLog::record($original, 'status_changed', ['status' => $original->getOriginal('status')], ['status' => 'amended'], "Amended by {$eoNumber}");
+                    EoActivityLog::record($original, 'status_changed', ['status' => $originalOldStatus], ['status' => 'amended'], "Amended by {$eoNumber}");
+
+                    // Fix 2: Notify the original EO's uploader that their EO was automatically
+                    // set to 'amended' as a result of this new EO being uploaded.
+                    $originalUploader = $original->uploader;
+                    if ($originalUploader && $originalUploader->id !== auth()->id()) {
+                        $originalUploader->notify(new EoStatusChanged($original, $originalOldStatus, 'amended', auth()->user()));
+                    }
                 }
             }
 
@@ -160,13 +169,13 @@ class ExecutiveOrderController extends Controller
                 'status'    => $eo->status,
             ]);
 
-            // Notify all admins that a new EO was uploaded
+            // Notify all admins that a new EO was uploaded.
+            // This applies whether the uploader is a staff member or another admin
+            // (admins other than the one who uploaded still need to be informed).
             $uploader = auth()->user();
-            if ($uploader->isStaff()) {
-                $admins = User::where('role', 'admin')->get();
-                foreach ($admins as $admin) {
-                    $admin->notify(new EoUploaded($eo, $uploader));
-                }
+            $admins = User::where('role', 'admin')->where('id', '!=', $uploader->id)->get();
+            foreach ($admins as $admin) {
+                $admin->notify(new EoUploaded($eo, $uploader));
             }
         });
 
@@ -258,12 +267,15 @@ class ExecutiveOrderController extends Controller
                     $uploader->notify(new EoStatusChanged($executiveOrder, $oldStatus, $executiveOrder->status, auth()->user()));
                 }
 
-                // Notify all admins if a staff member changed the status
-                if (auth()->user()->isStaff()) {
-                    $admins = User::where('role', 'admin')->get();
-                    foreach ($admins as $admin) {
-                        $admin->notify(new EoStatusChanged($executiveOrder, $oldStatus, $executiveOrder->status, auth()->user()));
+                // Fix 3: Notify all admins on any status change, regardless of who made it.
+                // Exclude the editor themselves to avoid self-notification.
+                $admins = User::where('role', 'admin')->where('id', '!=', auth()->id())->get();
+                foreach ($admins as $admin) {
+                    // Skip if admin is the uploader — they already got the uploader notification above
+                    if ($uploader && $admin->id === $uploader->id) {
+                        continue;
                     }
+                    $admin->notify(new EoStatusChanged($executiveOrder, $oldStatus, $executiveOrder->status, auth()->user()));
                 }
             } else {
                 EoActivityLog::record($executiveOrder, 'updated', $oldValues, $newValues);
@@ -272,6 +284,16 @@ class ExecutiveOrderController extends Controller
                 $uploader = $executiveOrder->uploader;
                 if ($uploader && $uploader->id !== auth()->id()) {
                     $uploader->notify(new EoUpdated($executiveOrder, auth()->user()));
+                }
+
+                // Fix 4: Notify all admins on content-only edits, regardless of who edited.
+                // Exclude the editor and the uploader (already notified above).
+                $admins = User::where('role', 'admin')->where('id', '!=', auth()->id())->get();
+                foreach ($admins as $admin) {
+                    if ($uploader && $admin->id === $uploader->id) {
+                        continue;
+                    }
+                    $admin->notify(new EoUpdated($executiveOrder, auth()->user()));
                 }
             }
         });
@@ -285,12 +307,33 @@ class ExecutiveOrderController extends Controller
 
     public function destroy(ExecutiveOrder $executiveOrder)
     {
-        EoActivityLog::record($executiveOrder, 'deleted', ['eo_number' => $executiveOrder->eo_number], null);
+        // Capture details before deletion for notifications
+        $eoNumber  = $executiveOrder->eo_number;
+        $eoTitle   = $executiveOrder->title;
+        $uploader  = $executiveOrder->uploader;
+        $deletedBy = auth()->user();
+
+        EoActivityLog::record($executiveOrder, 'deleted', ['eo_number' => $eoNumber], null);
         $executiveOrder->delete();
+
+        // Fix 5: Notify the original uploader their EO was deleted (if it wasn't them)
+        if ($uploader && $uploader->id !== $deletedBy->id) {
+            $uploader->notify(new EoDeleted($eoNumber, $eoTitle, $deletedBy));
+        }
+
+        // Notify all other admins about the deletion
+        $admins = User::where('role', 'admin')->where('id', '!=', $deletedBy->id)->get();
+        foreach ($admins as $admin) {
+            // Skip uploader — already notified above
+            if ($uploader && $admin->id === $uploader->id) {
+                continue;
+            }
+            $admin->notify(new EoDeleted($eoNumber, $eoTitle, $deletedBy));
+        }
 
         return redirect()
             ->route('executive-orders.index')
-            ->with('success', "Executive Order {$executiveOrder->eo_number} has been deleted.");
+            ->with('success', "Executive Order {$eoNumber} has been deleted.");
     }
 
     // ─── View PDF (inline) ────────────────────────────────────────────────────

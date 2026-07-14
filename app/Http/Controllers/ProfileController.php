@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
@@ -68,5 +69,37 @@ class ProfileController extends Controller
         ]);
 
         return back()->with('success', 'E-signature saved successfully.');
+    }
+
+    public function updateAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'mimes:jpg,jpeg,png,gif,webp', 'max:2048'],
+        ]);
+
+        $user = Auth::user();
+
+        // Delete old avatar file if one exists
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+        }
+
+        $path = $request->file('avatar')->store('avatars', 'public');
+
+        $user->update(['avatar' => $path]);
+
+        return back()->with('success', 'Profile picture updated successfully.');
+    }
+
+    public function removeAvatar()
+    {
+        $user = Auth::user();
+
+        if ($user->avatar) {
+            Storage::disk('public')->delete($user->avatar);
+            $user->update(['avatar' => null]);
+        }
+
+        return back()->with('success', 'Profile picture removed.');
     }
 }

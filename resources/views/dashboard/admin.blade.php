@@ -255,9 +255,7 @@
             <div class="p-4 space-y-2 overflow-y-auto" style="max-height: 200px;">
                 @forelse($topUsers as $entry)
                 <div class="flex items-center gap-3 px-2 py-1.5 rounded-xl hover:bg-slate-50 transition-colors">
-                    <div class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[11px] font-bold shrink-0" style="background: linear-gradient(135deg,#6d28d9,#7c3aed);">
-                        {{ strtoupper(substr($entry->user->name ?? '?', 0, 2)) }}
-                    </div>
+                    <x-user-avatar :user="$entry->user ?? new \App\Models\User(['name' => '?'])" :size="7" />
                     <div class="flex-1 min-w-0">
                         <p class="text-[13px] font-semibold text-slate-800 truncate">{{ $entry->user->name ?? 'Unknown' }}</p>
                         <p class="text-[11px] text-slate-400">{{ ucfirst($entry->user->role ?? '') }}</p>

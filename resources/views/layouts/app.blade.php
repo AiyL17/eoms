@@ -77,8 +77,14 @@
         <div class="p-4 border-t border-white/10">
             <a href="{{ route('profile.edit') }}"
                class="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-white/10 transition-colors group">
-                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0 text-white text-xs font-bold">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center shrink-0 text-white text-xs font-bold overflow-hidden">
+                    @if(auth()->user()->avatar)
+                        <img src="{{ asset('storage/' . auth()->user()->avatar) }}"
+                             alt="{{ auth()->user()->name }}"
+                             class="w-full h-full object-cover">
+                    @else
+                        {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                    @endif
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-white text-sm font-semibold truncate group-hover:text-violet-200 transition-colors">{{ auth()->user()->name }}</p>
@@ -176,6 +182,7 @@
                                     'eo_uploaded'       => ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-600', 'path' => 'M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5'],
                                     'eo_status_changed' => ['bg' => 'bg-amber-100',   'text' => 'text-amber-600',   'path' => 'M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99'],
                                     'eo_updated'        => ['bg' => 'bg-blue-100',    'text' => 'text-blue-600',    'path' => 'M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z'],
+                                    'eo_deleted'        => ['bg' => 'bg-red-100',     'text' => 'text-red-600',     'path' => 'M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0'],
                                     default             => ['bg' => 'bg-slate-100',   'text' => 'text-slate-500',   'path' => 'M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0'],
                                 };
                             @endphp
@@ -212,33 +219,19 @@
                             @endforelse
                         </div>
 
+                        {{-- Footer: link to full notifications page --}}
+                        <div class="border-t border-slate-100 px-4 py-2.5 text-center">
+                            <a href="{{ route('notifications.index') }}"
+                               class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
+                                View all notifications
+                            </a>
+                        </div>
+
                     </div>
                 </div>
 
             </div>
         </header>
-
-        {{-- Flash Messages --}}
-        @if(session('success') || session('error'))
-        <div class="px-8 pt-5">
-            @if(session('success'))
-            <div class="alert-success">
-                <svg class="w-4.5 h-4.5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span class="text-sm font-medium">{{ session('success') }}</span>
-            </div>
-            @endif
-            @if(session('error'))
-            <div class="alert-error">
-                <svg class="w-4.5 h-4.5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
-                </svg>
-                <span class="text-sm font-medium">{{ session('error') }}</span>
-            </div>
-            @endif
-        </div>
-        @endif
 
         {{-- Page Content --}}
         <main class="flex-1 overflow-y-auto px-8 py-7">
@@ -246,6 +239,267 @@
         </main>
     </div>
 </div>
+
+{{-- ══════════════════════════════════════════════════ TOAST NOTIFICATIONS ══ --}}
+<div id="toast-container"
+     class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none"
+     aria-live="polite" aria-label="Notifications">
+
+    @foreach([
+        'success' => [
+            'bg'         => 'bg-emerald-50',
+            'border'     => 'border-emerald-100',
+            'icon_bg'    => 'bg-emerald-100',
+            'icon_text'  => 'text-emerald-600',
+            'bar'        => 'bg-emerald-500',
+            'title'      => 'Success',
+            'title_color'=> 'text-emerald-800',
+            'msg_color'  => 'text-emerald-700',
+            'close_color'=> 'text-emerald-400 hover:text-emerald-600',
+            'icon_path'  => 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+        ],
+        'error' => [
+            'bg'         => 'bg-red-50',
+            'border'     => 'border-red-100',
+            'icon_bg'    => 'bg-red-100',
+            'icon_text'  => 'text-red-600',
+            'bar'        => 'bg-red-500',
+            'title'      => 'Error',
+            'title_color'=> 'text-red-800',
+            'msg_color'  => 'text-red-700',
+            'close_color'=> 'text-red-400 hover:text-red-600',
+            'icon_path'  => 'M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z',
+        ],
+        'warning' => [
+            'bg'         => 'bg-amber-50',
+            'border'     => 'border-amber-100',
+            'icon_bg'    => 'bg-amber-100',
+            'icon_text'  => 'text-amber-600',
+            'bar'        => 'bg-amber-500',
+            'title'      => 'Warning',
+            'title_color'=> 'text-amber-800',
+            'msg_color'  => 'text-amber-700',
+            'close_color'=> 'text-amber-400 hover:text-amber-600',
+            'icon_path'  => 'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z',
+        ],
+        'info' => [
+            'bg'         => 'bg-violet-50',
+            'border'     => 'border-violet-100',
+            'icon_bg'    => 'bg-violet-100',
+            'icon_text'  => 'text-violet-600',
+            'bar'        => 'bg-violet-500',
+            'title'      => 'Info',
+            'title_color'=> 'text-violet-800',
+            'msg_color'  => 'text-violet-700',
+            'close_color'=> 'text-violet-400 hover:text-violet-600',
+            'icon_path'  => 'M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z',
+        ],
+    ] as $type => $cfg)
+        @if(session($type))
+        <div class="toast pointer-events-auto w-96 rounded-2xl border shadow-xl overflow-hidden
+                    {{ $cfg['bg'] }} {{ $cfg['border'] }}"
+             role="alert"
+             data-toast>
+
+            <div class="flex items-center gap-3 px-4 py-3.5">
+                {{-- Icon --}}
+                <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 {{ $cfg['icon_bg'] }} {{ $cfg['icon_text'] }}">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="{{ $cfg['icon_path'] }}" />
+                    </svg>
+                </div>
+
+                {{-- Text --}}
+                <div class="flex-1 min-w-0">
+                    <p class="text-xs font-bold uppercase tracking-widest {{ $cfg['title_color'] }}">{{ $cfg['title'] }}</p>
+                    <p class="text-sm {{ $cfg['msg_color'] }} mt-0.5 leading-snug">{{ session($type) }}</p>
+                </div>
+
+                {{-- Close button --}}
+                <button type="button"
+                        class="shrink-0 transition-colors {{ $cfg['close_color'] }}"
+                        aria-label="Dismiss"
+                        onclick="dismissToast(this.closest('[data-toast]'))">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            {{-- Progress bar at the bottom --}}
+            <div class="toast-bar h-0.5 {{ $cfg['bar'] }} origin-left" style="animation: toast-shrink 5s linear forwards;"></div>
+        </div>
+        @endif
+    @endforeach
+</div>
+
+<style>
+@keyframes toast-shrink {
+    from { transform: scaleX(1); }
+    to   { transform: scaleX(0); }
+}
+.toast {
+    animation: toast-slide-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.toast.toast-hide {
+    animation: toast-slide-out 0.25s ease-in forwards;
+}
+@keyframes toast-slide-in {
+    from { opacity: 0; transform: translateY(-12px) scale(0.95); }
+    to   { opacity: 1; transform: translateY(0)     scale(1); }
+}
+@keyframes toast-slide-out {
+    from { opacity: 1; transform: translateY(0)     scale(1);    max-height: 120px; margin-bottom: 0; }
+    to   { opacity: 0; transform: translateY(-8px)  scale(0.95); max-height: 0;     margin-bottom: -12px; }
+}
+</style>
+
+<script>
+function dismissToast(el) {
+    if (!el) return;
+    el.classList.add('toast-hide');
+    el.addEventListener('animationend', () => el.remove(), { once: true });
+}
+
+// Auto-dismiss each toast after its progress bar finishes (5 s)
+document.querySelectorAll('[data-toast]').forEach(function (toast) {
+    setTimeout(function () { dismissToast(toast); }, 5000);
+});
+</script>
+
+{{-- ══════════════════════════════════════════════ CONFIRM DIALOG MODAL ══ --}}
+<div id="confirm-modal"
+     class="fixed inset-0 z-[10000] flex items-center justify-center p-4 hidden"
+     role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title">
+
+    {{-- Backdrop --}}
+    <div id="confirm-backdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+
+    {{-- Panel — matches the signature modal structure exactly --}}
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col overflow-hidden"
+         id="confirm-panel">
+
+        {{-- Header --}}
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+                    <svg class="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 id="confirm-modal-title" class="text-sm font-bold text-slate-800">Confirm Deletion</h3>
+                    <p class="text-xs text-slate-400 mt-0.5">This action cannot be undone.</p>
+                </div>
+            </div>
+            <button type="button" id="confirm-close-btn"
+                    class="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        {{-- Body --}}
+        <div class="px-6 py-5">
+            <p id="confirm-modal-message" class="text-sm text-slate-600 leading-relaxed"></p>
+        </div>
+
+        {{-- Footer --}}
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/60">
+            <button type="button" id="confirm-cancel-btn" class="btn-secondary">
+                Cancel
+            </button>
+            <button type="button" id="confirm-ok-btn" class="btn-danger">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                </svg>
+                Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes modal-pop {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+</style>
+
+<script>
+(function () {
+    const modal      = document.getElementById('confirm-modal');
+    const backdrop   = document.getElementById('confirm-backdrop');
+    const msgEl      = document.getElementById('confirm-modal-message');
+    const cancelBtn  = document.getElementById('confirm-cancel-btn');
+    const closeBtn   = document.getElementById('confirm-close-btn');
+    const okBtn      = document.getElementById('confirm-ok-btn');
+    const panel      = document.getElementById('confirm-panel');
+
+    let pendingForm = null;
+
+    function openConfirm(message, form) {
+        pendingForm = form;
+        msgEl.textContent = message;
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        // Re-trigger animation on each open
+        panel.style.animation = 'none';
+        panel.offsetHeight; // reflow
+        panel.style.animation = 'modal-pop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both';
+    }
+
+    function closeConfirm() {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        pendingForm = null;
+    }
+
+    cancelBtn.addEventListener('click', closeConfirm);
+    closeBtn.addEventListener('click', closeConfirm);
+    backdrop.addEventListener('click', closeConfirm);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeConfirm();
+    });
+
+    okBtn.addEventListener('click', () => {
+        if (pendingForm) {
+            const form = pendingForm;
+            closeConfirm();
+            form.submit();
+        }
+    });
+
+    // Intercept any element with data-confirm="..."
+    document.addEventListener('click', (e) => {
+        const trigger = e.target.closest('[data-confirm]');
+        if (!trigger) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+
+        const message = trigger.dataset.confirm;
+        const formId  = trigger.dataset.confirmForm;
+        const form    = formId
+            ? document.getElementById(formId)
+            : (trigger.tagName === 'FORM' ? trigger : trigger.closest('form'));
+
+        if (form) openConfirm(message, form);
+    });
+
+    // Intercept form submits that carry data-confirm on the form element
+    document.addEventListener('submit', (e) => {
+        const form = e.target;
+        if (!form.dataset.confirm) return;
+        if (form._confirmed) { form._confirmed = false; return; }
+        e.preventDefault();
+        openConfirm(form.dataset.confirm, form);
+    });
+})();
+</script>
 
 @stack('scripts')
 </body>

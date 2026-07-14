@@ -17,9 +17,34 @@
 
     {{-- ── Profile Header ────────────────────────────────────────────────── --}}
     <div class="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl px-6 py-6 mb-6 flex items-center gap-5">
-        <div class="w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center shrink-0 text-white text-2xl font-bold select-none">
-            {{ strtoupper(substr($user->name, 0, 2)) }}
+
+        {{-- Avatar — click to open modal --}}
+        <div class="relative shrink-0 group">
+            <button type="button" id="open-avatar-modal"
+                    class="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center
+                           text-white text-2xl font-bold select-none focus:outline-none"
+                    title="Change profile picture">
+                @if($user->avatar)
+                    <img id="avatar-header-img"
+                         src="{{ asset('storage/' . $user->avatar) }}"
+                         alt="{{ $user->name }}"
+                         class="w-full h-full object-cover">
+                @else
+                    <span id="avatar-header-initials">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
+                @endif
+            </button>
+            {{-- Camera badge --}}
+            <div class="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-white shadow
+                        flex items-center justify-center pointer-events-none">
+                <svg class="w-3.5 h-3.5 text-violet-600" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                </svg>
+            </div>
         </div>
+
         <div class="flex-1 min-w-0">
             <h2 class="text-white text-xl font-bold truncate">{{ $user->name }}</h2>
             <p class="text-white/70 text-sm mt-0.5">{{ $user->position ?? ucfirst($user->role) }}</p>
@@ -124,7 +149,7 @@
                             <button type="submit"
                                     class="btn-secondary px-3"
                                     title="Remove signature"
-                                    onclick="return confirm('Remove your saved signature?')">
+                                    data-confirm="Remove your saved signature? This cannot be undone.">
                                 <svg class="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                 </svg>
@@ -299,6 +324,101 @@
     </div>{{-- end two-column --}}
 </div>
 
+{{-- ══════════════════════════════════════ AVATAR MODAL ══ --}}
+<div id="avatar-modal"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden"
+     role="dialog" aria-modal="true" aria-labelledby="avatar-modal-title">
+
+    {{-- Backdrop --}}
+    <div id="avatar-backdrop" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"></div>
+
+    {{-- Panel --}}
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm flex flex-col overflow-hidden">
+
+        {{-- Header --}}
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <div>
+                <h3 id="avatar-modal-title" class="text-sm font-bold text-slate-800">Profile Picture</h3>
+                <p class="text-xs text-slate-400 mt-0.5">JPG, PNG, GIF or WebP — max 2 MB.</p>
+            </div>
+            <button type="button" id="close-avatar-modal"
+                    class="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        {{-- Body --}}
+        <div class="p-6 space-y-5">
+
+            {{-- Preview --}}
+            <div class="flex justify-center">
+                <div id="avatar-preview-wrap"
+                     class="w-28 h-28 rounded-2xl overflow-hidden bg-slate-100 border-2 border-dashed border-slate-200
+                            flex items-center justify-center text-slate-800 text-3xl font-bold select-none">
+                    @if($user->avatar)
+                        <img id="avatar-preview-img"
+                             src="{{ asset('storage/' . $user->avatar) }}"
+                             alt="Preview"
+                             class="w-full h-full object-cover">
+                    @else
+                        <span id="avatar-preview-initials">{{ strtoupper(substr($user->name, 0, 2)) }}</span>
+                        <img id="avatar-preview-img" src="" alt="Preview" class="hidden w-full h-full object-cover">
+                    @endif
+                </div>
+            </div>
+
+            {{-- File picker --}}
+            <form id="avatar-form" action="{{ route('profile.update-avatar') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <input type="file" id="avatar-file-input" name="avatar"
+                       accept="image/jpeg,image/png,image/gif,image/webp"
+                       class="hidden">
+                <label for="avatar-file-input"
+                       class="btn-secondary w-full justify-center cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                    </svg>
+                    <span id="avatar-file-label">Choose a photo</span>
+                </label>
+                <p id="avatar-hint" class="form-hint text-center mt-2">No file chosen.</p>
+            </form>
+
+        </div>
+
+        {{-- Footer --}}
+        <div class="flex items-center gap-3 px-6 py-4 border-t border-slate-100 bg-slate-50/60">
+            {{-- Remove photo (left side, only when one exists) --}}
+            @if($user->avatar)
+            <form action="{{ route('profile.remove-avatar') }}" method="POST" id="remove-avatar-form">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn-danger"
+                        data-confirm="Remove your profile picture? This cannot be undone.">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                              d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                    </svg>
+                    Remove
+                </button>
+            </form>
+            @endif
+            <div class="flex-1"></div>
+            <button type="button" id="cancel-avatar-modal" class="btn-secondary">Cancel</button>
+            <button type="button" id="save-avatar-btn" class="btn-primary" disabled>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Save Photo
+            </button>
+        </div>
+
+    </div>
+</div>
+
 {{-- ══════════════════════════════════════ E-SIGNATURE MODAL ══ --}}
 <div id="sig-modal"
      class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden"
@@ -370,6 +490,95 @@
 @endsection
 
 @push('scripts')
+<script>
+// ── Avatar Modal ──────────────────────────────────────────────────────────────
+(function () {
+    const modal       = document.getElementById('avatar-modal');
+    const backdrop    = document.getElementById('avatar-backdrop');
+    const openBtn     = document.getElementById('open-avatar-modal');
+    const closeBtn    = document.getElementById('close-avatar-modal');
+    const cancelBtn   = document.getElementById('cancel-avatar-modal');
+    const saveBtn     = document.getElementById('save-avatar-btn');
+    const fileInput   = document.getElementById('avatar-file-input');
+    const form        = document.getElementById('avatar-form');
+    const previewImg  = document.getElementById('avatar-preview-img');
+    const previewInit = document.getElementById('avatar-preview-initials');
+    const hintEl      = document.getElementById('avatar-hint');
+    const fileLbl     = document.getElementById('avatar-file-label');
+
+    // Also update the header avatar on save for instant feedback
+    const headerImg   = document.getElementById('avatar-header-img');
+    const headerInit  = document.getElementById('avatar-header-initials');
+
+    function openModal() {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+        // Reset picker state
+        fileInput.value = '';
+        saveBtn.disabled = true;
+        fileLbl.textContent = 'Choose a photo';
+        hintEl.textContent  = 'No file chosen.';
+        hintEl.classList.remove('text-red-500');
+        // Revert preview to saved state if user cancels
+        @if($user->avatar)
+            previewImg.src = '{{ asset('storage/' . $user->avatar) }}';
+            previewImg.classList.remove('hidden');
+            if (previewInit) previewInit.classList.add('hidden');
+        @else
+            previewImg.src = '';
+            previewImg.classList.add('hidden');
+            if (previewInit) previewInit.classList.remove('hidden');
+        @endif
+    }
+
+    openBtn.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    cancelBtn.addEventListener('click', closeModal);
+    backdrop.addEventListener('click', closeModal);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+    });
+
+    // File chosen — show preview
+    fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        // Validate size (2 MB)
+        if (file.size > 2 * 1024 * 1024) {
+            hintEl.textContent = 'File is too large. Maximum size is 2 MB.';
+            hintEl.classList.add('text-red-500');
+            fileInput.value  = '';
+            saveBtn.disabled = true;
+            return;
+        }
+
+        hintEl.classList.remove('text-red-500');
+        fileLbl.textContent = file.name;
+        hintEl.textContent  = (file.size / 1024).toFixed(1) + ' KB';
+        saveBtn.disabled    = false;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImg.src = e.target.result;
+            previewImg.classList.remove('hidden');
+            if (previewInit) previewInit.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // Save — submit the form
+    saveBtn.addEventListener('click', () => {
+        if (fileInput.files.length === 0) return;
+        form.submit();
+    });
+})();
+</script>
 <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
 <script>
 (function () {

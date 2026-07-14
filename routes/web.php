@@ -29,14 +29,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Notifications
-    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
-    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::get('/notifications',             [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read',  [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('/notifications/read-all',   [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
 
     // ── Profile ────────────────────────────────────────────────────────────────
     Route::get('/profile',              [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile/info',       [ProfileController::class, 'updateInfo'])->name('profile.update-info');
     Route::patch('/profile/password',   [ProfileController::class, 'updatePassword'])->name('profile.update-password');
     Route::patch('/profile/signature',  [ProfileController::class, 'updateSignature'])->name('profile.update-signature');
+    Route::post('/profile/avatar',      [ProfileController::class, 'updateAvatar'])->name('profile.update-avatar');
+    Route::delete('/profile/avatar',    [ProfileController::class, 'removeAvatar'])->name('profile.remove-avatar');
 
     // ── Executive Orders ───────────────────────────────────────────────────────
     Route::prefix('executive-orders')->name('executive-orders.')->group(function () {
