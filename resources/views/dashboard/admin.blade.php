@@ -1,9 +1,15 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
-@section('page-title', 'Dashboard')
+@section('title', 'Admin Dashboard')
+@section('page-title', 'Administrator Dashboard')
 
 @section('header-actions')
+    <a href="{{ route('admin.users.index') }}" class="btn-secondary btn-sm">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+        </svg>
+        Manage Users
+    </a>
     <a href="{{ route('executive-orders.create') }}" class="btn-primary btn-sm">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
@@ -14,7 +20,16 @@
 
 @section('content')
 
-{{-- ── KPI Stats ─────────────────────────────────────────────────────────── --}}
+{{-- ── Welcome Banner ────────────────────────────────────────────────────── --}}
+<div class="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl px-6 py-5 mb-6 flex items-center justify-between">
+    <div>
+        <p class="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">Welcome back</p>
+        <h2 class="text-white text-xl font-bold">{{ auth()->user()->name }}</h2>
+        <p class="text-white/60 text-sm mt-0.5">{{ auth()->user()->position ?? ucfirst(auth()->user()->role) }}</p>
+    </div>
+</div>
+
+{{-- ── KPI Stats Row ──────────────────────────────────────────────────────── --}}
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
     {{-- Total EOs --}}
@@ -27,11 +42,11 @@
         <div>
             <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total EOs</p>
             <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ number_format($totalEos) }}</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">all time</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">{{ $thisYearEos }} this year</p>
         </div>
     </div>
 
-    {{-- Total Users (admin only, shows placeholder for staff) --}}
+    {{-- Total Users --}}
     <div class="stat-card">
         <div class="stat-icon bg-indigo-100 text-indigo-600">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
@@ -41,7 +56,7 @@
         <div>
             <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Users</p>
             <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ $totalUsers }}</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">{{ $adminCount }} admin · {{ $staffCount }} staff</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">{{ $adminCount }} admin · {{ $staffCount }} staff · +{{ $newUsersThisMonth }} this month</p>
         </div>
     </div>
 
@@ -59,30 +74,25 @@
         </div>
     </div>
 
-    {{-- Storage Used --}}
+    {{-- Needs Review --}}
     <div class="stat-card">
-        <div class="stat-icon bg-emerald-100 text-emerald-600">
+        <div class="stat-icon bg-sky-100 text-sky-600">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 2.625c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125m0 2.625c0 2.278 3.694 4.125 8.25 4.125s8.25-1.847 8.25-4.125" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
             </svg>
         </div>
         <div>
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Storage Used</p>
-            @php
-                $mb = $totalStorageBytes / 1048576;
-                $storageDisplay = $mb >= 1 ? round($mb, 1) . ' MB' : round($totalStorageBytes / 1024, 1) . ' KB';
-            @endphp
-            <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ $storageDisplay }}</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">across {{ $totalEos }} PDF files</p>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Needs Review</p>
+            <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ number_format($needsReviewCount) }}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">under review / suspended</p>
         </div>
     </div>
 
 </div>
 
-{{-- ── Row 3: Status Breakdown + Year Volume ──────────────────────────────── --}}
+{{-- ── Status Distribution + Year Volume ─────────────────────────────────── --}}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
-    {{-- Status Distribution --}}
     <div class="lg:col-span-2 card">
         <div class="card-header">
             <div>
@@ -100,23 +110,21 @@
                 'superseded'   => ['label' => 'Superseded',   'color' => '#8b5cf6'],
                 'under_review' => ['label' => 'Under Review', 'color' => '#0ea5e9'],
             ];
-        @endphp
-        @foreach($statusConfig as $key => $cfg)
-        @php $count = $statusCounts[$key] ?? 0; $pct = $totalEos > 0 ? round(($count / $totalEos) * 100) : 0; @endphp
-        <div class="flex items-center gap-3">
-            <span class="w-24 text-xs font-semibold text-slate-600 shrink-0">{{ $cfg['label'] }}</span>
-            <div class="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
-                <div class="h-2 rounded-full transition-all duration-500"
-                     style="width: {{ $pct }}%; background-color: {{ $cfg['color'] }};"></div>
+            @endphp
+            @foreach($statusConfig as $key => $cfg)
+            @php $count = $statusCounts[$key] ?? 0; $pct = $totalEos > 0 ? round(($count / $totalEos) * 100) : 0; @endphp
+            <div class="flex items-center gap-3">
+                <span class="w-24 text-xs font-semibold text-slate-600 shrink-0">{{ $cfg['label'] }}</span>
+                <div class="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div class="h-2 rounded-full transition-all duration-500" style="width: {{ $pct }}%; background-color: {{ $cfg['color'] }};"></div>
+                </div>
+                <span class="w-8 text-xs font-bold text-right text-slate-700">{{ $count }}</span>
+                <span class="w-10 text-xs text-slate-400 text-right">{{ $pct }}%</span>
             </div>
-            <span class="w-8 text-xs font-bold text-right text-slate-700">{{ $count }}</span>
-            <span class="w-10 text-xs text-slate-400 text-right">{{ $pct }}%</span>
-        </div>
-        @endforeach
+            @endforeach
         </div>
     </div>
 
-    {{-- EOs by Year --}}
     <div class="card">
         <div class="card-header">
             <div>
@@ -139,9 +147,7 @@
                     <tr>
                         <td class="font-bold text-slate-800">{{ $row->year }}</td>
                         <td class="text-right font-semibold text-slate-700">{{ $row->count }}</td>
-                        <td class="text-right pr-5">
-                            <span class="text-xs font-medium text-slate-400">{{ $pct }}%</span>
-                        </td>
+                        <td class="text-right pr-5"><span class="text-xs font-medium text-slate-400">{{ $pct }}%</span></td>
                     </tr>
                     @empty
                     <tr><td colspan="3" class="py-8 text-center text-slate-400 text-sm">No data yet.</td></tr>
@@ -150,22 +156,20 @@
             </table>
         </div>
     </div>
+
 </div>
 
-{{-- ── Row 4: Recent EOs + Needs Attention + Top Users ───────────────────── --}}
+{{-- ── Recent EOs + Needs Attention + Top Users ───────────────────────────── --}}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
-    {{-- Recently Uploaded --}}
     <div class="lg:col-span-2 card">
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">Recently Uploaded</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Latest 5 executive orders added</p>
+                <p class="text-xs text-slate-400 mt-0.5">Latest 5 executive orders added to the system</p>
             </div>
-            <a href="{{ route('executive-orders.index') }}"
-               class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors flex items-center gap-1">
-                View All
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+            <a href="{{ route('executive-orders.index') }}" class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors flex items-center gap-1">
+                View All <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
             </a>
         </div>
         <div class="overflow-x-auto">
@@ -174,8 +178,8 @@
                     <tr>
                         <th>EO Number</th>
                         <th>Subject</th>
+                        <th>Uploaded By</th>
                         <th>Status</th>
-                        <th>Issued</th>
                         <th class="text-right">Action</th>
                     </tr>
                 </thead>
@@ -183,12 +187,11 @@
                     @forelse($recentEos as $eo)
                     <tr>
                         <td class="font-bold text-slate-800 whitespace-nowrap text-[13px]">{{ $eo->eo_number }}</td>
-                        <td><div class="truncate max-w-[180px] text-slate-600 text-[13px]" title="{{ $eo->subject }}">{{ $eo->subject }}</div></td>
+                        <td><div class="truncate max-w-[160px] text-slate-600 text-[13px]" title="{{ $eo->subject }}">{{ $eo->subject }}</div></td>
+                        <td class="text-slate-500 text-[13px]">{{ $eo->uploader->name ?? '—' }}</td>
                         <td><span class="badge-{{ $eo->status }}">{{ $eo->status_label }}</span></td>
-                        <td class="text-slate-500 text-[13px] whitespace-nowrap">{{ $eo->date_issued->format('M d, Y') }}</td>
                         <td class="text-right">
-                            <a href="{{ route('executive-orders.show', $eo) }}"
-                               class="inline-flex items-center gap-1 text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
+                            <a href="{{ route('executive-orders.show', $eo) }}" class="inline-flex items-center gap-1 text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
                                 View <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                             </a>
                         </td>
@@ -206,7 +209,6 @@
         </div>
     </div>
 
-    {{-- Right column: Needs Attention + Top Users (admin only) --}}
     <div class="space-y-6">
 
         {{-- Needs Attention --}}
@@ -217,10 +219,9 @@
                     <p class="text-xs text-slate-400 mt-0.5">Under review or suspended EOs</p>
                 </div>
             </div>
-            <div class="p-4 space-y-2 overflow-y-auto" style="max-height: 260px;">
+            <div class="p-4 space-y-2 overflow-y-auto" style="max-height: 200px;">
                 @forelse($needsAttention as $eo)
-                <a href="{{ route('executive-orders.show', $eo) }}"
-                   class="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors group">
+                <a href="{{ route('executive-orders.show', $eo) }}" class="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors group">
                     <span class="w-2 h-2 rounded-full mt-1.5 shrink-0 {{ $eo->status === 'under_review' ? 'bg-sky-400' : 'bg-orange-400' }}"></span>
                     <div class="flex-1 min-w-0">
                         <p class="text-[13px] font-bold text-slate-800 group-hover:text-violet-700 transition-colors">{{ $eo->eo_number }}</p>
@@ -240,60 +241,50 @@
             </div>
         </div>
 
-        {{-- Top Active Users (admin only) --}}
-        @if(auth()->user()->isAdmin())
+        {{-- Most Active Users --}}
         <div class="card">
             <div class="card-header">
                 <div>
                     <h2 class="text-sm font-bold text-slate-800">Most Active Users</h2>
                     <p class="text-xs text-slate-400 mt-0.5">Last 30 days by actions</p>
                 </div>
-                <a href="{{ route('admin.users.index') }}"
-                   class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors flex items-center gap-1">
+                <a href="{{ route('admin.users.index') }}" class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors flex items-center gap-1">
                     All Users <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                 </a>
             </div>
-            <div class="p-4 space-y-2 overflow-y-auto" style="max-height: 240px;">
+            <div class="p-4 space-y-2 overflow-y-auto" style="max-height: 200px;">
                 @forelse($topUsers as $entry)
                 <div class="flex items-center gap-3 px-2 py-1.5 rounded-xl hover:bg-slate-50 transition-colors">
-                    <div class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[11px] font-bold shrink-0"
-                         style="background: linear-gradient(135deg,#6d28d9,#7c3aed);">
+                    <div class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[11px] font-bold shrink-0" style="background: linear-gradient(135deg,#6d28d9,#7c3aed);">
                         {{ strtoupper(substr($entry->user->name ?? '?', 0, 2)) }}
                     </div>
                     <div class="flex-1 min-w-0">
                         <p class="text-[13px] font-semibold text-slate-800 truncate">{{ $entry->user->name ?? 'Unknown' }}</p>
                         <p class="text-[11px] text-slate-400">{{ ucfirst($entry->user->role ?? '') }}</p>
                     </div>
-                    <span class="text-xs font-bold text-violet-700 bg-violet-50 px-2 py-0.5 rounded-full border border-violet-100">
-                        {{ $entry->action_count }}
-                    </span>
+                    <span class="text-xs font-bold text-violet-700 bg-violet-50 px-2 py-0.5 rounded-full border border-violet-100">{{ $entry->action_count }}</span>
                 </div>
                 @empty
                 <p class="py-6 text-center text-sm text-slate-400">No activity in the last 30 days.</p>
                 @endforelse
             </div>
         </div>
-        @endif
 
     </div>
 </div>
 
-{{-- ── Row 5: Activity Feed + 7-day upload sparkline ─────────────────────── --}}
+{{-- ── System Activity Feed + 7-day Upload Sparkline ──────────────────────── --}}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    {{-- Recent Activity --}}
     <div class="lg:col-span-2 card">
         <div class="card-header">
             <div>
-                <h2 class="text-sm font-bold text-slate-800">Recent Activity</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Latest system actions across all users</p>
+                <h2 class="text-sm font-bold text-slate-800">System Activity</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Latest actions across all users</p>
             </div>
-            @if(auth()->user()->isAdmin())
-            <a href="{{ route('admin.logs.index') }}"
-               class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors flex items-center gap-1">
+            <a href="{{ route('admin.logs.index') }}" class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors flex items-center gap-1">
                 Full Log <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
             </a>
-            @endif
         </div>
         <div class="divide-y divide-slate-50 overflow-y-auto" style="max-height: 420px;">
             @forelse($recentLogs as $log)
@@ -334,12 +325,11 @@
         </div>
     </div>
 
-    {{-- 7-Day Upload Activity --}}
     <div class="card">
         <div class="card-header">
             <div>
-                <h2 class="text-sm font-bold text-slate-800">Uploads — Last 7 Days</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Daily EO upload count</p>
+                <h2 class="text-sm font-bold text-slate-800">System Uploads — Last 7 Days</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Daily EO upload count (all users)</p>
             </div>
         </div>
         <div class="p-6">
@@ -349,8 +339,7 @@
                 @php $barHeight = $maxCount > 0 ? max(4, round(($day['count'] / $maxCount) * 100)) : 4; @endphp
                 <div class="flex flex-col items-center gap-1.5 flex-1">
                     <span class="text-[11px] font-bold text-slate-600">{{ $day['count'] > 0 ? $day['count'] : '' }}</span>
-                    <div class="w-full rounded-t-lg transition-all duration-500 {{ $day['count'] > 0 ? 'bg-violet-500' : 'bg-slate-100' }}"
-                         style="height: {{ $barHeight }}%"></div>
+                    <div class="w-full rounded-t-lg transition-all duration-500 {{ $day['count'] > 0 ? 'bg-violet-500' : 'bg-slate-100' }}" style="height: {{ $barHeight }}%"></div>
                     <span class="text-[10px] text-slate-400 font-medium">{{ $day['label'] }}</span>
                 </div>
                 @endforeach
@@ -358,6 +347,25 @@
             <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
                 <span class="text-xs text-slate-500">Total this week</span>
                 <span class="text-sm font-bold text-slate-900">{{ $last7Days->sum('count') }} uploads</span>
+            </div>
+        </div>
+
+        {{-- Quick Admin Links --}}
+        <div class="px-6 pb-6 pt-2 border-t border-slate-100 mt-4">
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Quick Actions</p>
+            <div class="space-y-2">
+                <a href="{{ route('admin.users.create') }}" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-violet-50 text-slate-700 hover:text-violet-700 transition-colors group">
+                    <svg class="w-4 h-4 text-slate-400 group-hover:text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z" /></svg>
+                    <span class="text-sm font-medium">Add New User</span>
+                </a>
+                <a href="{{ route('admin.logs.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-violet-50 text-slate-700 hover:text-violet-700 transition-colors group">
+                    <svg class="w-4 h-4 text-slate-400 group-hover:text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" /></svg>
+                    <span class="text-sm font-medium">View Audit Logs</span>
+                </a>
+                <a href="{{ route('executive-orders.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-violet-50 text-slate-700 hover:text-violet-700 transition-colors group">
+                    <svg class="w-4 h-4 text-slate-400 group-hover:text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
+                    <span class="text-sm font-medium">Browse All EOs</span>
+                </a>
             </div>
         </div>
     </div>

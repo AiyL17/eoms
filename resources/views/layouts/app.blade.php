@@ -7,6 +7,7 @@
     <title>@yield('title', 'Dashboard') — EOMS</title>
     <meta name="description" content="Executive Order Management System — City Government">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-[#f5f4ff] font-sans antialiased text-slate-900">
 <div class="flex h-screen overflow-hidden">
@@ -112,7 +113,104 @@
                 @endif
             </div>
             <div class="flex items-center gap-3">
+
+                {{-- Page-specific action buttons --}}
                 @yield('header-actions')
+
+                {{-- Divider --}}
+                <div class="w-px h-5 bg-slate-200"></div>
+
+                {{-- Notification Bell — always pinned at the end --}}
+                @php $unreadCount = auth()->user()->unreadNotifications->count(); @endphp
+                <div class="relative" x-data="{ open: false }" @click.outside="open = false">
+
+                    <button @click="open = !open"
+                            class="relative w-9 h-9 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                        </svg>
+                        @if($unreadCount > 0)
+                        <span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                            {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                        </span>
+                        @endif
+                    </button>
+
+                    {{-- Dropdown Panel --}}
+                    <div x-show="open"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 scale-95 -translate-y-1"
+                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100 scale-100"
+                         x-transition:leave-end="opacity-0 scale-95"
+                         class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden"
+                         style="display: none;">
+
+                        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
+                            <p class="text-sm font-bold text-slate-800">Notifications
+                                @if($unreadCount > 0)
+                                <span class="ml-1.5 text-[11px] font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full">{{ $unreadCount }} new</span>
+                                @endif
+                            </p>
+                            @if($unreadCount > 0)
+                            <form action="{{ route('notifications.read-all') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
+                                    Mark all read
+                                </button>
+                            </form>
+                            @endif
+                        </div>
+
+                        <div class="overflow-y-auto" style="max-height: 360px;">
+                            @php $notifications = auth()->user()->notifications()->latest()->take(15)->get(); @endphp
+                            @forelse($notifications as $n)
+                            @php
+                                $data = $n->data;
+                                $icon = match($data['type'] ?? '') {
+                                    'eo_uploaded'       => ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-600', 'path' => 'M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5'],
+                                    'eo_status_changed' => ['bg' => 'bg-amber-100',   'text' => 'text-amber-600',   'path' => 'M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99'],
+                                    'eo_updated'        => ['bg' => 'bg-blue-100',    'text' => 'text-blue-600',    'path' => 'M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z'],
+                                    default             => ['bg' => 'bg-slate-100',   'text' => 'text-slate-500',   'path' => 'M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0'],
+                                };
+                            @endphp
+                            <form action="{{ route('notifications.read', $n->id) }}" method="POST">
+                                @csrf
+                                <button type="submit"
+                                        class="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors {{ $n->read_at ? 'opacity-60' : '' }}">
+                                    <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 {{ $icon['bg'] }} {{ $icon['text'] }}">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="{{ $icon['path'] }}" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-[13px] {{ $n->read_at ? 'text-slate-500' : 'font-semibold text-slate-800' }} leading-snug">
+                                            {{ $data['message'] ?? 'Notification' }}
+                                        </p>
+                                        <p class="text-[11px] text-slate-400 mt-0.5">{{ $n->created_at->diffForHumans() }}</p>
+                                    </div>
+                                    @if(!$n->read_at)
+                                    <span class="w-2 h-2 bg-violet-500 rounded-full shrink-0 mt-1.5"></span>
+                                    @endif
+                                </button>
+                            </form>
+                            @empty
+                            <div class="py-10 text-center">
+                                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center mx-auto mb-2 text-slate-400">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                                    </svg>
+                                </div>
+                                <p class="text-xs font-semibold text-slate-600">No notifications</p>
+                                <p class="text-xs text-slate-400 mt-0.5">You're all caught up</p>
+                            </div>
+                            @endforelse
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
         </header>
 

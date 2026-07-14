@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\EoActivityLog;
 use App\Models\ExecutiveOrder;
+use App\Models\User;
+use App\Notifications\EoUploaded;
+use App\Notifications\EoStatusChanged;
+use App\Notifications\EoUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -29,6 +33,15 @@ class ExecutiveOrderController extends Controller
             $query->byYear((int) $request->year);
         }
 
+        // ── Sorting ───────────────────────────────────────────────────────────
+        $sortable = ['eo_number', 'date_issued', 'signed_by', 'status', 'year'];
+        $sort     = in_array($request->sort, $sortable) ? $request->sort : null;
+        $dir      = $request->dir === 'asc' ? 'asc' : 'desc';
+
+        if ($sort) {
+            $query->reorder()->orderBy($sort, $dir);
+        }
+
         $orders = $query->paginate(15)->withQueryString();
 
         $years = ExecutiveOrder::selectRaw('year')
@@ -38,7 +51,7 @@ class ExecutiveOrderController extends Controller
 
         $statuses = ExecutiveOrder::statuses();
 
-        return view('executive-orders.index', compact('orders', 'years', 'statuses'));
+        return view('executive-orders.index', compact('orders', 'years', 'statuses', 'sort', 'dir'));
     }
 
     // ─── Create ───────────────────────────────────────────────────────────────
@@ -138,6 +151,15 @@ class ExecutiveOrderController extends Controller
                 'title'     => $eo->title,
                 'status'    => $eo->status,
             ]);
+
+            // Notify all admins that a new EO was uploaded
+            $uploader = auth()->user();
+            if ($uploader->isStaff()) {
+                $admins = User::where('role', 'admin')->get();
+                foreach ($admins as $admin) {
+                    $admin->notify(new EoUploaded($eo, $uploader));
+                }
+            }
         });
 
         return redirect()
@@ -206,8 +228,28 @@ class ExecutiveOrderController extends Controller
             // Log status change separately if status changed
             if ($oldStatus !== $executiveOrder->status) {
                 EoActivityLog::record($executiveOrder, 'status_changed', ['status' => $oldStatus], ['status' => $executiveOrder->status], $validated['status_notes'] ?? null);
+
+                // Notify the original uploader if someone else changed the status
+                $uploader = $executiveOrder->uploader;
+                if ($uploader && $uploader->id !== auth()->id()) {
+                    $uploader->notify(new EoStatusChanged($executiveOrder, $oldStatus, $executiveOrder->status, auth()->user()));
+                }
+
+                // Notify all admins if a staff member changed the status
+                if (auth()->user()->isStaff()) {
+                    $admins = User::where('role', 'admin')->get();
+                    foreach ($admins as $admin) {
+                        $admin->notify(new EoStatusChanged($executiveOrder, $oldStatus, $executiveOrder->status, auth()->user()));
+                    }
+                }
             } else {
                 EoActivityLog::record($executiveOrder, 'updated', $oldValues, $newValues);
+
+                // Notify the original uploader if someone else updated their EO
+                $uploader = $executiveOrder->uploader;
+                if ($uploader && $uploader->id !== auth()->id()) {
+                    $uploader->notify(new EoUpdated($executiveOrder, auth()->user()));
+                }
             }
         });
 

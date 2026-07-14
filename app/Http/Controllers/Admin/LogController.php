@@ -34,6 +34,15 @@ class LogController extends Controller
             });
         }
 
+        // ── Sorting ───────────────────────────────────────────────────────────
+        $sortable = ['created_at', 'action'];
+        $sort     = in_array($request->sort, $sortable) ? $request->sort : null;
+        $dir      = $request->dir === 'asc' ? 'asc' : 'desc';
+
+        if ($sort) {
+            $query->reorder()->orderBy($sort, $dir);
+        }
+
         $logs    = $query->paginate(25)->withQueryString();
         $users   = User::orderBy('name')->get(['id', 'name']);
         $orders  = ExecutiveOrder::withTrashed()->orderBy('year', 'desc')->orderBy('item_number')->get(['id', 'eo_number']);
@@ -46,6 +55,6 @@ class LogController extends Controller
             'pdf_viewed'     => 'Viewed PDF',
         ];
 
-        return view('admin.logs.index', compact('logs', 'users', 'orders', 'actions'));
+        return view('admin.logs.index', compact('logs', 'users', 'orders', 'actions', 'sort', 'dir'));
     }
 }

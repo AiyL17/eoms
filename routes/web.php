@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExecutiveOrderController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Guest Routes ─────────────────────────────────────────────────────────────
@@ -25,6 +26,10 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Notifications
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.read-all');
 
     // ── Executive Orders ───────────────────────────────────────────────────────
     Route::prefix('executive-orders')->name('executive-orders.')->group(function () {

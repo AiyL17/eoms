@@ -25,12 +25,23 @@ class UserController extends Controller
             $query->where('role', $request->role);
         }
 
+        // ── Sorting ───────────────────────────────────────────────────────────
+        $sortable = ['name', 'email', 'role', 'uploaded_orders_count', 'created_at'];
+        $sort     = in_array($request->sort, $sortable) ? $request->sort : null;
+        $dir      = $request->dir === 'asc' ? 'asc' : 'desc';
+
+        if ($sort === 'uploaded_orders_count') {
+            $query->reorder()->orderBy('uploaded_orders_count', $dir);
+        } elseif ($sort) {
+            $query->reorder()->orderBy($sort, $dir);
+        }
+
         $users      = $query->get();
         $totalUsers = User::count();
         $adminCount = User::where('role', 'admin')->count();
         $staffCount = User::where('role', 'staff')->count();
 
-        return view('admin.users.index', compact('users', 'totalUsers', 'adminCount', 'staffCount'));
+        return view('admin.users.index', compact('users', 'totalUsers', 'adminCount', 'staffCount', 'sort', 'dir'));
     }
 
     public function create()

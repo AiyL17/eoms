@@ -106,12 +106,45 @@
     <div class="overflow-x-auto">
         <table class="w-full table-auto table-wide">
             <thead>
+                @php
+                    // Helper: build sort URL for a given column
+                    $sortUrl = function (string $col) use ($sort, $dir) {
+                        $newDir = ($sort === $col && $dir === 'asc') ? 'desc' : 'asc';
+                        return request()->fullUrlWithQuery(['sort' => $col, 'dir' => $newDir, 'page' => 1]);
+                    };
+                    $sortIcon = function (string $col) use ($sort, $dir) {
+                        if ($sort !== $col) {
+                            // neutral double-arrow
+                            return '<svg class="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>';
+                        }
+                        if ($dir === 'asc') {
+                            return '<svg class="w-3.5 h-3.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>';
+                        }
+                        return '<svg class="w-3.5 h-3.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>';
+                    };
+                @endphp
                 <tr>
-                    <th class="w-36">EO Number</th>
+                    <th class="w-36">
+                        <a href="{{ $sortUrl('eo_number') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            EO Number {!! $sortIcon('eo_number') !!}
+                        </a>
+                    </th>
                     <th>Title & Subject</th>
-                    <th class="w-32">Date Issued</th>
-                    <th class="w-40">Signatory</th>
-                    <th class="w-28">Status</th>
+                    <th class="w-32">
+                        <a href="{{ $sortUrl('date_issued') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            Date Issued {!! $sortIcon('date_issued') !!}
+                        </a>
+                    </th>
+                    <th class="w-40">
+                        <a href="{{ $sortUrl('signed_by') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            Signatory {!! $sortIcon('signed_by') !!}
+                        </a>
+                    </th>
+                    <th class="w-32">
+                        <a href="{{ $sortUrl('status') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            Status {!! $sortIcon('status') !!}
+                        </a>
+                    </th>
                     <th class="w-24 text-right pr-6">Action</th>
                 </tr>
             </thead>
@@ -131,7 +164,7 @@
                     <td class="text-slate-600 text-[13px] whitespace-nowrap truncate" title="{{ $eo->signed_by }}">
                         {{ Str::limit($eo->signed_by, 22) }}
                     </td>
-                    <td>
+                    <td class="whitespace-nowrap">
                         <span class="badge-{{ $eo->status }}">{{ $eo->status_label }}</span>
                     </td>
                     <td class="text-right pr-5">

@@ -115,13 +115,48 @@
     <div class="overflow-x-auto">
         <table class="w-full table-auto table-wide">
             <thead>
+                @php
+                    $sortUrl = function (string $col) use ($sort, $dir) {
+                        $newDir = ($sort === $col && $dir === 'asc') ? 'desc' : 'asc';
+                        return request()->fullUrlWithQuery(['sort' => $col, 'dir' => $newDir]);
+                    };
+                    $sortIcon = function (string $col) use ($sort, $dir) {
+                        if ($sort !== $col) {
+                            return '<svg class="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>';
+                        }
+                        if ($dir === 'asc') {
+                            return '<svg class="w-3.5 h-3.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" /></svg>';
+                        }
+                        return '<svg class="w-3.5 h-3.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>';
+                    };
+                @endphp
                 <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Role</th>
+                    <th>
+                        <a href="{{ $sortUrl('name') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            Name {!! $sortIcon('name') !!}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ $sortUrl('email') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            Email {!! $sortIcon('email') !!}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ $sortUrl('role') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            Role {!! $sortIcon('role') !!}
+                        </a>
+                    </th>
                     <th>Position</th>
-                    <th>EOs Uploaded</th>
-                    <th>Member Since</th>
+                    <th>
+                        <a href="{{ $sortUrl('uploaded_orders_count') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            EOs Uploaded {!! $sortIcon('uploaded_orders_count') !!}
+                        </a>
+                    </th>
+                    <th>
+                        <a href="{{ $sortUrl('created_at') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            Member Since {!! $sortIcon('created_at') !!}
+                        </a>
+                    </th>
                     <th class="text-right pr-6">Actions</th>
                 </tr>
             </thead>
