@@ -19,7 +19,7 @@
         <form action="{{ route('executive-orders.destroy', $eo) }}" method="POST">
             @csrf
             @method('DELETE')
-            <button type="submit" class="btn-danger btn-sm"
+            <button type="submit" class="btn-archive btn-sm"
                     data-confirm="Archive this Executive Order? It can be restored from the Archive."
                     data-confirm-title="Confirm Archive"
                     data-confirm-subtitle="The EO will be moved to the archive and can be restored later."

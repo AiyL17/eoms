@@ -149,11 +149,19 @@
                     </td>
                     <td>
                         @if($log->executiveOrder)
-                            <a href="{{ route('executive-orders.show', $log->executiveOrder) }}"
-                               class="text-[13px] font-bold text-violet-600 hover:text-violet-800 transition-colors">
-                                {{ $log->executiveOrder->eo_number }}
-                            </a>
-                            <p class="text-xs text-slate-400 truncate max-w-sm mt-0.5">{{ $log->executiveOrder->title }}</p>
+                            @if($log->executiveOrder->trashed())
+                                <a href="{{ route('executive-orders.archive') }}"
+                                   class="text-[13px] font-bold text-violet-600 hover:text-violet-800 transition-colors">
+                                    {{ $log->executiveOrder->eo_number }}
+                                </a>
+                                <p class="text-xs text-violet-400 mt-0.5">Archived</p>
+                            @else
+                                <a href="{{ route('executive-orders.show', $log->executiveOrder) }}"
+                                   class="text-[13px] font-bold text-violet-600 hover:text-violet-800 transition-colors">
+                                    {{ $log->executiveOrder->eo_number }}
+                                </a>
+                                <p class="text-xs text-slate-400 truncate max-w-sm mt-0.5">{{ $log->executiveOrder->title }}</p>
+                            @endif
                         @else
                             <span class="text-[13px] text-slate-400 italic">Record Deleted</span>
                         @endif

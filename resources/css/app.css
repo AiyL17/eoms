@@ -27,7 +27,9 @@
 .action-created        { @apply bg-emerald-100 text-emerald-600; }
 .action-updated        { @apply bg-sky-100 text-sky-600; }
 .action-status_changed { @apply bg-amber-100 text-amber-600; }
-.action-deleted        { @apply bg-red-100 text-red-600; }
+.action-deleted        { @apply bg-violet-100 text-violet-600; }
+.action-restored       { @apply bg-teal-100 text-teal-600; }
+.action-force_deleted  { @apply bg-red-100 text-red-600; }
 .action-downloaded     { @apply bg-violet-100 text-violet-600; }
 .action-pdf_viewed     { @apply bg-slate-100 text-slate-500; }
 
@@ -35,7 +37,9 @@
 .action-badge-created        { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100; }
 .action-badge-updated        { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-sky-50 text-sky-700 border border-sky-100; }
 .action-badge-status_changed { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-100; }
-.action-badge-deleted        { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-100; }
+.action-badge-deleted        { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-violet-50 text-violet-700 border border-violet-100; }
+.action-badge-restored       { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-teal-50 text-teal-700 border border-teal-100; }
+.action-badge-force_deleted  { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-red-50 text-red-700 border border-red-100; }
 .action-badge-downloaded     { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-violet-50 text-violet-700 border border-violet-100; }
 .action-badge-pdf_viewed     { @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200; }
 
@@ -103,6 +107,11 @@ select.form-input {
     @apply inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
            transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-red-500/20
            bg-red-50 text-red-600 border border-red-200 hover:bg-red-100 hover:text-red-700;
+}
+.btn-archive {
+    @apply inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
+           transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-violet-500/20
+           bg-violet-50 text-violet-600 border border-violet-200 hover:bg-violet-100 hover:text-violet-700;
 }
 .btn-success {
     @apply inline-flex justify-center items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold

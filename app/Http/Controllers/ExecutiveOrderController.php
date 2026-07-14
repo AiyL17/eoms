@@ -342,7 +342,7 @@ class ExecutiveOrderController extends Controller
 
         return redirect()
             ->route('executive-orders.index')
-            ->with('success', "Executive Order {$eoNumber} has been deleted.");
+            ->with('success', "Executive Order {$eoNumber} has been archived.");
     }
 
     // ─── Archive: list soft-deleted EOs ──────────────────────────────────────
@@ -410,6 +410,7 @@ class ExecutiveOrderController extends Controller
         }
 
         $eoNumber = $executiveOrder->eo_number;
+        EoActivityLog::record($executiveOrder, 'force_deleted', ['eo_number' => $eoNumber], null);
         $executiveOrder->forceDelete();
 
         return redirect()

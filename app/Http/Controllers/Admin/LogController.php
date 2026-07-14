@@ -50,7 +50,9 @@ class LogController extends Controller
             'created'        => 'Uploaded',
             'updated'        => 'Updated',
             'status_changed' => 'Status Changed',
-            'deleted'        => 'Deleted',
+            'deleted'        => 'Archived',
+            'restored'       => 'Restored',
+            'force_deleted'  => 'Permanently Deleted',
             'downloaded'     => 'Downloaded PDF',
             'pdf_viewed'     => 'Viewed PDF',
         ];

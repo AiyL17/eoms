@@ -30,7 +30,7 @@ class EoActivityLog extends Model
 
     public function executiveOrder()
     {
-        return $this->belongsTo(ExecutiveOrder::class);
+        return $this->belongsTo(ExecutiveOrder::class)->withTrashed();
     }
 
     public function user()
@@ -66,8 +66,9 @@ class EoActivityLog extends Model
             'created'        => 'Uploaded',
             'updated'        => 'Updated',
             'status_changed' => 'Status Changed',
-            'deleted'        => 'Deleted',
+            'deleted'        => 'Archived',
             'restored'       => 'Restored',
+            'force_deleted'  => 'Permanently Deleted',
             'downloaded'     => 'Downloaded PDF',
             'pdf_viewed'     => 'Viewed PDF',
             default          => ucfirst(str_replace('_', ' ', $this->action)),
@@ -80,8 +81,9 @@ class EoActivityLog extends Model
             'created'        => 'green',
             'updated'        => 'blue',
             'status_changed' => 'amber',
-            'deleted'        => 'red',
+            'deleted'        => 'violet',
             'restored'       => 'teal',
+            'force_deleted'  => 'red',
             'downloaded'     => 'purple',
             'pdf_viewed'     => 'gray',
             default          => 'gray',
