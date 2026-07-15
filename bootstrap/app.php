@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // ── Clean up old backups at 3:00 AM (keeps rolling 7-day window) ──
         $schedule->command('backup:clean')->dailyAt('03:00');
 
+        // ── Warn admins 5 days before archived EOs are permanently purged ──
+        $schedule->command('eo:notify-expiring')->dailyAt('03:30');
+
         // ── Permanently purge soft-deleted EOs older than 30 days ─────────
         $schedule->command('eo:prune-deleted')->dailyAt('04:00');
     })
