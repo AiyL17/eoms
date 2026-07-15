@@ -57,7 +57,7 @@
             <div class="p-6">
                 <h3 class="form-section-title">2 — Document Details</h3>
                 <div class="space-y-5">
-                    <div>
+                    <div id="tour-eo-title-subject">
                         <label for="title" class="form-label">Title</label>
                         <input type="text" name="title" id="title"
                                value="{{ old('title', $eo->title) }}"
@@ -79,7 +79,7 @@
                                   class="form-input {{ $errors->has('content_summary') ? 'error' : '' }}">{{ old('content_summary', $eo->content_summary) }}</textarea>
                         @error('content_summary') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="tour-eo-dates">
                         <div>
                             <label for="date_issued" class="form-label">Date Issued</label>
                             <input type="date" name="date_issued" id="date_issued"
@@ -98,7 +98,7 @@
                             @error('date_effective') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="tour-eo-signatory">
                         <div>
                             <label for="signed_by" class="form-label">Signed By</label>
                             <input type="text" name="signed_by" id="signed_by"
@@ -121,7 +121,7 @@
                     </div>
 
                     {{-- E-Signature --}}
-                    <div>
+                    <div id="tour-eo-signature">
                         <label class="form-label">
                             E-Signature
                             <span class="text-slate-400 font-normal ml-1">(optional)</span>
@@ -237,7 +237,7 @@
         </div>
 
         {{-- 4. Audit reason --}}
-        <div class="card">
+        <div class="card" id="tour-eo-form-reason">
             <div class="p-6">
                 <h3 class="form-section-title">4 — Reason for Edit</h3>
                 <input type="text" name="log_notes" id="log_notes"
@@ -263,7 +263,7 @@
     </div>
 
     {{-- ── RIGHT: Live preview panel ────────────────────────────────────── --}}
-    <div class="sticky top-6 self-start space-y-5">
+    <div class="sticky top-6 self-start space-y-5" id="tour-eo-form-preview">
         <div class="card">
             <div class="p-5 border-b border-slate-100">
                 <h3 class="text-sm font-bold text-slate-800">Preview</h3>

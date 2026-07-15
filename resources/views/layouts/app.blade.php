@@ -1164,37 +1164,77 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
         /* ── Upload / create ───────────────────────────────────────── */
         'executive-orders.create': [
             {
-                element: '#tour-eo-form-basic',
+                element: '#tour-eo-form-preview',
                 popover: {
-                    title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z') + 'Basic Information',
-                    description: 'Enter the <strong>EO Number</strong> (e.g. EO-2026-001), <strong>Title</strong>, and <strong>Subject</strong>.'
-                        + tip('EO Number must be unique. The year is auto-detected from the date.'),
-                    side: 'right', align: 'start',
-                }
-            },
-            {
-                element: '#tour-eo-form-dates',
-                popover: {
-                    title: ico('M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5') + 'Dates & Signatory',
-                    description: 'Set the <strong>Date Issued</strong> and optional <strong>Date Effective</strong>. Enter the official <strong>Signatory</strong> name.',
-                    side: 'right', align: 'start',
+                    title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
+                    description: 'This panel updates in real time as you fill in the form — EO number, title, dates, signatory, and attached file all reflect instantly.',
+                    side: 'left', align: 'start',
                 }
             },
             {
                 element: '#tour-eo-form-file',
                 popover: {
-                    title: ico('M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13') + 'PDF Attachment',
-                    description: 'Upload the official EO document. Only <strong>PDF files</strong> are accepted.'
-                        + tip('The filename and size will be shown after selecting the file.'),
+                    title: ico('M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z') + 'Document File',
+                    description: 'Click or drag-and-drop to attach the official EO document. Only <strong>PDF files</strong> up to 20 MB are accepted.',
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-eo-form-basic',
+                popover: {
+                    title: ico('M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5') + 'EO Identification',
+                    description: 'Set the <strong>Item Number</strong> and <strong>Year</strong>. The system auto-suggests the next available number for the selected year — the preview below updates as you type.',
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-eo-title-subject',
+                popover: {
+                    title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z') + 'Title & Subject',
+                    description: 'Enter the official <strong>Title</strong> of the EO and a brief <strong>Subject</strong> summary. Both are required and appear on the EO detail page and in search results.',
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-eo-dates',
+                popover: {
+                    title: ico('M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5') + 'Issuance Dates',
+                    description: '<strong>Date Issued</strong> is required — it is the official date the EO was signed. <strong>Date Effective</strong> is optional and used when the EO takes effect on a different date.',
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-eo-signatory',
+                popover: {
+                    title: ico('M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z') + 'Signatory & Tags',
+                    description: 'Enter the full name of the official who signed the EO under <strong>Signed By</strong>. Add optional comma-separated <strong>Tags</strong> (e.g. Budget, Health) to make the EO easier to filter and find.',
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-eo-signature',
+                popover: {
+                    title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125') + 'E-Signature',
+                    description: 'Attach a digital signature that will appear on this EO\'s record. If you have a saved profile signature, check the box to use it — or draw a new one directly on the canvas.'
+                        + tip('Drawing a new signature here also saves it to your profile for future use.'),
                     side: 'right', align: 'start',
                 }
             },
             {
                 element: '#tour-eo-form-extra',
                 popover: {
-                    title: ico('M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L9.568 3z M6 6h.008v.008H6V6z') + 'Tags & Summary',
-                    description: 'Optional but recommended. Add comma-separated <strong>Tags</strong> for easier filtering, and a brief <strong>Content Summary</strong>.',
-                    side: 'left', align: 'start',
+                    title: ico('M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L9.568 3z M6 6h.008v.008H6V6z') + 'Initial Status',
+                    description: 'Set the EO\'s starting status. Most EOs begin as <strong>Active</strong>. Choose <strong>Under Review</strong> or <strong>Suspended</strong> if it is not yet in full effect.'
+                        + tip('A Status Notes field appears when you choose any status other than Active.'),
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-eo-form-amendment',
+                popover: {
+                    title: ico('M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99') + 'Amendment Link',
+                    description: 'If this EO amends an existing one, select it here. The original EO will automatically be marked as <strong>Amended</strong> when you save.',
+                    side: 'right', align: 'start',
                 }
             },
         ],
@@ -1202,26 +1242,67 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
         /* ── EO edit ───────────────────────────────────────────────── */
         'executive-orders.edit': [
             {
-                element: '#tour-eo-form-basic',
+                element: '#tour-eo-form-preview',
                 popover: {
-                    title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z') + 'Edit Basic Info',
-                    description: 'Update the EO Number, Title, Subject, or any core fields.',
-                    side: 'right', align: 'start',
+                    title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
+                    description: 'The preview panel on the right updates as you make changes — title, subject, dates, signatory, and file all reflect in real time.',
+                    side: 'left', align: 'start',
                 }
             },
             {
                 element: '#tour-eo-form-status',
                 popover: {
-                    title: ico('M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99') + 'Status & Notes',
-                    description: 'Change the EO\'s status here. Add <strong>Status Notes</strong> to document the reason (e.g., "Suspended pending legal review").',
+                    title: ico('M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99') + 'Status',
+                    description: 'Update the EO\'s current status here. Add a <strong>Status Note</strong> to document the reason for the change — this appears in the audit log.'
+                        + tip('The Status Notes field appears automatically for any status other than Active.'),
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-eo-title-subject',
+                popover: {
+                    title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z') + 'Title & Subject',
+                    description: 'Edit the official <strong>Title</strong>, <strong>Subject</strong>, or the optional <strong>Content Summary</strong>. Changes are saved on submit and recorded in the activity log.',
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-eo-dates',
+                popover: {
+                    title: ico('M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5') + 'Issuance Dates',
+                    description: 'Correct the <strong>Date Issued</strong> or set a <strong>Date Effective</strong> if the EO takes effect on a different date than it was signed.',
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-eo-signatory',
+                popover: {
+                    title: ico('M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z') + 'Signatory & Tags',
+                    description: 'Update the <strong>Signed By</strong> name or adjust <strong>Tags</strong> to improve searchability. Tags are comma-separated.',
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-eo-signature',
+                popover: {
+                    title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125') + 'E-Signature',
+                    description: 'Attach or replace the digital signature on this EO. Use your saved profile signature or draw a new one on the canvas.',
                     side: 'right', align: 'start',
                 }
             },
             {
                 element: '#tour-eo-form-file',
                 popover: {
-                    title: ico('M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941l-7.81 7.81a1.5 1.5 0 002.112 2.13') + 'Replace PDF',
-                    description: 'Upload a new PDF to replace the existing document. The old file is replaced and the change is logged.',
+                    title: ico('M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z') + 'Replace PDF',
+                    description: 'Upload a new PDF to replace the current document. Leave this empty to keep the existing file. The replacement is logged in the audit trail.',
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-eo-form-reason',
+                popover: {
+                    title: ico('M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z') + 'Reason for Edit',
+                    description: 'Briefly describe what changed and why. This note is optional but is saved to the <strong>audit log</strong> for this record — useful for accountability and future reference.',
                     side: 'right', align: 'start',
                 }
             },

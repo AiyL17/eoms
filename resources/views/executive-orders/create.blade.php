@@ -87,11 +87,11 @@
         </div>
 
         {{-- 3. Document Details --}}
-        <div class="card" id="tour-eo-form-dates">
+        <div class="card" id="tour-eo-form-details">
             <div class="p-6">
                 <h3 class="form-section-title">3 — Document Details</h3>
                 <div class="space-y-5">
-                    <div>
+                    <div id="tour-eo-title-subject">
                         <label for="title" class="form-label">Title</label>
                         <input type="text" name="title" id="title" value="{{ old('title') }}"
                                class="form-input {{ $errors->has('title') ? 'error' : '' }}" required
@@ -115,7 +115,7 @@
                                   placeholder="Key points or highlights of the EO">{{ old('content_summary') }}</textarea>
                         @error('content_summary') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="tour-eo-dates">
                         <div>
                             <label for="date_issued" class="form-label">Date Issued</label>
                             <input type="date" name="date_issued" id="date_issued"
@@ -134,7 +134,7 @@
                             @error('date_effective') <p class="form-error">{{ $message }}</p> @enderror
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="tour-eo-signatory">
                         <div>
                             <label for="signed_by" class="form-label">Signed By</label>
                             <input type="text" name="signed_by" id="signed_by" value="{{ old('signed_by') }}"
@@ -156,7 +156,7 @@
                     </div>
 
                     {{-- E-Signature --}}
-                    <div>
+                    <div id="tour-eo-signature">
                         <label class="form-label">
                             E-Signature
                             <span class="text-slate-400 font-normal ml-1">(optional)</span>
@@ -240,7 +240,7 @@
         </div>
 
         {{-- 5. Amendment --}}
-        <div class="card">
+        <div class="card" id="tour-eo-form-amendment">
             <div class="p-6">
                 <h3 class="form-section-title">5 — Amendment Link <span class="text-slate-400 font-normal normal-case tracking-normal text-xs ml-1">(optional)</span></h3>
                 <div class="bg-violet-50/60 rounded-xl p-4 border border-violet-100">
@@ -278,7 +278,7 @@
     </div>
 
     {{-- ── RIGHT: Live summary panel ────────────────────────────────────── --}}
-    <div class="sticky top-6 self-start space-y-5">
+    <div class="sticky top-6 self-start space-y-5" id="tour-eo-form-preview">
 
         {{-- EO Preview card --}}
         <div class="card">
