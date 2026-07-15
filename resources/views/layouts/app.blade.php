@@ -601,7 +601,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
 {{-- Floating Help Button --}}
 <button id="tour-help-btn"
         onclick="startPageTour()"
-        class="fixed bottom-6 right-6 z-[9990] w-12 h-12 rounded-full shadow-lg
+        class="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-[9990] w-12 h-12 rounded-full shadow-lg
                bg-violet-600 hover:bg-violet-700 text-white
                flex items-center justify-center
                transition-all duration-200 hover:scale-110 hover:shadow-violet-600/40 hover:shadow-xl
@@ -625,6 +625,30 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
     max-width: 340px !important;
     border: 1px solid #ede9fe !important;
     overflow: hidden !important;
+}
+
+/* On mobile, use near-full width */
+@media (max-width: 639px) {
+    .driver-popover {
+        max-width: calc(100vw - 24px) !important;
+        width: calc(100vw - 24px) !important;
+    }
+    /* Always position popover at bottom of screen on mobile for sidebar steps */
+    .driver-popover-bottom,
+    .driver-popover-top,
+    .driver-popover-left,
+    .driver-popover-right {
+        position: fixed !important;
+        bottom: 80px !important;
+        left: 12px !important;
+        right: 12px !important;
+        top: auto !important;
+        transform: none !important;
+    }
+    /* Hide the directional arrow on mobile — it points nowhere useful */
+    .driver-popover-arrow {
+        display: none !important;
+    }
 }
 
 /* Header bar */
@@ -908,6 +932,9 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
             },
             {
                 element: '[data-tour="needs-attention"]',
+                onHighlightStarted: (el) => {
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                },
                 popover: {
                     title: ico('M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z') + 'Needs Attention',
                     description: 'EOs currently under review or suspended. Click any item to open it directly.',
@@ -1047,6 +1074,9 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
             },
             {
                 element: '[data-tour="needs-attention"]',
+                onHighlightStarted: (el) => {
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                },
                 popover: {
                     title: ico('M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z') + 'Needs Attention',
                     description: 'EOs currently under review or suspended. Click any item to open it directly.',
@@ -1501,6 +1531,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
     /* ── Launch tour ──────────────────────────────────────────────── */
     window.startPageTour = function () {
         const steps = tours[routeName];
+        const isMobile = window.innerWidth < 1024; // lg breakpoint — sidebar is overlay on mobile
 
         if (!steps || steps.length === 0) {
             /* No tour for this page — show a friendly toast */
@@ -1519,10 +1550,75 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
             return;
         }
 
+        /* Sidebar element IDs — these live inside the off-screen sidebar on mobile */
+        const sidebarElementIds = [
+            '#tour-sidebar', '#tour-nav-dashboard', '#tour-nav-eos',
+            '#tour-nav-users', '#tour-nav-logs', '#tour-nav-archive',
+            '#tour-nav-settings', '#tour-sidebar-profile',
+            '#tour-sidebar-profile-link', '#tour-sidebar-signout',
+        ];
+
+        /* Helper: is a step targeting a sidebar element? */
+        function isSidebarStep(step) {
+            return step.element && sidebarElementIds.includes(step.element);
+        }
+
+        /* Alpine.js sidebar state helpers */
+        function openSidebar() {
+            const alpineRoot = document.querySelector('[x-data]');
+            if (alpineRoot && alpineRoot._x_dataStack) {
+                alpineRoot._x_dataStack[0].sidebarOpen = true;
+            }
+        }
+        function closeSidebar() {
+            const alpineRoot = document.querySelector('[x-data]');
+            if (alpineRoot && alpineRoot._x_dataStack) {
+                alpineRoot._x_dataStack[0].sidebarOpen = false;
+            }
+        }
+
         /* Filter out steps whose element doesn't exist on this page */
         const validSteps = steps.filter(s => !s.element || document.querySelector(s.element));
 
         if (validSteps.length === 0) return;
+
+        /* On mobile: wrap every step to handle sidebar open/close + adapt popover side */
+        const processedSteps = validSteps.map(step => {
+            const processed = Object.assign({}, step);
+
+            if (isMobile) {
+                /* Force all popovers to appear below the element on mobile
+                   (sidebar items sit at top-left, so 'bottom' keeps popover visible) */
+                if (processed.popover) {
+                    processed.popover = Object.assign({}, processed.popover, { side: 'bottom', align: 'start' });
+                }
+
+                const originalOnHighlight = step.onHighlightStarted;
+
+                if (isSidebarStep(step)) {
+                    /* For sidebar steps: open the sidebar before highlighting */
+                    processed.onHighlightStarted = (element, step) => {
+                        openSidebar();
+                        /* Wait for the sidebar transition (300ms) then let driver proceed */
+                        if (originalOnHighlight) originalOnHighlight(element, step);
+                    };
+                } else {
+                    /* For non-sidebar steps: close the sidebar so it doesn't cover page content */
+                    processed.onHighlightStarted = (element, step) => {
+                        closeSidebar();
+                        if (originalOnHighlight) originalOnHighlight(element, step);
+                    };
+                }
+            }
+
+            return processed;
+        });
+
+        /* On mobile: close sidebar after tour ends or is dismissed */
+        const onTourEnd = isMobile ? () => {
+            /* Small delay so the user sees the final step before sidebar snaps shut */
+            setTimeout(closeSidebar, 300);
+        } : undefined;
 
         const driverObj = window.driver.js.driver({
             showProgress: true,
@@ -1532,13 +1628,21 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
             doneBtnText: 'Done ✓',
             allowClose: true,
             overlayOpacity: 0.55,
-            stagePadding: 6,
+            stagePadding: isMobile ? 4 : 6,
             stageRadius: 10,
             popoverClass: 'eoms-tour-popover',
-            steps: validSteps,
+            steps: processedSteps,
+            onDestroyed: onTourEnd,
         });
 
-        driverObj.drive();
+        /* On mobile: open sidebar first if the very first step targets it */
+        if (isMobile && processedSteps.length > 0 && isSidebarStep(validSteps[0])) {
+            openSidebar();
+            /* Give the CSS transition time to finish before driver.js measures positions */
+            setTimeout(() => driverObj.drive(), 320);
+        } else {
+            driverObj.drive();
+        }
     };
 })();
 </script>
