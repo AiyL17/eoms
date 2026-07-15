@@ -1327,12 +1327,16 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
         /* ── Profile edit ──────────────────────────────────────────── */
         'profile.edit': [
             {
-                element: '[data-tour="profile-info"]',
+                element: '#profile-card',
                 popover: {
                     title: ico('M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z') + 'Personal Information',
                     description: 'Update your display name, position/title, and email address.',
-                    side: 'right', align: 'start',
-                }
+                    side: 'left', align: 'start',
+                },
+                onHighlightStarted: () => {
+                    const btn = document.getElementById('tab-btn-info');
+                    if (btn) btn.click();
+                },
             },
             {
                 element: '[data-tour="profile-avatar"]',
@@ -1352,12 +1356,16 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 }
             },
             {
-                element: '[data-tour="profile-password"]',
+                element: '#profile-card',
                 popover: {
                     title: ico('M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z') + 'Change Password',
                     description: 'Enter your current password, then set a new one. Passwords must meet the minimum security requirements.',
-                    side: 'right', align: 'start',
-                }
+                    side: 'left', align: 'start',
+                },
+                onHighlightStarted: () => {
+                    const btn = document.getElementById('tab-btn-password');
+                    if (btn) btn.click();
+                },
             },
         ],
 

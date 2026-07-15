@@ -164,12 +164,13 @@
         </div>
 
         {{-- ── RIGHT: Tab Panels ────────────────────────────────────────────── --}}
-        <div class="lg:col-span-2" data-tour="profile-info">
-            <div class="card overflow-hidden">
+        <div class="lg:col-span-2">
+            <div id="profile-card" class="card overflow-hidden" data-tour="profile-info">
 
                 {{-- Tab Nav --}}
                 <div class="flex border-b border-slate-100 bg-slate-50/60">
                     <button type="button"
+                            id="tab-btn-info"
                             @click="tab = 'info'"
                             :class="tab === 'info'
                                 ? 'border-b-2 border-violet-600 text-violet-700 bg-white'
@@ -184,6 +185,7 @@
                         @endif
                     </button>
                     <button type="button"
+                            id="tab-btn-password"
                             @click="tab = 'password'"
                             :class="tab === 'password'
                                 ? 'border-b-2 border-violet-600 text-violet-700 bg-white'
