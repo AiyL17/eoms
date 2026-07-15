@@ -5,7 +5,7 @@
 
 @section('header-actions')
     @if(auth()->user()->isAdmin() || \App\Models\Setting::get('staff_can_upload', '1') === '1')
-    <a href="{{ route('executive-orders.create') }}" class="btn-primary btn-sm">
+    <a href="{{ route('executive-orders.create') }}" id="tour-header-btn" class="btn-primary btn-sm">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
@@ -17,7 +17,7 @@
 @section('content')
 
 {{-- Filters --}}
-<div class="card mb-5">
+<div class="card mb-5" id="tour-eo-filters">
     <div class="px-5 py-4">
         <form action="{{ route('executive-orders.index') }}" method="GET">
             <div class="flex flex-col lg:flex-row gap-3 items-center">
@@ -87,7 +87,7 @@
 </div>
 
 {{-- Table --}}
-<div class="card">
+<div class="card" id="tour-eo-table">
 
     {{-- Result count + active filter chips --}}
     <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-4 flex-wrap">

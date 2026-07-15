@@ -10,7 +10,7 @@
 @endsection
 
 @section('header-actions')
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-2" id="tour-header-btn">
         <a href="{{ route('executive-orders.edit', $eo) }}" class="btn-secondary btn-sm">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
             Edit
@@ -50,7 +50,7 @@
 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
     {{-- PDF Viewer --}}
-    <div class="xl:col-span-2 min-h-[400px]" style="height: clamp(400px, calc(100vh - 140px), 900px);">
+    <div class="xl:col-span-2 min-h-[400px]" id="tour-eo-pdf" style="height: clamp(400px, calc(100vh - 140px), 900px);">
         <div class="card h-full flex flex-col">
             <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-3">
@@ -62,7 +62,7 @@
                         <p class="text-xs text-slate-400">{{ $eo->file_size_formatted }}</p>
                     </div>
                 </div>
-                <a href="{{ route('executive-orders.download', $eo) }}" class="btn-primary btn-sm">
+                <a href="{{ route('executive-orders.download', $eo) }}" id="tour-eo-download" class="btn-primary btn-sm">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                     Download
                 </a>
@@ -74,7 +74,7 @@
     </div>
 
     {{-- Metadata Panel --}}
-    <div class="space-y-5 xl:overflow-y-auto" style="max-height: clamp(400px, calc(100vh - 140px), 900px);">
+    <div class="space-y-5 xl:overflow-y-auto" id="tour-eo-meta" style="max-height: clamp(400px, calc(100vh - 140px), 900px);">
 
         {{-- Status & Title --}}
         <div class="card">

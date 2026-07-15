@@ -4,7 +4,7 @@
 @section('page-title', 'User Profiles')
 
 @section('header-actions')
-    <a href="{{ route('admin.users.create') }}" class="btn-primary btn-sm">
+    <a href="{{ route('admin.users.create') }}" id="tour-header-btn" class="btn-primary btn-sm">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.66-1.548c0 .526-.099 1.039-.286 1.504" />
         </svg>
@@ -15,7 +15,7 @@
 @section('content')
 
 {{-- Summary stats --}}
-<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6" data-tour="user-stats">
     <div class="stat-card">
         <div class="stat-icon bg-violet-100 text-violet-600">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
@@ -52,7 +52,7 @@
 </div>
 
 {{-- Filters --}}
-<div class="card mb-5">
+<div class="card mb-5" data-tour="user-filters">
     <div class="px-5 py-4">
         <form action="{{ route('admin.users.index') }}" method="GET">
             <div class="flex flex-col sm:flex-row gap-3 items-center">
@@ -91,7 +91,7 @@
 </div>
 
 {{-- User table --}}
-<div class="card">
+<div class="card" data-tour="user-table">
     {{-- Result count + active filter chips --}}
     <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-4 flex-wrap">
         <p class="text-xs font-semibold text-slate-500">

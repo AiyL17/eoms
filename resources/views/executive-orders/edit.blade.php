@@ -22,7 +22,7 @@
     <div class="xl:col-span-2 space-y-5">
 
         {{-- 1. Status --}}
-        <div class="card">
+        <div class="card" id="tour-eo-form-status">
             <div class="p-6">
                 <h3 class="form-section-title">1 — Status</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -53,7 +53,7 @@
         </div>
 
         {{-- 2. Document Details --}}
-        <div class="card">
+        <div class="card" id="tour-eo-form-basic">
             <div class="p-6">
                 <h3 class="form-section-title">2 — Document Details</h3>
                 <div class="space-y-5">
@@ -187,7 +187,7 @@
         </div>
 
         {{-- 3. Replace PDF --}}
-        <div class="card">
+        <div class="card" id="tour-eo-form-file">
             <div class="p-6">
                 <h3 class="form-section-title">3 — Replace PDF <span class="text-slate-400 font-normal normal-case tracking-normal text-xs ml-1">(optional)</span></h3>
 

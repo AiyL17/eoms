@@ -4,7 +4,7 @@
 @section('page-title', 'Administrator Dashboard')
 
 @section('header-actions')
-    <a href="{{ route('admin.users.index') }}" class="btn-secondary btn-sm">
+    <a href="{{ route('admin.users.index') }}" id="tour-header-btn" class="btn-secondary btn-sm">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
         </svg>
@@ -21,7 +21,7 @@
 @section('content')
 
 {{-- ── Welcome Banner ────────────────────────────────────────────────────── --}}
-<div class="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl px-6 py-5 mb-6 flex items-center justify-between">
+<div class="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl px-6 py-5 mb-6 flex items-center justify-between" data-tour="welcome-banner">
     <div>
         <p class="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">Welcome back</p>
         <h2 class="text-white text-xl font-bold">{{ auth()->user()->name }}</h2>
@@ -34,7 +34,7 @@
 </div>
 
 {{-- ── KPI Stats Row ──────────────────────────────────────────────────────── --}}
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" data-tour="kpi-stats">
 
     {{-- Total EOs --}}
     <a href="{{ route('executive-orders.index') }}" class="stat-card hover:ring-2 hover:ring-violet-200 hover:shadow-md transition-all">
@@ -97,7 +97,7 @@
 {{-- ── Status Distribution + Year Volume ─────────────────────────────────── --}}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
-    <div class="lg:col-span-2 card">
+    <div class="lg:col-span-2 card" data-tour="status-distribution">
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">Status Distribution</h2>
@@ -129,7 +129,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" data-tour="by-year">
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">By Year</h2>
@@ -166,7 +166,7 @@
 {{-- ── Recent EOs + Needs Attention + Top Users ───────────────────────────── --}}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
-    <div class="lg:col-span-2 card">
+    <div class="lg:col-span-2 card" data-tour="recent-eos">
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">Recently Uploaded</h2>
@@ -238,7 +238,7 @@
     <div class="space-y-6">
 
         {{-- Needs Attention --}}
-        <div class="card">
+        <div class="card" data-tour="needs-attention">
             <div class="card-header">
                 <div>
                     <h2 class="text-sm font-bold text-slate-800">Needs Attention</h2>
@@ -268,7 +268,7 @@
         </div>
 
         {{-- Most Active Users --}}
-        <div class="card">
+        <div class="card" data-tour="top-users">
             <div class="card-header">
                 <div>
                     <h2 class="text-sm font-bold text-slate-800">Most Active Users</h2>
@@ -300,7 +300,7 @@
 {{-- ── System Activity Feed + 7-day Upload Sparkline ──────────────────────── --}}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-    <div class="lg:col-span-2 card">
+    <div class="lg:col-span-2 card" data-tour="activity-feed">
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">System Activity</h2>
@@ -357,7 +357,7 @@
         </div>
     </div>
 
-    <div class="card">
+    <div class="card" data-tour="upload-sparkline">
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">System Uploads — Last 7 Days</h2>

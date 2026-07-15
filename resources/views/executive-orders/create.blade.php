@@ -19,7 +19,7 @@
     <div class="xl:col-span-2 space-y-5">
 
         {{-- 1. Document File --}}
-        <div class="card">
+        <div class="card" id="tour-eo-form-file">
             <div class="p-6">
                 <h3 class="form-section-title">1 — Document File</h3>
                 <div id="drop-zone"
@@ -55,7 +55,7 @@
         </div>
 
         {{-- 2. Identification --}}
-        <div class="card">
+        <div class="card" id="tour-eo-form-basic">
             <div class="p-6">
                 <h3 class="form-section-title">2 — Identification</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -87,7 +87,7 @@
         </div>
 
         {{-- 3. Document Details --}}
-        <div class="card">
+        <div class="card" id="tour-eo-form-dates">
             <div class="p-6">
                 <h3 class="form-section-title">3 — Document Details</h3>
                 <div class="space-y-5">
@@ -210,7 +210,7 @@
         </div>
 
         {{-- 4. Status --}}
-        <div class="card">
+        <div class="card" id="tour-eo-form-extra">
             <div class="p-6">
                 <h3 class="form-section-title">4 — Status</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">

@@ -4,7 +4,7 @@
 @section('page-title', 'My Dashboard')
 
 @section('header-actions')
-    <a href="{{ route('executive-orders.create') }}" class="btn-primary btn-sm">
+    <a href="{{ route('executive-orders.create') }}" id="tour-header-btn" class="btn-primary btn-sm">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
@@ -15,7 +15,7 @@
 @section('content')
 
 {{-- ── Welcome Banner ────────────────────────────────────────────────────── --}}
-<div class="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl px-6 py-5 mb-6 flex items-center justify-between">
+<div class="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl px-6 py-5 mb-6 flex items-center justify-between" data-tour="welcome-banner">
     <div>
         <p class="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">Welcome back</p>
         <h2 class="text-white text-xl font-bold">{{ auth()->user()->name }}</h2>
@@ -28,7 +28,7 @@
 </div>
 
 {{-- ── Personal KPI Stats ────────────────────────────────────────────────── --}}
-<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" data-tour="kpi-stats">
 
     {{-- My Total Uploads --}}
     <a href="{{ route('executive-orders.index') }}" class="stat-card hover:ring-2 hover:ring-violet-200 hover:shadow-md transition-all">
@@ -92,7 +92,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
     {{-- My Recent Uploads --}}
-    <div class="lg:col-span-2 card">
+    <div class="lg:col-span-2 card" data-tour="recent-eos">
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">My Recent Uploads</h2>
@@ -162,7 +162,7 @@
     </div>
 
     {{-- EO Status Overview --}}
-    <div class="card">
+    <div class="card" data-tour="status-distribution">
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">EO Status Overview</h2>
@@ -199,7 +199,7 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     {{-- My Recent Activity --}}
-    <div class="lg:col-span-2 card">
+    <div class="lg:col-span-2 card" data-tour="activity-feed">
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">My Recent Activity</h2>
@@ -257,7 +257,7 @@
     <div class="space-y-6">
 
         {{-- Needs Attention --}}
-        <div class="card">
+        <div class="card" data-tour="needs-attention">
             <div class="card-header">
                 <div>
                     <h2 class="text-sm font-bold text-slate-800">Needs Attention</h2>
@@ -287,7 +287,7 @@
         </div>
 
         {{-- My Uploads — Last 7 Days --}}
-        <div class="card">
+        <div class="card" data-tour="upload-sparkline">
             <div class="card-header">
                 <div>
                     <h2 class="text-sm font-bold text-slate-800">My Uploads — Last 7 Days</h2>

@@ -12,7 +12,7 @@
     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
 
         {{-- ── Left col: settings card + save ─────────────────────────── --}}
-        <div class="xl:col-span-2 space-y-5">
+        <div class="xl:col-span-2 space-y-5" data-tour="settings-form">
 
             <div class="card divide-y divide-slate-100">
 
@@ -146,7 +146,7 @@
 
         {{-- ── Right col: system health ────────────────────────────────── --}}
         <div class="xl:sticky xl:top-20">
-            <div class="card overflow-hidden">
+            <div class="card overflow-hidden" data-tour="health-panel">
 
                 {{-- Panel header --}}
                 <div class="px-5 py-4 border-b border-slate-100 flex items-center gap-2.5">

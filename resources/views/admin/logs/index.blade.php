@@ -6,7 +6,7 @@
 @section('content')
 
 {{-- Filters --}}
-<div class="card mb-5">
+<div class="card mb-5" data-tour="logs-filters">
     <div class="px-5 py-4">
         <form action="{{ route('admin.logs.index') }}" method="GET">
             <div class="flex flex-col lg:flex-row gap-3 items-center">
@@ -62,7 +62,7 @@
 </div>
 
 {{-- Logs Table --}}
-<div class="card">
+<div class="card" data-tour="logs-table">
 
     {{-- Result count + active filter chips --}}
     <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between gap-4 flex-wrap">

@@ -19,7 +19,7 @@
     <div class="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl px-6 py-6 mb-6 flex items-center gap-5">
 
         {{-- Avatar — click to open modal --}}
-        <div class="relative shrink-0 group">
+        <div class="relative shrink-0 group" data-tour="profile-avatar">
             <button type="button" id="open-avatar-modal"
                     class="w-16 h-16 rounded-2xl overflow-hidden bg-white/20 flex items-center justify-center
                            text-white text-2xl font-bold select-none focus:outline-none"
@@ -108,7 +108,7 @@
             </div>
 
             {{-- ── E-Signature card ──────────────────────────────────────── --}}
-            <div class="card">
+            <div class="card" data-tour="profile-signature">
                 <div class="p-5 border-b border-slate-100">
                     <h3 class="text-sm font-bold text-slate-800">E-Signature</h3>
                     <p class="text-xs text-slate-400 mt-0.5">Used when signing executive orders.</p>
@@ -164,7 +164,7 @@
         </div>
 
         {{-- ── RIGHT: Tab Panels ────────────────────────────────────────────── --}}
-        <div class="lg:col-span-2">
+        <div class="lg:col-span-2" data-tour="profile-info">
             <div class="card overflow-hidden">
 
                 {{-- Tab Nav --}}
@@ -260,7 +260,7 @@
                 </div>
 
                 {{-- ── Tab: Password ────────────────────────────────────────── --}}
-                <div x-show="tab === 'password'" x-cloak>
+                <div x-show="tab === 'password'" x-cloak data-tour="profile-password">
                     <div class="p-6 border-b border-slate-100">
                         <h3 class="text-sm font-bold text-slate-800">Password & Security</h3>
                         <p class="text-xs text-slate-400 mt-0.5">Use a strong password with at least 8 characters, including letters and numbers.</p>
