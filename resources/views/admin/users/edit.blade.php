@@ -20,23 +20,25 @@
     <div class="xl:col-span-2 space-y-5">
 
         {{-- 1. Profile --}}
-        <div class="card">
+        <div class="card" id="tour-user-profile">
             <div class="p-6">
                 <h3 class="form-section-title">1 — Profile</h3>
                 <div class="space-y-5">
-                    <div>
-                        <label for="name" class="form-label">Full Name</label>
-                        <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
-                               class="form-input {{ $errors->has('name') ? 'error' : '' }}" required>
-                        @error('name') <p class="form-error">{{ $message }}</p> @enderror
+                    <div id="tour-user-name-email" class="space-y-5">
+                        <div>
+                            <label for="name" class="form-label">Full Name</label>
+                            <input type="text" name="name" id="name" value="{{ old('name', $user->name) }}"
+                                   class="form-input {{ $errors->has('name') ? 'error' : '' }}" required>
+                            @error('name') <p class="form-error">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
+                                   class="form-input {{ $errors->has('email') ? 'error' : '' }}" required>
+                            @error('email') <p class="form-error">{{ $message }}</p> @enderror
+                        </div>
                     </div>
-                    <div>
-                        <label for="email" class="form-label">Email Address</label>
-                        <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
-                               class="form-input {{ $errors->has('email') ? 'error' : '' }}" required>
-                        @error('email') <p class="form-error">{{ $message }}</p> @enderror
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5" id="tour-user-role-position">
                         <div>
                             <label for="role" class="form-label">System Role</label>
                             <select name="role" id="role"
@@ -67,7 +69,7 @@
         </div>
 
         {{-- 2. Change Password --}}
-        <div class="card">
+        <div class="card" id="tour-user-password">
             <div class="p-6">
                 <h3 class="form-section-title">2 — Change Password</h3>
                 <div class="space-y-5">
@@ -132,7 +134,7 @@
     </div>
 
     {{-- ── RIGHT: User info panel ───────────────────────────────────────── --}}
-    <div class="sticky top-20 self-start space-y-5">
+    <div class="sticky top-20 self-start space-y-5" id="tour-user-preview">
 
         {{-- Live preview --}}
         <div class="card">
@@ -166,7 +168,7 @@
         </div>
 
         {{-- Account info --}}
-        <div class="bg-slate-50 rounded-2xl border border-slate-100 p-4 space-y-2.5 text-xs">
+        <div class="bg-slate-50 rounded-2xl border border-slate-100 p-4 space-y-2.5 text-xs" id="tour-user-account-info">
             <p class="font-bold text-slate-700 uppercase tracking-widest text-[10px]">Account Info</p>
             <div class="flex items-center justify-between">
                 <span class="text-slate-400 font-medium">Member since</span>
