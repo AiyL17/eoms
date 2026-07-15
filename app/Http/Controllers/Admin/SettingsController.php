@@ -70,7 +70,7 @@ class SettingsController extends Controller
         try {
             $orphaned = ExecutiveOrder::whereNotNull('pdf_path')
                 ->get()
-                ->filter(fn ($eo) => ! Storage::disk('public')->exists($eo->pdf_path))
+                ->filter(fn ($eo) => ! Storage::disk('local')->exists($eo->pdf_path))
                 ->count();
 
             $checks[] = [

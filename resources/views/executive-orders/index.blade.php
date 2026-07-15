@@ -4,12 +4,14 @@
 @section('page-title', 'Executive Orders')
 
 @section('header-actions')
+    @if(auth()->user()->isAdmin() || \App\Models\Setting::get('staff_can_upload', '1') === '1')
     <a href="{{ route('executive-orders.create') }}" class="btn-primary btn-sm">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
         Upload New EO
     </a>
+    @endif
 @endsection
 
 @section('content')
@@ -52,12 +54,24 @@
                     </select>
                 </div>
 
+                {{-- Tag --}}
+                @if($allTags->isNotEmpty())
+                <div class="w-full lg:w-44 shrink-0">
+                    <select name="tag" id="tag" class="form-input">
+                        <option value="">All Tags</option>
+                        @foreach($allTags as $tag)
+                            <option value="{{ $tag }}" {{ request('tag') === $tag ? 'selected' : '' }}>{{ $tag }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+
                 {{-- Actions --}}
                 <div class="flex gap-2 w-full lg:w-auto shrink-0">
                     <button type="submit" class="btn-primary h-[42px] px-5 w-full lg:w-auto">
                         Filter
                     </button>
-                    @if(request()->anyFilled(['search', 'status', 'year']))
+                    @if(request()->anyFilled(['search', 'status', 'year', 'tag']))
                         <a href="{{ route('executive-orders.index') }}"
                            class="btn-secondary h-[42px] px-4 w-full lg:w-auto text-slate-400 hover:text-slate-600"
                            title="Clear filters">

@@ -20,7 +20,7 @@ class ExecutiveOrder extends Model
         'date_issued',
         'date_effective',
         'signed_by',
-        'signature_data',
+        'signature_path',
         'pdf_path',
         'original_filename',
         'file_size',
@@ -91,7 +91,8 @@ class ExecutiveOrder extends Model
             $q->where('eo_number', 'like', "%{$term}%")
               ->orWhere('title', 'like', "%{$term}%")
               ->orWhere('subject', 'like', "%{$term}%")
-              ->orWhere('signed_by', 'like', "%{$term}%");
+              ->orWhere('signed_by', 'like', "%{$term}%")
+              ->orWhereJsonContains('tags', $term);
         });
     }
 

@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExecutiveOrderController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -15,6 +16,12 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
+
+    // Password reset
+    Route::get('/forgot-password',                [PasswordResetController::class, 'showForm'])->name('password.request');
+    Route::post('/forgot-password',               [PasswordResetController::class, 'sendLink'])->name('password.email')->middleware('throttle:6,1');
+    Route::get('/reset-password/{token}',         [PasswordResetController::class, 'showReset'])->name('password.reset');
+    Route::post('/reset-password',                [PasswordResetController::class, 'reset'])->name('password.update');
 });
 
 // ─── Authenticated Routes ─────────────────────────────────────────────────────
@@ -41,6 +48,10 @@ Route::middleware(['auth', 'maintenance'])->group(function () {
     Route::patch('/profile/signature',  [ProfileController::class, 'updateSignature'])->name('profile.update-signature');
     Route::post('/profile/avatar',      [ProfileController::class, 'updateAvatar'])->name('profile.update-avatar');
     Route::delete('/profile/avatar',    [ProfileController::class, 'removeAvatar'])->name('profile.remove-avatar');
+
+    // ── Signature image serving (local disk, not public) ──────────────────────
+    Route::get('/signatures/users/{user}',              [ProfileController::class, 'serveSignature'])->name('signature.user');
+    Route::get('/signatures/eo/{executiveOrder}',       [\App\Http\Controllers\ExecutiveOrderController::class, 'serveSignature'])->name('signature.eo');
 
     // ── Executive Orders ───────────────────────────────────────────────────────
     Route::prefix('executive-orders')->name('executive-orders.')->group(function () {

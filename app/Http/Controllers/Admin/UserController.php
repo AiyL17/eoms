@@ -36,7 +36,7 @@ class UserController extends Controller
             $query->reorder()->orderBy($sort, $dir);
         }
 
-        $users      = $query->get();
+        $users      = $query->paginate(20)->withQueryString();
         $totalUsers = User::count();
         $adminCount = User::where('role', 'admin')->count();
         $staffCount = User::where('role', 'staff')->count();

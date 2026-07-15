@@ -23,7 +23,7 @@ class User extends Authenticatable
         'password',
         'role',
         'position',
-        'signature_data',
+        'signature_path',
         'avatar',
     ];
 

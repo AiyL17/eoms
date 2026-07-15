@@ -63,10 +63,24 @@ class ProfileController extends Controller
             'signature_data' => ['nullable', 'string', 'max:200000', 'regex:/^data:image\/png;base64,[A-Za-z0-9+\/]+=*$/'],
         ]);
 
-        // Accept a cleared signature (empty string means remove it)
-        Auth::user()->update([
-            'signature_data' => $request->filled('signature_data') ? $request->signature_data : null,
-        ]);
+        $user = Auth::user();
+        $path = "signatures/users/{$user->id}.png";
+
+        if ($request->filled('signature_data')) {
+            // Decode and persist the PNG file
+            $base64 = preg_replace('/^data:image\/\w+;base64,/', '', $request->signature_data);
+            $data   = base64_decode($base64);
+            if ($data) {
+                Storage::disk('local')->put($path, $data);
+                $user->update(['signature_path' => $path]);
+            }
+        } else {
+            // Clear: delete the file and null the path
+            if ($user->signature_path && Storage::disk('local')->exists($user->signature_path)) {
+                Storage::disk('local')->delete($user->signature_path);
+            }
+            $user->update(['signature_path' => null]);
+        }
 
         return back()->with('success', 'E-signature saved successfully.');
     }
@@ -101,5 +115,19 @@ class ProfileController extends Controller
         }
 
         return back()->with('success', 'Profile picture removed.');
+    }
+
+    // ─── Serve signature image from local disk ────────────────────────────────
+
+    public function serveSignature(\App\Models\User $user)
+    {
+        if (! $user->signature_path || ! Storage::disk('local')->exists($user->signature_path)) {
+            abort(404);
+        }
+
+        return response(Storage::disk('local')->get($user->signature_path), 200, [
+            'Content-Type'  => 'image/png',
+            'Cache-Control' => 'private, max-age=3600',
+        ]);
     }
 }

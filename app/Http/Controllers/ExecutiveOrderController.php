@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\EoActivityLog;
 use App\Models\ExecutiveOrder;
+use App\Models\Setting;
 use App\Models\User;
 use App\Notifications\EoDeleted;
 use App\Notifications\EoUploaded;
@@ -34,6 +35,10 @@ class ExecutiveOrderController extends Controller
             $query->byYear((int) $request->year);
         }
 
+        if ($request->filled('tag')) {
+            $query->whereJsonContains('tags', $request->tag);
+        }
+
         // ── Sorting ───────────────────────────────────────────────────────────
         $sortable = ['eo_number', 'date_issued', 'signed_by', 'status', 'year'];
         $sort     = in_array($request->sort, $sortable) ? $request->sort : null;
@@ -52,13 +57,27 @@ class ExecutiveOrderController extends Controller
 
         $statuses = ExecutiveOrder::statuses();
 
-        return view('executive-orders.index', compact('orders', 'years', 'statuses', 'sort', 'dir'));
+        // Collect all distinct tags for the tag filter dropdown
+        $allTags = ExecutiveOrder::whereNotNull('tags')
+            ->pluck('tags')
+            ->flatten()
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+
+        return view('executive-orders.index', compact('orders', 'years', 'statuses', 'sort', 'dir', 'allTags'));
     }
 
     // ─── Create ───────────────────────────────────────────────────────────────
 
     public function create()
     {
+        // Enforce the staff_can_upload setting for non-admin users
+        if (! auth()->user()->isAdmin() && Setting::get('staff_can_upload', '1') !== '1') {
+            abort(403, 'Uploading new Executive Orders has been disabled for staff by an administrator.');
+        }
+
         $currentYear     = (int) date('Y');
         $nextItemNumber  = ExecutiveOrder::nextItemNumber($currentYear);
         $amendableOrders = ExecutiveOrder::where('status', 'active')
@@ -73,6 +92,10 @@ class ExecutiveOrderController extends Controller
 
     public function store(Request $request)
     {
+        // Enforce the staff_can_upload setting for non-admin users
+        if (! auth()->user()->isAdmin() && Setting::get('staff_can_upload', '1') !== '1') {
+            abort(403, 'Uploading new Executive Orders has been disabled for staff by an administrator.');
+        }
         $validated = $request->validate([
             'item_number'     => [
                 'required', 'integer', 'min:1',
@@ -113,31 +136,46 @@ class ExecutiveOrderController extends Controller
             // Build EO number
             $eoNumber = ExecutiveOrder::buildEoNumber($validated['item_number'], $validated['year']);
 
+            // Handle e-signature: save base64 PNG to disk, store path
+            $sigPath  = null;
+            $sigValue = $validated['signature_data'] ?? null;
+            if ($sigValue) {
+                $sigPath = $this->saveSignatureFile($sigValue, 'eo-temp-' . uniqid());
+            }
+
             $eo = ExecutiveOrder::create([
-                'eo_number'       => $eoNumber,
-                'item_number'     => $validated['item_number'],
-                'year'            => $validated['year'],
-                'title'           => $validated['title'],
-                'subject'         => $validated['subject'],
-                'content_summary' => $validated['content_summary'] ?? null,
-                'date_issued'     => $validated['date_issued'],
-                'date_effective'  => $validated['date_effective'] ?? null,
-                'signed_by'       => $validated['signed_by'],
-                'pdf_path'        => $storedPath,
-                'original_filename' => $originalFilename,
-                'file_size'       => $file->getSize(),
-                'status'          => $validated['status'],
-                'status_notes'    => $validated['status_notes'] ?? null,
-                'amends_id'       => $validated['amends_id'] ?? null,
-                'tags'            => $tags,
-                'signature_data'  => $validated['signature_data'] ?? null,
-                'uploaded_by'     => auth()->id(),
+                'eo_number'        => $eoNumber,
+                'item_number'      => $validated['item_number'],
+                'year'             => $validated['year'],
+                'title'            => $validated['title'],
+                'subject'          => $validated['subject'],
+                'content_summary'  => $validated['content_summary'] ?? null,
+                'date_issued'      => $validated['date_issued'],
+                'date_effective'   => $validated['date_effective'] ?? null,
+                'signed_by'        => $validated['signed_by'],
+                'pdf_path'         => $storedPath,
+                'original_filename'=> $originalFilename,
+                'file_size'        => $file->getSize(),
+                'status'           => $validated['status'],
+                'status_notes'     => $validated['status_notes'] ?? null,
+                'amends_id'        => $validated['amends_id'] ?? null,
+                'tags'             => $tags,
+                'signature_path'   => $sigPath,
+                'uploaded_by'      => auth()->id(),
             ]);
 
+            // If the temp path used a placeholder ID, rename to the real EO ID
+            if ($sigPath) {
+                $realPath = "signatures/executive-orders/{$eo->id}.png";
+                Storage::disk('local')->move($sigPath, $realPath);
+                $eo->updateQuietly(['signature_path' => $realPath]);
+            }
+
             // If user has no profile signature yet and drew one here, save it to their profile
-            $sigValue = $validated['signature_data'] ?? null;
-            if ($sigValue && ! auth()->user()->signature_data) {
-                auth()->user()->update(['signature_data' => $sigValue]);
+            if ($sigValue && ! auth()->user()->signature_path) {
+                $profileSigPath = "signatures/users/" . auth()->id() . ".png";
+                $this->saveSignatureFile($sigValue, null, $profileSigPath);
+                auth()->user()->update(['signature_path' => $profileSigPath]);
             }
 
             // If this EO amends another, update the original EO's status
@@ -246,19 +284,33 @@ class ExecutiveOrderController extends Controller
                 $validated['tags'] = array_values($tags) ?: null;
             }
 
-            // Handle signature: keep existing if blank, clear if 'CLEAR', otherwise save new
-            if (empty($validated['signature_data'])) {
-                unset($validated['signature_data']); // keep existing
-            } elseif ($validated['signature_data'] === 'CLEAR') {
-                $validated['signature_data'] = null; // explicitly cleared
-            }
-            // else: new base64 PNG — save as-is
+            // Handle signature: keep existing if blank, clear if 'CLEAR', save new to disk
+            $sigValue = $validated['signature_data'] ?? null;
+            unset($validated['signature_data']); // remove raw base64 — we use signature_path instead
 
-            // If user has no profile signature yet and drew one here, save it to their profile
-            $newSig = $validated['signature_data'] ?? null;
-            if ($newSig && $newSig !== 'CLEAR' && ! auth()->user()->signature_data) {
-                auth()->user()->update(['signature_data' => $newSig]);
+            if ($sigValue === 'CLEAR') {
+                // Delete old signature file and null the path
+                if ($executiveOrder->signature_path) {
+                    Storage::disk('local')->delete($executiveOrder->signature_path);
+                }
+                $validated['signature_path'] = null;
+            } elseif ($sigValue) {
+                // Delete old file and write new one
+                if ($executiveOrder->signature_path) {
+                    Storage::disk('local')->delete($executiveOrder->signature_path);
+                }
+                $sigPath = "signatures/executive-orders/{$executiveOrder->id}.png";
+                $this->saveSignatureFile($sigValue, null, $sigPath);
+                $validated['signature_path'] = $sigPath;
+
+                // If user has no profile signature yet, save it there too
+                if (! auth()->user()->signature_path) {
+                    $profileSigPath = "signatures/users/" . auth()->id() . ".png";
+                    $this->saveSignatureFile($sigValue, null, $profileSigPath);
+                    auth()->user()->update(['signature_path' => $profileSigPath]);
+                }
             }
+            // else: empty / null — leave signature_path unchanged (don't include in update array)
 
             $validated['updated_by'] = auth()->id();
             unset($validated['log_notes']); // audit-only field, not a model column
@@ -409,6 +461,11 @@ class ExecutiveOrderController extends Controller
             Storage::disk('local')->deleteDirectory($archiveDir);
         }
 
+        // Remove signature file
+        if ($executiveOrder->signature_path && Storage::disk('local')->exists($executiveOrder->signature_path)) {
+            Storage::disk('local')->delete($executiveOrder->signature_path);
+        }
+
         $eoNumber = $executiveOrder->eo_number;
         EoActivityLog::record($executiveOrder, 'force_deleted', ['eo_number' => $eoNumber], null);
         $executiveOrder->forceDelete();
@@ -449,5 +506,40 @@ class ExecutiveOrderController extends Controller
         $fullPath = Storage::disk('local')->path($executiveOrder->pdf_path);
 
         return response()->download($fullPath, $executiveOrder->original_filename);
+    }
+
+    // ─── Serve EO signature image from local disk ─────────────────────────────
+
+    public function serveSignature(ExecutiveOrder $executiveOrder)
+    {
+        if (! $executiveOrder->signature_path || ! Storage::disk('local')->exists($executiveOrder->signature_path)) {
+            abort(404);
+        }
+
+        return response(Storage::disk('local')->get($executiveOrder->signature_path), 200, [
+            'Content-Type'  => 'image/png',
+            'Cache-Control' => 'private, max-age=3600',
+        ]);
+    }
+
+    // ─── Private Helpers ──────────────────────────────────────────────────────
+
+    /**
+     * Decode a base64 PNG data URI and store it on the local disk.
+     * Pass $path to write to a specific path, or $prefix to auto-name it.
+     */
+    private function saveSignatureFile(string $blob, ?string $prefix = null, ?string $path = null): ?string
+    {
+        $base64 = preg_replace('/^data:image\/\w+;base64,/', '', $blob);
+        $data   = base64_decode($base64);
+
+        if (! $data) {
+            return null;
+        }
+
+        $target = $path ?? "signatures/{$prefix}.png";
+        Storage::disk('local')->put($target, $data);
+
+        return $target;
     }
 }

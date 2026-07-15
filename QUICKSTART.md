@@ -2,7 +2,7 @@
 
 ## ⚡ Fastest Way to Run the Project
 
-powershell -ExecutionPolicy Bypass -Command "npm run dev"
+powershell -ExecutionPolicy Bypass -Command "npm start"
 
 ```bash
 npm start
