@@ -15,7 +15,7 @@
 @section('content')
 
 {{-- Summary stats --}}
-<div class="grid grid-cols-3 gap-4 mb-6">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
     <div class="stat-card">
         <div class="stat-icon bg-violet-100 text-violet-600">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
@@ -112,7 +112,54 @@
         </div>
         @endif
     </div>
-    <div class="overflow-x-auto">
+    {{-- ── Mobile card list (< md) ──────────────────────────────────────────── --}}
+    <div class="block md:hidden divide-y divide-slate-100">
+        @foreach($users as $user)
+        <div class="px-4 py-4">
+            <div class="flex items-center gap-3 mb-2">
+                <x-user-avatar :user="$user" :size="10" />
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm font-semibold text-slate-800">{{ $user->name }}</span>
+                        @if(auth()->id() === $user->id)
+                            <span class="text-[10px] font-bold text-violet-600 bg-violet-50 border border-violet-100 px-1.5 py-0.5 rounded-full uppercase tracking-wider">You</span>
+                        @endif
+                    </div>
+                    <p class="text-xs text-slate-400 truncate">{{ $user->email }}</p>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                    <a href="{{ route('admin.users.edit', $user) }}"
+                       class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all" title="Edit">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
+                    </a>
+                    @if(auth()->id() !== $user->id)
+                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
+                        @csrf @method('DELETE')
+                        <button type="submit"
+                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all" title="Delete"
+                                data-confirm="Delete {{ $user->name }}? This cannot be undone.">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                        </button>
+                    </form>
+                    @endif
+                </div>
+            </div>
+            <div class="flex items-center gap-3 flex-wrap text-xs text-slate-500">
+                @if($user->role === 'admin')
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-violet-50 text-violet-700 border border-violet-100"><span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span>Administrator</span>
+                @else
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Staff</span>
+                @endif
+                @if($user->position)<span>{{ $user->position }}</span>@endif
+                <span>{{ number_format($user->uploaded_orders_count) }} EOs</span>
+                <span>Since {{ $user->created_at->format('M d, Y') }}</span>
+            </div>
+        </div>
+        @endforeach
+    </div>
+
+    {{-- ── Desktop table (md+) ───────────────────────────────────────────── --}}
+    <div class="hidden md:block overflow-x-auto">
         <table class="w-full table-auto table-wide">
             <thead>
                 @php
@@ -131,32 +178,12 @@
                     };
                 @endphp
                 <tr>
-                    <th>
-                        <a href="{{ $sortUrl('name') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
-                            Name {!! $sortIcon('name') !!}
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ $sortUrl('email') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
-                            Email {!! $sortIcon('email') !!}
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ $sortUrl('role') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
-                            Role {!! $sortIcon('role') !!}
-                        </a>
-                    </th>
+                    <th><a href="{{ $sortUrl('name') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Name {!! $sortIcon('name') !!}</a></th>
+                    <th><a href="{{ $sortUrl('email') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Email {!! $sortIcon('email') !!}</a></th>
+                    <th><a href="{{ $sortUrl('role') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Role {!! $sortIcon('role') !!}</a></th>
                     <th>Position</th>
-                    <th>
-                        <a href="{{ $sortUrl('uploaded_orders_count') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
-                            EOs Uploaded {!! $sortIcon('uploaded_orders_count') !!}
-                        </a>
-                    </th>
-                    <th>
-                        <a href="{{ $sortUrl('created_at') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
-                            Member Since {!! $sortIcon('created_at') !!}
-                        </a>
-                    </th>
+                    <th><a href="{{ $sortUrl('uploaded_orders_count') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">EOs Uploaded {!! $sortIcon('uploaded_orders_count') !!}</a></th>
+                    <th><a href="{{ $sortUrl('created_at') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Member Since {!! $sortIcon('created_at') !!}</a></th>
                     <th class="text-right pr-6">Actions</th>
                 </tr>
             </thead>
@@ -177,45 +204,30 @@
                     <td class="text-slate-500 text-[13px]">{{ $user->email }}</td>
                     <td>
                         @if($user->role === 'admin')
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-violet-50 text-violet-700 border border-violet-100">
-                                <span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span>
-                                Administrator
-                            </span>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-violet-50 text-violet-700 border border-violet-100"><span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span>Administrator</span>
                         @else
-                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">
-                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                                Staff
-                            </span>
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Staff</span>
                         @endif
                     </td>
                     <td class="text-slate-500 text-[13px]">{{ $user->position ?: '—' }}</td>
-                    <td class="text-[13px]">
-                        <span class="font-semibold text-slate-700">{{ number_format($user->uploaded_orders_count) }}</span>
-                    </td>
-                    <td class="text-slate-400 text-[13px] whitespace-nowrap">
-                        {{ $user->created_at->format('M d, Y') }}
-                    </td>
+                    <td class="text-[13px]"><span class="font-semibold text-slate-700">{{ number_format($user->uploaded_orders_count) }}</span></td>
+                    <td class="text-slate-400 text-[13px] whitespace-nowrap">{{ $user->created_at->format('M d, Y') }}</td>
                     <td class="text-right pr-5 whitespace-nowrap">
                         <div class="flex items-center justify-end gap-1">
                             <a href="{{ route('admin.users.edit', $user) }}"
-                               class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all"
-                               title="Edit">
+                               class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-violet-600 hover:bg-violet-50 transition-all" title="Edit">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
                             </a>
                             @if(auth()->id() !== $user->id)
-                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST"
-                                  class="inline">
-                                @csrf
-                                @method('DELETE')
+                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
+                                @csrf @method('DELETE')
                                 <button type="submit"
-                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all"
-                                        title="Delete"
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-all" title="Delete"
                                         data-confirm="Delete {{ $user->name }}? This cannot be undone.">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
                                 </button>
                             </form>
                             @else
-                            {{-- Placeholder so actions column stays aligned --}}
                             <span class="w-8 h-8"></span>
                             @endif
                         </div>

@@ -50,7 +50,7 @@
 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
     {{-- PDF Viewer --}}
-    <div class="xl:col-span-2" style="height: calc(100vh - 140px);">
+    <div class="xl:col-span-2 min-h-[400px]" style="height: clamp(400px, calc(100vh - 140px), 900px);">
         <div class="card h-full flex flex-col">
             <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
                 <div class="flex items-center gap-3">
@@ -74,7 +74,7 @@
     </div>
 
     {{-- Metadata Panel --}}
-    <div class="space-y-5 overflow-y-auto" style="max-height: calc(100vh - 140px);">
+    <div class="space-y-5 xl:overflow-y-auto" style="max-height: clamp(400px, calc(100vh - 140px), 900px);">
 
         {{-- Status & Title --}}
         <div class="card">

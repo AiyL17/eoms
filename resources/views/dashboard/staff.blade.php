@@ -102,40 +102,62 @@
                 Browse All <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
             </a>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full table-auto">
-                <thead>
-                    <tr>
-                        <th>EO Number</th>
-                        <th>Subject</th>
-                        <th>Status</th>
-                        <th>Issued</th>
-                        <th class="text-right">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($myRecentEos as $eo)
-                    <tr>
-                        <td class="font-bold text-slate-800 whitespace-nowrap text-[13px]">{{ $eo->eo_number }}</td>
-                        <td><div class="truncate max-w-[180px] text-slate-600 text-[13px]" title="{{ $eo->subject }}">{{ $eo->subject }}</div></td>
-                        <td><span class="badge-{{ $eo->status }}">{{ $eo->status_label }}</span></td>
-                        <td class="text-slate-500 text-[13px] whitespace-nowrap">{{ $eo->date_issued->format('M d, Y') }}</td>
-                        <td class="text-right">
-                            <a href="{{ route('executive-orders.show', $eo) }}" class="inline-flex items-center gap-1 text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
-                                View <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
-                            </a>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="py-12 text-center">
-                            <p class="text-sm font-semibold text-slate-700 mb-1">You haven't uploaded any EOs yet</p>
-                            <a href="{{ route('executive-orders.create') }}" class="text-violet-600 text-sm font-semibold hover:underline">Upload your first one →</a>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+        {{-- Mobile cards --}}
+        <div class="block md:hidden divide-y divide-slate-100">
+            @forelse($myRecentEos as $eo)
+            <a href="{{ route('executive-orders.show', $eo) }}" class="flex items-start gap-3 px-4 py-3.5 hover:bg-violet-50/40 transition-colors">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap mb-0.5">
+                        <span class="text-xs font-bold text-violet-700 font-mono">{{ $eo->eo_number }}</span>
+                        <span class="badge-{{ $eo->status }}">{{ $eo->status_label }}</span>
+                    </div>
+                    <p class="text-xs text-slate-500 truncate">{{ $eo->subject }}</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">{{ $eo->date_issued->format('M d, Y') }}</p>
+                </div>
+                <svg class="w-4 h-4 text-slate-300 shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+            </a>
+            @empty
+            <div class="py-12 text-center px-4">
+                <p class="text-sm font-semibold text-slate-700 mb-1">You haven't uploaded any EOs yet</p>
+                <a href="{{ route('executive-orders.create') }}" class="text-violet-600 text-sm font-semibold hover:underline">Upload your first one →</a>
+            </div>
+            @endforelse
+        </div>
+        {{-- Desktop table --}}
+        <div class="hidden md:block overflow-x-auto">
+        <table class="w-full table-auto">
+            <thead>
+                <tr>
+                    <th>EO Number</th>
+                    <th>Subject</th>
+                    <th>Status</th>
+                    <th>Issued</th>
+                    <th class="text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($myRecentEos as $eo)
+                <tr>
+                    <td class="font-bold text-slate-800 whitespace-nowrap text-[13px]">{{ $eo->eo_number }}</td>
+                    <td><div class="truncate max-w-[180px] text-slate-600 text-[13px]" title="{{ $eo->subject }}">{{ $eo->subject }}</div></td>
+                    <td><span class="badge-{{ $eo->status }}">{{ $eo->status_label }}</span></td>
+                    <td class="text-slate-500 text-[13px] whitespace-nowrap">{{ $eo->date_issued->format('M d, Y') }}</td>
+                    <td class="text-right">
+                        <a href="{{ route('executive-orders.show', $eo) }}" class="inline-flex items-center gap-1 text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
+                            View <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                        </a>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" class="py-12 text-center">
+                        <p class="text-sm font-semibold text-slate-700 mb-1">You haven't uploaded any EOs yet</p>
+                        <a href="{{ route('executive-orders.create') }}" class="text-violet-600 text-sm font-semibold hover:underline">Upload your first one →</a>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
         </div>
     </div>
 

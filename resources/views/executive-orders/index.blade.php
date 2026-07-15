@@ -117,18 +117,56 @@
         @endif
     </div>
 
-    <div class="overflow-x-auto">
+    {{-- ── Mobile card list (< md) ──────────────────────────────────────────── --}}
+    <div class="block md:hidden divide-y divide-slate-100">
+        @forelse($orders as $eo)
+        <a href="{{ route('executive-orders.show', $eo) }}" class="flex items-start gap-3 px-4 py-4 hover:bg-violet-50/40 transition-colors">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap mb-1">
+                    <span class="text-xs font-bold text-violet-700 bg-violet-50 border border-violet-100 px-2 py-0.5 rounded-lg font-mono">{{ $eo->eo_number }}</span>
+                    <span class="badge-{{ $eo->status }}">{{ $eo->status_label }}</span>
+                </div>
+                <p class="text-sm font-semibold text-slate-800 leading-snug">{{ Str::limit($eo->title, 70) }}</p>
+                <p class="text-xs text-slate-400 mt-0.5 truncate">{{ Str::limit($eo->subject, 80) }}</p>
+                <div class="flex items-center gap-3 mt-2 text-xs text-slate-400">
+                    <span>{{ $eo->date_issued->format('M d, Y') }}</span>
+                    <span class="text-slate-200">·</span>
+                    <span class="truncate">{{ Str::limit($eo->signed_by, 28) }}</span>
+                </div>
+            </div>
+            <svg class="w-4 h-4 text-slate-300 shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+        </a>
+        @empty
+        <div class="py-16 text-center px-4">
+            <div class="w-14 h-14 bg-violet-50 rounded-2xl flex items-center justify-center mb-4 text-violet-400 mx-auto">
+                <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                </svg>
+            </div>
+            <p class="text-sm font-bold text-slate-800 mb-1">No records found</p>
+            <p class="text-sm text-slate-500 mb-5">No executive orders match your current filters.</p>
+            @if(request()->anyFilled(['search', 'status', 'year']))
+                <a href="{{ route('executive-orders.index') }}" class="btn-secondary btn-sm">Clear Filters</a>
+            @else
+                <a href="{{ route('executive-orders.create') }}" class="btn-primary btn-sm">Upload New EO</a>
+            @endif
+        </div>
+        @endforelse
+    </div>
+
+    {{-- ── Desktop table (md+) ───────────────────────────────────────────── --}}
+    <div class="hidden md:block overflow-x-auto">
         <table class="w-full table-auto table-wide">
             <thead>
                 @php
-                    // Helper: build sort URL for a given column
                     $sortUrl = function (string $col) use ($sort, $dir) {
                         $newDir = ($sort === $col && $dir === 'asc') ? 'desc' : 'asc';
                         return request()->fullUrlWithQuery(['sort' => $col, 'dir' => $newDir, 'page' => 1]);
                     };
                     $sortIcon = function (string $col) use ($sort, $dir) {
                         if ($sort !== $col) {
-                            // neutral double-arrow
                             return '<svg class="w-3.5 h-3.5 text-slate-300 group-hover:text-slate-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" /></svg>';
                         }
                         if ($dir === 'asc') {

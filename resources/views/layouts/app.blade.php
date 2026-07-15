@@ -15,10 +15,25 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-[#f5f4ff] font-sans antialiased text-slate-900">
-<div class="flex h-screen overflow-hidden">
+<div x-data="{ sidebarOpen: false }" class="flex h-screen overflow-hidden">
+
+    {{-- Mobile backdrop --}}
+    <div x-show="sidebarOpen"
+         x-transition:enter="transition-opacity ease-out duration-200"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity ease-in duration-150"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click="sidebarOpen = false"
+         class="fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm lg:hidden"
+         style="display:none;"></div>
 
     {{-- ══════════════════════════════════════════════════════════════ SIDEBAR ══ --}}
-    <aside class="w-64 flex flex-col shrink-0 fixed inset-y-0 left-0 z-50 sidebar-scroll overflow-y-auto"
+    <aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+           class="w-64 flex flex-col shrink-0 fixed inset-y-0 left-0 z-50 sidebar-scroll overflow-y-auto
+                  transform transition-transform duration-300 ease-in-out
+                  lg:translate-x-0 lg:static lg:z-auto lg:h-screen"
            style="background: linear-gradient(160deg, #3d1f8a 0%, #5b21b6 60%, #6d28d9 100%);">
 
         {{-- Logo --}}
@@ -28,10 +43,18 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
                 </svg>
             </div>
-            <div>
+            <div class="flex-1 min-w-0">
                 <p class="text-white font-bold text-sm leading-tight">EOMS</p>
                 <p class="text-violet-300 text-[11px] font-medium">City Government</p>
             </div>
+            {{-- Close button — mobile only --}}
+            <button @click="sidebarOpen = false"
+                    class="lg:hidden w-7 h-7 flex items-center justify-center rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors shrink-0"
+                    aria-label="Close menu">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
 
         {{-- Navigation --}}
@@ -131,20 +154,30 @@
     </aside>
 
     {{-- ══════════════════════════════════════════════════ MAIN CONTENT ══ --}}
-    <div class="flex-1 ml-64 flex flex-col min-h-screen overflow-hidden">
+    <div class="flex-1 min-w-0 flex flex-col min-h-screen overflow-hidden lg:ml-0">
 
         {{-- Top Bar --}}
-        <header class="bg-white border-b border-slate-100 px-8 py-0 flex items-center justify-between shrink-0 h-16 sticky top-0 z-40">
-            <div class="flex items-center gap-2 text-sm">
-                <h1 class="font-bold text-slate-800">@yield('page-title', 'Dashboard')</h1>
+        <header class="bg-white border-b border-slate-100 px-4 lg:px-8 py-0 flex items-center justify-between shrink-0 h-16 sticky top-0 z-40">
+            <div class="flex items-center gap-3 min-w-0">
+                {{-- Hamburger — mobile only --}}
+                <button @click="sidebarOpen = true"
+                        class="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors shrink-0"
+                        aria-label="Open menu">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+                <div class="flex items-center gap-2 text-sm min-w-0">
+                <h1 class="font-bold text-slate-800 truncate">@yield('page-title', 'Dashboard')</h1>
                 @hasSection('breadcrumb')
                 <span class="text-slate-300 mx-1">/</span>
-                <nav class="flex items-center gap-1.5 text-sm font-medium text-slate-400">
+                <nav class="flex items-center gap-1.5 text-sm font-medium text-slate-400 truncate">
                     @yield('breadcrumb')
                 </nav>
                 @endif
+                </div>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2 shrink-0">
 
                 {{-- Page-specific action buttons --}}
                 @yield('header-actions')
@@ -176,7 +209,7 @@
                          x-transition:leave="transition ease-in duration-100"
                          x-transition:leave-start="opacity-100 scale-100"
                          x-transition:leave-end="opacity-0 scale-95"
-                         class="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden"
+                         class="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-xl border border-slate-100 z-50 overflow-hidden"
                          style="display: none;">
 
                         <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
@@ -256,7 +289,7 @@
         </header>
 
         {{-- Page Content --}}
-        <main class="flex-1 overflow-y-auto px-8 py-7">
+        <main class="flex-1 overflow-y-auto px-4 py-5 lg:px-8 lg:py-7">
             @yield('content')
         </main>
     </div>
@@ -264,7 +297,7 @@
 
 {{-- ══════════════════════════════════════════════════ TOAST NOTIFICATIONS ══ --}}
 <div id="toast-container"
-     class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none"
+     class="fixed top-4 right-4 left-4 sm:left-auto sm:top-6 sm:right-6 z-[9999] flex flex-col gap-3 pointer-events-none"
      aria-live="polite" aria-label="Notifications">
 
     @foreach([
@@ -318,7 +351,7 @@
         ],
     ] as $type => $cfg)
         @if(session($type))
-        <div class="toast pointer-events-auto w-96 rounded-2xl border shadow-xl overflow-hidden
+        <div class="toast pointer-events-auto w-full sm:w-96 rounded-2xl border shadow-xl overflow-hidden
                     {{ $cfg['bg'] }} {{ $cfg['border'] }}"
              role="alert"
              data-toast>
