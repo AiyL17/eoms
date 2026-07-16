@@ -17,6 +17,118 @@
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
 </head>
 <body class="bg-[#f5f4ff] font-sans antialiased text-slate-900">
+
+{{-- ══════════════════════════════════════════════════ PAGE LOADING OVERLAY ══ --}}
+<div id="page-loader"
+     aria-live="polite" aria-label="Loading page"
+     style="
+         display:none;
+         opacity:0;
+         transition:opacity 0.2s ease;
+         position:fixed;
+         inset:0;
+         z-index:2147483647;
+         isolation:isolate;
+         background:rgba(15,10,40,0.6);
+         backdrop-filter:blur(6px);
+         -webkit-backdrop-filter:blur(6px);
+         align-items:center;
+         justify-content:center;
+     ">
+
+    {{-- Centre card --}}
+    <div style="
+        position:relative;
+        background:linear-gradient(160deg,#3d1f8a 0%,#5b21b6 60%,#6d28d9 100%);
+        border-radius:1.5rem;
+        padding:2rem 2.5rem;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        gap:1.25rem;
+        box-shadow:0 25px 60px rgba(109,40,217,0.45), 0 8px 24px rgba(0,0,0,0.3);
+        min-width:200px;
+    ">
+        {{-- Logo mark --}}
+        <div style="width:48px;height:48px;background:rgba(255,255,255,0.15);border-radius:0.875rem;display:flex;align-items:center;justify-content:center;">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width:26px;height:26px;color:white;" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+            </svg>
+        </div>
+
+        {{-- App name --}}
+        <div style="text-align:center;line-height:1.2;">
+            <p style="color:white;font-weight:700;font-size:0.9rem;letter-spacing:0.05em;">EOMS</p>
+            <p style="color:rgba(196,181,253,0.8);font-size:0.7rem;font-weight:500;margin-top:1px;">City Government</p>
+        </div>
+
+        {{-- Animated dot trail --}}
+        <div style="display:flex;align-items:center;gap:6px;" id="loader-dots">
+            <span class="loader-dot" style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.9);animation:loaderDot 1.2s ease-in-out infinite;animation-delay:0s;"></span>
+            <span class="loader-dot" style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.9);animation:loaderDot 1.2s ease-in-out infinite;animation-delay:0.2s;"></span>
+            <span class="loader-dot" style="width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.9);animation:loaderDot 1.2s ease-in-out infinite;animation-delay:0.4s;"></span>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes loaderDot {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40%            { transform: scale(1.15); opacity: 1; }
+}
+</style>
+
+<script>
+(function () {
+    var loader = document.getElementById('page-loader');
+
+    function show() {
+        loader.style.display = 'flex';
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                loader.style.opacity = '1';
+            });
+        });
+    }
+
+    function hide() {
+        loader.style.opacity = '0';
+        loader.style.display = 'none';
+    }
+
+    document.addEventListener('click', function (e) {
+        var anchor = e.target.closest('a[href]');
+        if (!anchor) return;
+
+        var href = anchor.getAttribute('href');
+        if (
+            !href ||
+            href.startsWith('#') ||
+            href.startsWith('mailto:') ||
+            href.startsWith('tel:') ||
+            anchor.target === '_blank' ||
+            anchor.hasAttribute('download') ||
+            e.ctrlKey || e.metaKey || e.shiftKey
+        ) return;
+
+        try {
+            var url = new URL(href, window.location.origin);
+            if (url.origin !== window.location.origin) return;
+            if (url.pathname === window.location.pathname && url.search === window.location.search) return;
+        } catch (_) { return; }
+
+        show();
+    });
+
+    document.addEventListener('submit', function (e) {
+        if (e.target.target === '_blank') return;
+        show();
+    });
+
+    window.addEventListener('pageshow', hide);
+})();
+</script>
+
 <div x-data="{ sidebarOpen: false }" class="flex h-screen overflow-hidden">
 
     {{-- Mobile backdrop --}}
