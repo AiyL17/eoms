@@ -115,6 +115,25 @@ class ExecutiveOrder extends Model
 
     // ─── Computed Attributes ─────────────────────────────────────────────────
 
+    /**
+     * Return the signature as a base64 data URI for inline use in views.
+     * Reads from local disk so the file never needs to be in the public folder.
+     */
+    public function getSignatureDataAttribute(): ?string
+    {
+        if (! $this->signature_path) {
+            return null;
+        }
+
+        if (! \Illuminate\Support\Facades\Storage::disk('local')->exists($this->signature_path)) {
+            return null;
+        }
+
+        $bytes = \Illuminate\Support\Facades\Storage::disk('local')->get($this->signature_path);
+
+        return 'data:image/png;base64,' . base64_encode($bytes);
+    }
+
     /** Formatted file size (KB or MB) */
     public function getFileSizeFormattedAttribute(): string
     {

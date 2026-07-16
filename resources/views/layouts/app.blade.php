@@ -108,6 +108,10 @@
                     return true;
                 }
             }
+            // Match any download or archived-download route segment
+            if (/\/download$/.test(url.pathname) || /\/archived-download$/.test(url.pathname)) {
+                return true;
+            }
         } catch (_) {}
         return false;
     }
@@ -1316,7 +1320,34 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-eo-meta',
                 popover: {
                     title: ico('M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z') + 'EO Metadata',
-                    description: 'Status badge, title, subject, signatory (with e-signature), dates, uploader, and any status notes.',
+                    description: 'Everything about this order in one panel — status, title, and subject at the top, followed by issuance dates, signatory with e-signature, uploader, and any status notes.'
+                        + '<br><br>If a content summary or tags were added, they appear as separate sections below the details, all within the same card.',
+                    side: 'left', align: 'start',
+                }
+            },
+            {
+                element: '#tour-eo-amendment-chain',
+                onHighlightStarted: (el) => {
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                },
+                popover: {
+                    title: ico('M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99') + 'Amendment Chain',
+                    description: 'When this EO amends or is amended by another order, the full lineage appears here — from the original order through every revision to the latest amendment.'
+                        + '<br><br>Each node shows the EO number, status, issue date, and signatory. Click any node to jump directly to that order.'
+                        + tip('The <strong>breadcrumb summary</strong> at the top shows the chain at a glance, while the timeline below gives the full detail.'),
+                    side: 'left', align: 'start',
+                }
+            },
+            {
+                element: '#tour-eo-activity-log',
+                onHighlightStarted: (el) => {
+                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                },
+                popover: {
+                    title: ico('M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z') + 'Activity Log',
+                    description: 'A complete audit trail of every action taken on this EO — uploads, edits, status changes, downloads, and more.'
+                        + '<br><br>Each entry shows the action type, who performed it, any notes attached, and the exact date and time.'
+                        + tip('This section only appears when the EO has recorded activity. It is automatically updated — no manual logging needed.'),
                     side: 'left', align: 'start',
                 }
             },

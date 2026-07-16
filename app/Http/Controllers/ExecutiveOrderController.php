@@ -320,7 +320,7 @@ class ExecutiveOrderController extends Controller
             'status_notes'    => 'nullable|string|max:1000',
             'tags'            => 'nullable|string',
             'pdf_file'        => 'nullable|file|mimes:pdf|max:20480',
-            'signature_data'  => ['nullable', 'string', 'max:200000', 'regex:/^data:image\/png;base64,[A-Za-z0-9+\/]+=*$/'],
+            'signature_data'  => ['nullable', 'string', 'max:200000', 'regex:/^(CLEAR|data:image\/png;base64,[A-Za-z0-9+\/]+=*)$/'],
             'log_notes'       => 'nullable|string|max:1000',
         ]);
 

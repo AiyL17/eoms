@@ -67,6 +67,25 @@ class User extends Authenticatable
         return ucfirst($this->role);
     }
 
+    /**
+     * Return the user's profile signature as a base64 data URI.
+     * Reads from local disk so the file never needs to be in the public folder.
+     */
+    public function getSignatureDataAttribute(): ?string
+    {
+        if (! $this->signature_path) {
+            return null;
+        }
+
+        if (! \Illuminate\Support\Facades\Storage::disk('local')->exists($this->signature_path)) {
+            return null;
+        }
+
+        $bytes = \Illuminate\Support\Facades\Storage::disk('local')->get($this->signature_path);
+
+        return 'data:image/png;base64,' . base64_encode($bytes);
+    }
+
     // ─── Relationships ────────────────────────────────────────────────────────
 
     public function uploadedOrders()

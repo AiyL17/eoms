@@ -97,25 +97,22 @@
     </div>
 
     {{-- Metadata Panel --}}
-    <div class="space-y-5 xl:overflow-y-auto" id="tour-eo-meta" style="max-height: clamp(400px, calc(100vh - 140px), 900px);">
+    <div class="space-y-5 xl:overflow-y-auto" style="max-height: clamp(400px, calc(100vh - 140px), 900px);">
 
-        {{-- Status & Title --}}
-        <div class="card">
+        {{-- Unified EO Info Card --}}
+        <div class="card" id="tour-eo-meta">
             <div class="p-6">
+
+                {{-- Status & Identity --}}
                 <div class="flex items-center justify-between mb-4">
                     <span class="badge-{{ $eo->status }}">{{ $eo->status_label }}</span>
                     <span class="text-xs text-slate-400 font-medium">{{ $eo->eo_number }}</span>
                 </div>
-                <h1 class="text-base font-bold text-slate-900 leading-snug mb-3">{{ $eo->title }}</h1>
+                <h1 class="text-base font-bold text-slate-900 leading-snug mb-2">{{ $eo->title }}</h1>
                 <p class="text-sm text-slate-500 leading-relaxed">{{ $eo->subject }}</p>
-            </div>
-        </div>
 
-        {{-- Details grid --}}
-        <div class="card">
-            <div class="p-6">
-                <h3 class="form-section-title">Details</h3>
-                <div class="space-y-4">
+                {{-- Details --}}
+                <div class="mt-5 pt-5 border-t border-slate-100 space-y-4">
                     <div class="flex justify-between items-start">
                         <span class="text-xs text-slate-400 font-medium">Date Issued</span>
                         <span class="text-sm font-semibold text-slate-800 text-right">{{ $eo->date_issued->format('F d, Y') }}</span>
@@ -155,39 +152,36 @@
                     </div>
                     @endif
                 </div>
-            </div>
-        </div>
 
-        {{-- Content summary --}}
-        @if($eo->content_summary)
-        <div class="card">
-            <div class="p-6">
-                <h3 class="form-section-title">Content Summary</h3>
-                <p class="text-sm text-slate-600 leading-relaxed">{{ $eo->content_summary }}</p>
-            </div>
-        </div>
-        @endif
-
-        {{-- Tags --}}
-        @if($eo->tags)
-        <div class="card">
-            <div class="p-6">
-                <h3 class="form-section-title">Tags</h3>
-                <div class="flex flex-wrap gap-2">
-                    @foreach($eo->tags as $tag)
-                        <span class="px-3 py-1 bg-violet-50 text-violet-700 text-xs rounded-full font-medium border border-violet-100">{{ $tag }}</span>
-                    @endforeach
+                {{-- Content Summary --}}
+                @if($eo->content_summary)
+                <div class="mt-5 pt-5 border-t border-slate-100">
+                    <p class="text-xs text-slate-400 font-medium mb-1.5">Content Summary</p>
+                    <p class="text-sm text-slate-600 leading-relaxed">{{ $eo->content_summary }}</p>
                 </div>
+                @endif
+
+                {{-- Tags --}}
+                @if($eo->tags)
+                <div class="mt-5 pt-5 border-t border-slate-100">
+                    <p class="text-xs text-slate-400 font-medium mb-2">Tags</p>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach($eo->tags as $tag)
+                            <span class="px-3 py-1 bg-violet-50 text-violet-700 text-xs rounded-full font-medium border border-violet-100">{{ $tag }}</span>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
+
             </div>
         </div>
-        @endif
 
         {{-- Amendment Chain Visualizer --}}
         @php
             $hasChain = count($chainTree) > 0 && ($eo->amends_id || $eo->amended_by_id);
         @endphp
         @if($hasChain)
-        <div class="card">
+        <div class="card" id="tour-eo-amendment-chain">
             <div class="p-6">
                 <div class="flex items-center justify-between mb-1">
                     <h3 class="form-section-title mb-0 pb-0 border-0">Amendment Chain</h3>
@@ -310,7 +304,7 @@
 
         {{-- Activity log --}}
         @if($eo->activityLogs->count())
-        <div class="card">
+        <div class="card" id="tour-eo-activity-log">
             <div class="p-6">
                 <h3 class="form-section-title">Activity Log</h3>
                 <div class="space-y-3 overflow-y-auto" style="max-height: 280px;">
