@@ -12,7 +12,7 @@
 @endsection
 
 @section('header-actions')
-    <a href="{{ route('executive-orders.show', $eo) }}" class="btn-secondary btn-sm">
+    <a href="{{ route('executive-orders.show', $eo) }}" class="btn-secondary btn-sm" id="tour-vh-back">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" /></svg>
         Back to EO
     </a>
@@ -23,7 +23,7 @@
 <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
 
     {{-- ── PDF Version Archive ─────────────────────────────────────────────── --}}
-    <div class="card">
+    <div class="card" id="tour-vh-pdf-archive">
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">PDF Version Archive</h2>
@@ -35,7 +35,7 @@
         </div>
 
         {{-- Current version --}}
-        <div class="px-5 py-4 border-b border-slate-100 bg-violet-50/30">
+        <div class="px-5 py-4 border-b border-slate-100 bg-violet-50/30" id="tour-vh-current">
             <div class="flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 bg-violet-100 text-violet-600 rounded-xl flex items-center justify-center shrink-0">
@@ -91,7 +91,7 @@
     </div>
 
     {{-- ── Metadata Change History ──────────────────────────────────────────── --}}
-    <div class="card">
+    <div class="card" id="tour-vh-meta-history">
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">Metadata Change History</h2>
