@@ -11,6 +11,15 @@ use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+// ─── Public root — redirect to the public portal for unauthenticated visitors ─
+
+Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return redirect()->route('public.index');
+});
+
 // ─── Guest Routes ─────────────────────────────────────────────────────────────
 
 Route::middleware('guest')->group(function () {
@@ -24,14 +33,20 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password',                [PasswordResetController::class, 'reset'])->name('password.update');
 });
 
+// ─── Public Portal (no auth required) ────────────────────────────────────────
+
+Route::prefix('portal')->name('public.')->group(function () {
+    Route::get('/',                                   [\App\Http\Controllers\PublicPortalController::class, 'index'])->name('index');
+    Route::get('/{executiveOrder}',                   [\App\Http\Controllers\PublicPortalController::class, 'show'])->name('show');
+    Route::get('/{executiveOrder}/pdf',               [\App\Http\Controllers\PublicPortalController::class, 'viewPdf'])->name('pdf');
+    Route::get('/{executiveOrder}/download',          [\App\Http\Controllers\PublicPortalController::class, 'download'])->name('download');
+});
+
 // ─── Authenticated Routes ─────────────────────────────────────────────────────
 
 Route::middleware(['auth', 'maintenance'])->group(function () {
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-    // Root redirect
-    Route::get('/', fn () => redirect()->route('dashboard'));
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -58,6 +73,7 @@ Route::middleware(['auth', 'maintenance'])->group(function () {
         Route::get('/',               [ExecutiveOrderController::class, 'index'])->name('index');
         Route::get('/create',         [ExecutiveOrderController::class, 'create'])->name('create');
         Route::post('/',              [ExecutiveOrderController::class, 'store'])->name('store');
+        Route::get('/export',         [\App\Http\Controllers\ExportController::class, 'exportCsv'])->name('export');
 
         // ── Archive routes (static segments — must come before wildcard routes) ──
         Route::middleware('role:admin')->group(function () {
@@ -67,11 +83,15 @@ Route::middleware(['auth', 'maintenance'])->group(function () {
         });
 
         // ── Wildcard routes (must come after static segments) ─────────────────
-        Route::get('/{executiveOrder}',          [ExecutiveOrderController::class, 'show'])->name('show');
-        Route::get('/{executiveOrder}/edit',     [ExecutiveOrderController::class, 'edit'])->name('edit');
-        Route::put('/{executiveOrder}',          [ExecutiveOrderController::class, 'update'])->name('update');
-        Route::get('/{executiveOrder}/pdf',      [ExecutiveOrderController::class, 'viewPdf'])->name('pdf');
-        Route::get('/{executiveOrder}/download', [ExecutiveOrderController::class, 'download'])->name('download');
+        Route::get('/{executiveOrder}',               [ExecutiveOrderController::class, 'show'])->name('show');
+        Route::get('/{executiveOrder}/edit',          [ExecutiveOrderController::class, 'edit'])->name('edit');
+        Route::put('/{executiveOrder}',               [ExecutiveOrderController::class, 'update'])->name('update');
+        Route::get('/{executiveOrder}/pdf',           [ExecutiveOrderController::class, 'viewPdf'])->name('pdf');
+        Route::get('/{executiveOrder}/download',      [ExecutiveOrderController::class, 'download'])->name('download');
+        Route::get('/{executiveOrder}/chain',         [ExecutiveOrderController::class, 'amendmentChain'])->name('chain');
+        Route::get('/{executiveOrder}/export',        [\App\Http\Controllers\ExportController::class, 'exportSingleCsv'])->name('export-single');
+        Route::get('/{executiveOrder}/version-history',[ExecutiveOrderController::class, 'versionHistory'])->name('version-history');
+        Route::get('/{executiveOrder}/version-history/download',[ExecutiveOrderController::class, 'downloadArchived'])->name('version-history.download');
 
         // Admin-only destroy
         Route::delete('/{executiveOrder}', [ExecutiveOrderController::class, 'destroy'])

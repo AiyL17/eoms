@@ -22,6 +22,12 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // ── Permanently purge soft-deleted EOs older than 30 days ─────────
         $schedule->command('eo:prune-deleted')->dailyAt('04:00');
+
+        // ── Annual review reminders for active EOs ────────────────────────
+        $schedule->command('eo:notify-review-due')->dailyAt('08:00');
+
+        // ── Rebuild FTS5 search index nightly ─────────────────────────────
+        $schedule->command('eo:rebuild-search-index')->dailyAt('01:00');
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([

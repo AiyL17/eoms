@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Services\EoSearchService;
 
 class ExecutiveOrder extends Model
 {
@@ -87,6 +88,13 @@ class ExecutiveOrder extends Model
 
     public function scopeSearch($query, string $term)
     {
+        // Try FTS5 first; fall back to LIKE search
+        $ftsQuery = EoSearchService::applyToQuery($query, $term);
+        if ($ftsQuery !== null) {
+            return $ftsQuery;
+        }
+
+        // Fallback: LIKE search
         return $query->where(function ($q) use ($term) {
             $q->where('eo_number', 'like', "%{$term}%")
               ->orWhere('title', 'like', "%{$term}%")
@@ -94,6 +102,15 @@ class ExecutiveOrder extends Model
               ->orWhere('signed_by', 'like', "%{$term}%")
               ->orWhereJsonContains('tags', $term);
         });
+    }
+
+    // ─── FTS Index Sync ───────────────────────────────────────────────────────
+
+    protected static function booted(): void
+    {
+        static::saved(fn (self $eo) => EoSearchService::index($eo));
+        static::deleted(fn (self $eo) => EoSearchService::remove($eo->id));
+        static::restored(fn (self $eo) => EoSearchService::index($eo));
     }
 
     // ─── Computed Attributes ─────────────────────────────────────────────────

@@ -227,7 +227,74 @@ class ExecutiveOrderController extends Controller
     public function show(ExecutiveOrder $executiveOrder)
     {
         $executiveOrder->load(['uploader', 'updater', 'amends', 'amendedBy', 'activityLogs.user']);
-        return view('executive-orders.show', ['eo' => $executiveOrder]);
+
+        // Build the full amendment chain for the visualizer
+        $chainTree = $this->buildAmendmentChain($executiveOrder);
+
+        return view('executive-orders.show', [
+            'eo'        => $executiveOrder,
+            'chainTree' => $chainTree,
+        ]);
+    }
+
+    // ─── Amendment Chain API ──────────────────────────────────────────────────
+
+    public function amendmentChain(ExecutiveOrder $executiveOrder)
+    {
+        $chain = $this->buildAmendmentChain($executiveOrder);
+        return response()->json($chain);
+    }
+
+    /**
+     * Walks the amendment chain in both directions to build a flat ordered list.
+     * Starts from the oldest ancestor, walks forward through all amendments.
+     * Only returns a non-empty array when this EO is part of an amendment relationship.
+     */
+    private function buildAmendmentChain(ExecutiveOrder $eo): array
+    {
+        // If this EO has no amendment relationships at all, return empty — no chain to show.
+        if (! $eo->amends_id && ! $eo->amended_by_id) {
+            return [];
+        }
+
+        // Walk backward to find the root (oldest) EO
+        $root    = $eo;
+        $visited = [];
+        while ($root->amends_id && ! in_array($root->amends_id, $visited)) {
+            $visited[] = $root->id;
+            $parent    = ExecutiveOrder::withTrashed()->find($root->amends_id);
+            if (! $parent) break;
+            $root = $parent;
+        }
+
+        // Walk forward from root, collecting nodes in order
+        $chain   = [];
+        $current = $root;
+        $seen    = [];
+        while ($current && ! in_array($current->id, $seen)) {
+            $seen[] = $current->id;
+            $chain[] = [
+                'id'          => $current->id,
+                'eo_number'   => $current->eo_number,
+                'title'       => $current->title,
+                'status'      => $current->status,
+                'status_label'=> $current->status_label,
+                'date_issued' => $current->date_issued?->format('M d, Y'),
+                'signed_by'   => $current->signed_by,
+                'is_current'  => $current->id === $eo->id,
+                'is_trashed'  => (bool) $current->deleted_at,
+                'url'         => $current->deleted_at
+                    ? route('executive-orders.archive')
+                    : route('executive-orders.show', $current->id),
+            ];
+            if ($current->amended_by_id) {
+                $current = ExecutiveOrder::withTrashed()->find($current->amended_by_id);
+            } else {
+                break;
+            }
+        }
+
+        return $chain;
     }
 
     // ─── Edit ─────────────────────────────────────────────────────────────────
@@ -475,7 +542,75 @@ class ExecutiveOrderController extends Controller
             ->with('success', "Executive Order {$eoNumber} has been permanently deleted.");
     }
 
-    // ─── View PDF (inline) ────────────────────────────────────────────────────
+    // ─── Version History ──────────────────────────────────────────────────────
+
+    public function versionHistory(ExecutiveOrder $executiveOrder)
+    {
+        $executiveOrder->load('activityLogs.user');
+
+        // Gather archived (versioned) PDF files from the archive directory
+        $archiveDir   = 'executive-orders-archive/' . $executiveOrder->id;
+        $archivedFiles = [];
+
+        if (Storage::disk('local')->directoryExists($archiveDir)) {
+            $files = Storage::disk('local')->files($archiveDir);
+            foreach (array_reverse($files) as $file) {
+                $basename  = basename($file);
+                // Filename format: 2026-07-15_143020_original.pdf
+                $timestamp = null;
+                if (preg_match('/^(\d{4}-\d{2}-\d{2}_\d{6})_/', $basename, $m)) {
+                    $timestamp = \Carbon\Carbon::createFromFormat('Y-m-d_His', $m[1]);
+                }
+                $archivedFiles[] = [
+                    'path'      => $file,
+                    'filename'  => $basename,
+                    'size'      => Storage::disk('local')->size($file),
+                    'timestamp' => $timestamp,
+                ];
+            }
+        }
+
+        // Metadata change diffs from activity logs
+        $metaDiffs = $executiveOrder->activityLogs
+            ->whereIn('action', ['updated', 'status_changed'])
+            ->map(function ($log) {
+                return [
+                    'id'        => $log->id,
+                    'action'    => $log->action,
+                    'label'     => $log->action_label,
+                    'color'     => $log->action_color,
+                    'user'      => $log->user?->name ?? 'System',
+                    'notes'     => $log->notes,
+                    'old'       => $log->old_values ?? [],
+                    'new'       => $log->new_values ?? [],
+                    'created_at'=> $log->created_at,
+                ];
+            })
+            ->values();
+
+        return view('executive-orders.version-history', [
+            'eo'            => $executiveOrder,
+            'archivedFiles' => $archivedFiles,
+            'metaDiffs'     => $metaDiffs,
+        ]);
+    }
+
+    // ─── Download archived PDF version ───────────────────────────────────────
+
+    public function downloadArchived(ExecutiveOrder $executiveOrder, Request $request)
+    {
+        $file = $request->query('file');
+        // Security: ensure the path stays within the EO's own archive dir
+        $allowed = 'executive-orders-archive/' . $executiveOrder->id . '/';
+        if (! $file || ! str_starts_with($file, $allowed) || ! Storage::disk('local')->exists($file)) {
+            abort(404);
+        }
+
+        return response()->download(
+            Storage::disk('local')->path($file),
+            basename($file)
+        );
+    }
 
     public function viewPdf(ExecutiveOrder $executiveOrder)
     {

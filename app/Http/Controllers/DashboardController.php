@@ -93,6 +93,11 @@ class DashboardController extends Controller
             ->whereYear('created_at', date('Y'))
             ->count();
 
+        // ── EOs due for annual review (active and 1+ year old) ────────────────
+        $reviewDueCount = ExecutiveOrder::where('status', 'active')
+            ->where('date_issued', '<=', now()->subYear()->toDateString())
+            ->count();
+
         return view('dashboard.admin', compact(
             'totalEos',
             'thisYearEos',
@@ -111,7 +116,8 @@ class DashboardController extends Controller
             'needsAttention',
             'needsReviewCount',
             'thisMonthDownloads',
-            'newUsersThisMonth'
+            'newUsersThisMonth',
+            'reviewDueCount'
         ));
     }
 

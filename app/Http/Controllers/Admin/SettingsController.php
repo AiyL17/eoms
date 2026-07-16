@@ -149,6 +149,37 @@ class SettingsController extends Controller
             ];
         }
 
+        // 7. FTS5 Search Index
+        try {
+            if (\App\Services\EoSearchService::ftsAvailable()) {
+                $indexCount = \Illuminate\Support\Facades\DB::table('eo_search_index')->count();
+                $eoCount    = \App\Models\ExecutiveOrder::count();
+                $inSync     = abs($indexCount - $eoCount) <= 2;
+                $checks[] = [
+                    'label'  => 'Search Index (FTS5)',
+                    'status' => $inSync ? 'ok' : 'warn',
+                    'detail' => $inSync
+                        ? "FTS5 index active · {$indexCount} entries in sync."
+                        : "Index has {$indexCount} entries but there are {$eoCount} EOs — may need rebuild.",
+                    'hint'   => $inSync ? null : 'Run "php artisan eo:rebuild-search-index" from the project folder to re-sync the full-text search index.',
+                ];
+            } else {
+                $checks[] = [
+                    'label'  => 'Search Index (FTS5)',
+                    'status' => 'warn',
+                    'detail' => 'FTS5 index not available — using fallback LIKE search.',
+                    'hint'   => 'Run "php artisan migrate" to create the FTS5 virtual table, then "php artisan eo:rebuild-search-index".',
+                ];
+            }
+        } catch (\Throwable) {
+            $checks[] = [
+                'label'  => 'Search Index (FTS5)',
+                'status' => 'warn',
+                'detail' => 'Could not check FTS5 index status.',
+                'hint'   => null,
+            ];
+        }
+
         return $checks;
     }
 

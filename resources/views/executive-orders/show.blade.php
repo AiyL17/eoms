@@ -11,6 +11,14 @@
 
 @section('header-actions')
     <div class="flex items-center gap-2" id="tour-header-btn">
+        <a href="{{ route('executive-orders.export-single', $eo) }}" class="btn-secondary btn-sm" title="Export EO details as CSV">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+            Export
+        </a>
+        <a href="{{ route('executive-orders.version-history', $eo) }}" class="btn-secondary btn-sm" title="Version History">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            History
+        </a>
         <a href="{{ route('executive-orders.edit', $eo) }}" class="btn-secondary btn-sm">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
             Edit
@@ -43,6 +51,21 @@
     <div>
         <p class="font-semibold text-sm">This Executive Order has been amended.</p>
         <p class="text-sm mt-0.5">Superseded by <a href="{{ route('executive-orders.show', $eo->amendedBy) }}" class="underline font-semibold hover:text-amber-900">{{ $eo->amendedBy->eo_number }}</a>.</p>
+    </div>
+</div>
+@endif
+
+{{-- Review Anniversary Notice --}}
+@php
+    $yearsOld = $eo->date_issued ? (int) $eo->date_issued->diffInYears(now()) : 0;
+    $isReviewDue = $eo->status === 'active' && $yearsOld >= 1;
+@endphp
+@if($isReviewDue)
+<div class="alert-info mb-5">
+    <svg class="w-4.5 h-4.5 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    <div>
+        <p class="font-semibold text-sm">Periodic Review Reminder</p>
+        <p class="text-sm mt-0.5">This EO was issued {{ $yearsOld }} {{ Str::plural('year', $yearsOld) }} ago ({{ $eo->date_issued->format('F d, Y') }}) and is still active. Consider reviewing it for continued relevance.</p>
     </div>
 </div>
 @endif
@@ -159,41 +182,128 @@
         </div>
         @endif
 
-        {{-- Amendment chain --}}
-        @if(($eo->amends_id && $eo->amends) || ($eo->amended_by_id && $eo->amendedBy))
+        {{-- Amendment Chain Visualizer --}}
+        @php
+            $hasChain = count($chainTree) > 0 && ($eo->amends_id || $eo->amended_by_id);
+        @endphp
+        @if($hasChain)
         <div class="card">
             <div class="p-6">
-                <h3 class="form-section-title">Amendment Chain</h3>
-                @if($eo->amends_id && $eo->amends)
-                <div class="mb-3">
-                    <p class="text-xs text-slate-400 mb-1.5">This EO amends:</p>
-                    <a href="{{ route('executive-orders.show', $eo->amends) }}"
-                       class="flex items-center gap-3 p-3 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-100 transition-colors group">
-                        <div class="w-7 h-7 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center shrink-0 group-hover:bg-blue-200">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" /></svg>
-                        </div>
-                        <div class="min-w-0">
-                            <p class="text-sm font-bold text-blue-900 truncate">{{ $eo->amends->eo_number }}</p>
-                            <p class="text-xs text-blue-600 truncate">{{ $eo->amends->title }}</p>
-                        </div>
-                    </a>
+                <div class="flex items-center justify-between mb-1">
+                    <h3 class="form-section-title mb-0 pb-0 border-0">Amendment Chain</h3>
+                    <span class="text-[11px] font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">{{ count($chainTree) }} {{ Str::plural('order', count($chainTree)) }}</span>
+                </div>
+                <p class="text-xs text-slate-400 mb-4">Full lineage from the original order to the latest amendment.</p>
+
+                {{-- Summary breadcrumb: "EO 5-24 → amended by EO 3-25 → superseded by EO 1-26" --}}
+                @if(count($chainTree) > 1)
+                <div class="flex flex-wrap items-center gap-1 mb-4 p-2.5 bg-slate-50 rounded-xl border border-slate-100">
+                    @foreach($chainTree as $i => $node)
+                        @if($i > 0)
+                        @php
+                            $prevNode = $chainTree[$i - 1];
+                            $verb = match($prevNode['status']) {
+                                'amended'    => 'amended by',
+                                'superseded' => 'superseded by',
+                                'repealed'   => 'replaced by',
+                                default      => 'followed by',
+                            };
+                        @endphp
+                        <span class="text-[10px] text-slate-400 font-medium italic px-0.5">{{ $verb }}</span>
+                        @endif
+                        <span class="text-[10px] font-bold {{ $node['is_current'] ? 'text-violet-700 bg-violet-100 px-1.5 py-0.5 rounded-md' : 'text-slate-600' }} font-mono whitespace-nowrap">{{ $node['eo_number'] }}</span>
+                    @endforeach
                 </div>
                 @endif
-                @if($eo->amended_by_id && $eo->amendedBy)
-                <div>
-                    <p class="text-xs text-slate-400 mb-1.5">Amended by:</p>
-                    <a href="{{ route('executive-orders.show', $eo->amendedBy) }}"
-                       class="flex items-center gap-3 p-3 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-100 transition-colors group">
-                        <div class="w-7 h-7 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center shrink-0">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" /></svg>
+
+                <div class="relative">
+                    {{-- Vertical connector line --}}
+                    @if(count($chainTree) > 1)
+                    <div class="absolute left-[13px] top-5 bottom-5 w-px bg-slate-200 z-0"></div>
+                    @endif
+                    <div class="space-y-1.5 relative z-10">
+                        @foreach($chainTree as $i => $node)
+                        @php
+                            $isFirst   = $i === 0;
+                            $isLast    = $i === count($chainTree) - 1;
+                            $isCurrent = $node['is_current'];
+                            $dotColor  = match($node['status']) {
+                                'active'       => 'bg-emerald-500',
+                                'amended'      => 'bg-amber-400',
+                                'repealed'     => 'bg-red-400',
+                                'suspended'    => 'bg-orange-400',
+                                'superseded'   => 'bg-violet-400',
+                                'under_review' => 'bg-sky-400',
+                                default        => 'bg-slate-300',
+                            };
+                            $cardBg = $isCurrent
+                                ? 'bg-violet-50 border-violet-200 ring-1 ring-violet-200'
+                                : 'bg-white border-slate-100 hover:bg-slate-50';
+                        @endphp
+
+                        {{-- Connector label between nodes --}}
+                        @if(! $isFirst)
+                        @php
+                            $prevNode = $chainTree[$i - 1];
+                            $connLabel = match($prevNode['status']) {
+                                'amended'    => 'amended by',
+                                'superseded' => 'superseded by',
+                                'repealed'   => 'replaced by',
+                                default      => 'followed by',
+                            };
+                        @endphp
+                        <div class="flex items-center gap-3 py-0.5">
+                            <div class="shrink-0 w-7 flex justify-center">
+                                <svg class="w-3 h-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" />
+                                </svg>
+                            </div>
+                            <span class="text-[10px] text-slate-400 font-medium italic">{{ $connLabel }}</span>
                         </div>
-                        <div class="min-w-0">
-                            <p class="text-sm font-bold text-amber-900 truncate">{{ $eo->amendedBy->eo_number }}</p>
-                            <p class="text-xs text-amber-600 truncate">{{ $eo->amendedBy->title }}</p>
+                        @endif
+
+                        <div class="flex items-start gap-3">
+                            {{-- Timeline dot --}}
+                            <div class="shrink-0 w-7 flex flex-col items-center pt-2">
+                                <span class="w-3.5 h-3.5 rounded-full border-2 border-white shadow-sm {{ $dotColor }} {{ $isCurrent ? 'ring-2 ring-violet-400' : '' }}"></span>
+                            </div>
+                            {{-- Node card --}}
+                            <a href="{{ $node['url'] }}"
+                               class="flex-1 flex items-start justify-between gap-2 p-3 rounded-xl border transition-all {{ $cardBg }} {{ $node['is_trashed'] ? 'opacity-60' : '' }}">
+                                <div class="min-w-0 flex-1">
+                                    <div class="flex items-center gap-1.5 flex-wrap mb-1">
+                                        <span class="text-xs font-bold {{ $isCurrent ? 'text-violet-800' : 'text-slate-800' }} font-mono">{{ $node['eo_number'] }}</span>
+                                        <span class="badge-{{ $node['status'] }} !py-0 !px-2 !text-[10px]">{{ $node['status_label'] }}</span>
+                                        @if($isCurrent)
+                                        <span class="text-[10px] font-bold bg-violet-600 text-white px-1.5 py-0.5 rounded-full leading-none">Viewing</span>
+                                        @endif
+                                        @if($isFirst && count($chainTree) > 1)
+                                        <span class="text-[10px] font-semibold bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-full leading-none">Original</span>
+                                        @endif
+                                        @if($isLast && count($chainTree) > 1)
+                                        <span class="text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-full leading-none">Latest</span>
+                                        @endif
+                                        @if($node['is_trashed'])
+                                        <span class="text-[10px] font-bold bg-slate-200 text-slate-500 px-1.5 py-0.5 rounded-full leading-none">Archived</span>
+                                        @endif
+                                    </div>
+                                    <p class="text-xs {{ $isCurrent ? 'text-violet-700' : 'text-slate-500' }} truncate max-w-[180px] mb-0.5">{{ $node['title'] }}</p>
+                                    <div class="flex items-center gap-2 text-[10px] text-slate-400">
+                                        <span>{{ $node['date_issued'] }}</span>
+                                        @if(! empty($node['signed_by']))
+                                        <span class="opacity-50">·</span>
+                                        <span class="truncate max-w-[120px]">{{ $node['signed_by'] }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                                @if(! $node['is_trashed'])
+                                <svg class="w-3.5 h-3.5 text-slate-300 shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
+                                @endif
+                            </a>
                         </div>
-                    </a>
+                        @endforeach
+                    </div>
                 </div>
-                @endif
             </div>
         </div>
         @endif
