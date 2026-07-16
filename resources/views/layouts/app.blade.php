@@ -96,6 +96,22 @@
         loader.style.display = 'none';
     }
 
+    // Paths that trigger a file download (no page navigation occurs, so loader must not show)
+    var downloadPaths = ['/executive-orders/export', '/export'];
+
+    function isDownloadLink(anchor) {
+        if (anchor.hasAttribute('download')) return true;
+        try {
+            var url = new URL(anchor.getAttribute('href'), window.location.origin);
+            for (var i = 0; i < downloadPaths.length; i++) {
+                if (url.pathname === downloadPaths[i] || url.pathname.endsWith('/export')) {
+                    return true;
+                }
+            }
+        } catch (_) {}
+        return false;
+    }
+
     document.addEventListener('click', function (e) {
         var anchor = e.target.closest('a[href]');
         if (!anchor) return;
@@ -107,7 +123,7 @@
             href.startsWith('mailto:') ||
             href.startsWith('tel:') ||
             anchor.target === '_blank' ||
-            anchor.hasAttribute('download') ||
+            isDownloadLink(anchor) ||
             e.ctrlKey || e.metaKey || e.shiftKey
         ) return;
 
@@ -1256,6 +1272,15 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 popover: {
                     title: ico('M12 4.5v15m7.5-7.5h-15') + 'Upload New EO',
                     description: 'Click <strong>Upload New EO</strong> to add a new executive order — fill in metadata and attach the PDF.',
+                    side: 'bottom', align: 'end',
+                }
+            },
+            {
+                element: '#tour-export-csv',
+                popover: {
+                    title: ico('M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3') + 'Export CSV',
+                    description: 'Downloads all currently filtered EOs as a CSV file — useful for reporting and offline analysis.'
+                        + tip('Apply filters first, then click Export CSV to download only the matching records.'),
                     side: 'bottom', align: 'end',
                 }
             },

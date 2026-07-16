@@ -13,6 +13,7 @@
     </a>
     @endif
     <a href="{{ route('executive-orders.export', request()->query()) }}"
+       id="tour-export-csv"
        class="btn-secondary btn-sm"
        title="Export current filter results to CSV">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
