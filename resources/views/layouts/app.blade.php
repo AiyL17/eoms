@@ -264,8 +264,8 @@
                 @csrf
                 <button type="submit"
                         id="tour-sidebar-signout"
-                        class="w-full flex items-center gap-2.5 px-4 py-2 rounded-xl text-violet-300/80 text-xs font-medium
-                               hover:bg-white/10 hover:text-white transition-all duration-200">
+                        class="w-full flex items-center gap-2.5 px-4 py-2 rounded-xl text-red-400 text-xs font-medium
+                               hover:bg-red-500/20 hover:text-red-300 transition-all duration-200">
                     <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
                     </svg>
@@ -1015,7 +1015,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '[data-tour="kpi-stats"]',
                 popover: {
                     title: ico('M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z') + 'KPI Statistics',
-                    description: 'At-a-glance numbers: total EOs, users, monthly downloads, and EOs needing review.'
+                    description: 'At-a-glance numbers: total EOs, total users, EOs needing review, and annual review due count.'
                         + tip('Each card is clickable and takes you directly to the related section.'),
                     side: 'bottom', align: 'start',
                 }

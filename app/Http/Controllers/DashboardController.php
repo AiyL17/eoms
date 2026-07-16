@@ -55,13 +55,8 @@ class DashboardController extends Controller
 
         // ── System-wide metrics ───────────────────────────────────────────────
         $totalLogs          = EoActivityLog::count();
-        $totalDownloads     = EoActivityLog::where('action', 'downloaded')->count();
         $totalPdfViews      = EoActivityLog::where('action', 'pdf_viewed')->count();
         $needsReviewCount   = ExecutiveOrder::whereIn('status', ['under_review', 'suspended'])->count();
-        $thisMonthDownloads = EoActivityLog::where('action', 'downloaded')
-            ->whereMonth('created_at', date('m'))
-            ->whereYear('created_at', date('Y'))
-            ->count();
 
         // ── Most active users (last 30 days) ──────────────────────────────────
         $topUsers = EoActivityLog::select('user_id', DB::raw('COUNT(*) as action_count'))
@@ -109,13 +104,11 @@ class DashboardController extends Controller
             'adminCount',
             'staffCount',
             'totalLogs',
-            'totalDownloads',
             'totalPdfViews',
             'topUsers',
             'last7Days',
             'needsAttention',
             'needsReviewCount',
-            'thisMonthDownloads',
             'newUsersThisMonth',
             'reviewDueCount'
         ));
