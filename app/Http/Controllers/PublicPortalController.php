@@ -5,23 +5,32 @@ namespace App\Http\Controllers;
 use App\Models\ExecutiveOrder;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class PublicPortalController extends Controller
 {
+    /**
+     * Statuses visible to the general public.
+     * Under-review / draft EOs are internal until published.
+     */
+    const PUBLIC_STATUSES = ['active', 'amended', 'repealed', 'suspended', 'superseded'];
+
     public function index(Request $request)
     {
-        $query = ExecutiveOrder::with('uploader')->latest();
-
-        // Only expose publicly-visible EOs (active + under_review unless restricted)
-        $query->whereNotNull('id'); // base — all non-deleted
+        $query = ExecutiveOrder::with('uploader')
+            ->whereIn('status', self::PUBLIC_STATUSES)
+            ->latest();
 
         if ($request->filled('search')) {
             $query->search($request->search);
         }
 
         if ($request->filled('status')) {
-            $query->byStatus($request->status);
+            // Only allow filtering by publicly-visible statuses
+            if (in_array($request->status, self::PUBLIC_STATUSES)) {
+                $query->byStatus($request->status);
+            }
         }
 
         if ($request->filled('year')) {
@@ -43,38 +52,63 @@ class PublicPortalController extends Controller
 
         $orders = $query->paginate(15)->withQueryString();
 
-        $years = ExecutiveOrder::selectRaw('year')
-            ->distinct()
-            ->orderBy('year', 'desc')
-            ->pluck('year');
+        // Cache metadata that changes infrequently — refresh every 5 minutes
+        [$years, $statuses, $allTags, $totalActive, $totalEos, $thisYearCount] =
+            Cache::remember('public_portal_meta', 300, function () {
+                $years = ExecutiveOrder::whereIn('status', self::PUBLIC_STATUSES)
+                    ->selectRaw('year')
+                    ->distinct()
+                    ->orderBy('year', 'desc')
+                    ->pluck('year');
 
-        $statuses = ExecutiveOrder::statuses();
+                // Only expose public statuses in the filter dropdown
+                $statuses = array_intersect_key(
+                    ExecutiveOrder::statuses(),
+                    array_flip(self::PUBLIC_STATUSES)
+                );
 
-        $allTags = ExecutiveOrder::whereNotNull('tags')
-            ->pluck('tags')
-            ->flatten()
-            ->filter()
-            ->unique()
-            ->sort()
-            ->values();
+                $allTags = ExecutiveOrder::whereIn('status', self::PUBLIC_STATUSES)
+                    ->whereNotNull('tags')
+                    ->selectRaw('tags')
+                    ->pluck('tags')
+                    ->flatten()
+                    ->filter()
+                    ->unique()
+                    ->sort()
+                    ->values();
 
-        $totalActive = ExecutiveOrder::where('status', 'active')->count();
-        $totalEos    = ExecutiveOrder::count();
+                $totalActive   = ExecutiveOrder::where('status', 'active')->count();
+                $totalEos      = ExecutiveOrder::whereIn('status', self::PUBLIC_STATUSES)->count();
+                $thisYearCount = ExecutiveOrder::whereIn('status', self::PUBLIC_STATUSES)
+                    ->where('year', date('Y'))
+                    ->count();
+
+                return [$years, $statuses, $allTags, $totalActive, $totalEos, $thisYearCount];
+            });
 
         return view('public.index', compact(
             'orders', 'years', 'statuses', 'sort', 'dir', 'allTags',
-            'totalActive', 'totalEos'
+            'totalActive', 'totalEos', 'thisYearCount'
         ));
     }
 
     public function show(ExecutiveOrder $executiveOrder)
     {
+        // Block access to internal/draft EOs
+        if (! in_array($executiveOrder->status, self::PUBLIC_STATUSES)) {
+            abort(404);
+        }
+
         $executiveOrder->load(['uploader', 'amends', 'amendedBy']);
         return view('public.show', ['eo' => $executiveOrder]);
     }
 
     public function viewPdf(ExecutiveOrder $executiveOrder)
     {
+        if (! in_array($executiveOrder->status, self::PUBLIC_STATUSES)) {
+            abort(404);
+        }
+
         if (! Storage::disk('local')->exists($executiveOrder->pdf_path)) {
             abort(404, 'PDF file not found.');
         }
@@ -89,6 +123,10 @@ class PublicPortalController extends Controller
 
     public function download(ExecutiveOrder $executiveOrder)
     {
+        if (! in_array($executiveOrder->status, self::PUBLIC_STATUSES)) {
+            abort(404);
+        }
+
         if (! Storage::disk('local')->exists($executiveOrder->pdf_path)) {
             abort(404, 'PDF file not found.');
         }

@@ -25,20 +25,31 @@
                 </p>
             </div>
 
-            {{-- Stats row --}}
-            <div class="flex items-center gap-4 md:gap-6 shrink-0 flex-wrap">
-                <div class="text-center px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
-                    <p class="text-white text-2xl font-bold">{{ number_format($totalEos) }}</p>
-                    <p class="text-violet-300 text-xs font-medium mt-0.5">Total Orders</p>
+            {{-- Stats row + live clock --}}
+            <div class="flex flex-col items-start md:items-end gap-3 shrink-0 w-full md:w-auto">
+
+                {{-- Live clock — visible on all screen sizes --}}
+                <div class="text-left md:text-right">
+                    <p id="portal-clock" class="text-white text-xl md:text-2xl font-bold tabular-nums tracking-tight leading-none"></p>
+                    <p id="portal-date"  class="text-violet-300/80 text-xs font-medium mt-1"></p>
                 </div>
-                <div class="text-center px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
-                    <p class="text-white text-2xl font-bold">{{ number_format($totalActive) }}</p>
-                    <p class="text-violet-300 text-xs font-medium mt-0.5">Active</p>
+
+                {{-- Stat pills — left-aligned on mobile, right-aligned on desktop --}}
+                <div class="flex items-center gap-3 flex-wrap">
+                    <div class="text-center px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
+                        <p class="text-white text-2xl font-bold">{{ number_format($totalEos) }}</p>
+                        <p class="text-violet-300 text-xs font-medium mt-0.5">Total Orders</p>
+                    </div>
+                    <div class="text-center px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
+                        <p class="text-white text-2xl font-bold">{{ number_format($totalActive) }}</p>
+                        <p class="text-violet-300 text-xs font-medium mt-0.5">Active</p>
+                    </div>
+                    <div class="text-center px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
+                        <p class="text-white text-2xl font-bold">{{ number_format($thisYearCount) }}</p>
+                        <p class="text-violet-300 text-xs font-medium mt-0.5">This Year</p>
+                    </div>
                 </div>
-                <div class="text-center px-5 py-3 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15">
-                    <p class="text-white text-2xl font-bold">{{ date('Y') }}</p>
-                    <p class="text-violet-300 text-xs font-medium mt-0.5">Current Year</p>
-                </div>
+
             </div>
         </div>
     </div>
@@ -47,18 +58,22 @@
 {{-- ══════════════════════════════════════════════════════════ Search & Filters --}}
 <div class="card mb-6 shadow-sm">
     <div class="px-6 py-5">
+        {{-- #3: form submits on Enter naturally; added id for JS clear button --}}
         <form action="{{ route('public.index') }}" method="GET" id="filter-form">
             <div class="flex flex-col gap-3">
                 {{-- Main search bar --}}
                 <div class="relative">
                     <div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                        <svg class="w-4.5 h-4.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
+                        <svg class="w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
                     </div>
                     <input type="text" name="search" id="search-input" value="{{ request('search') }}"
                            placeholder="Search by EO number, title, subject, or signatory…"
-                           class="form-input form-input-icon !h-12 !text-base !rounded-xl">
+                           autocomplete="off"
+                           class="form-input form-input-icon h-12! text-base! rounded-xl!">
                     @if(request('search'))
-                    <button type="button" onclick="document.getElementById('search-input').value=''; document.getElementById('filter-form').submit();"
+                    <button type="button"
+                            aria-label="Clear search"
+                            onclick="document.getElementById('search-input').value=''; document.getElementById('filter-form').submit();"
                             class="absolute inset-y-0 right-3 flex items-center px-2 text-slate-400 hover:text-slate-600 transition-colors">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
@@ -70,8 +85,8 @@
                     <div class="flex-1 grid grid-cols-2 md:grid-cols-3 gap-3">
                         {{-- Status filter --}}
                         <div class="relative">
-                            <label class="absolute -top-2 left-3 text-[10px] font-semibold text-violet-600 bg-white px-1 z-10 uppercase tracking-wider">Status</label>
-                            <select name="status" class="form-input !rounded-xl h-11" onchange="this.form.submit()">
+                            <label for="filter-status" class="absolute -top-2 left-3 text-[10px] font-semibold text-violet-600 bg-white px-1 z-10 uppercase tracking-wider">Status</label>
+                            <select id="filter-status" name="status" class="form-input rounded-xl! h-11" onchange="this.form.submit()">
                                 <option value="">All Statuses</option>
                                 @foreach($statuses as $value => $label)
                                     <option value="{{ $value }}" {{ request('status') === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -81,8 +96,8 @@
 
                         {{-- Year filter --}}
                         <div class="relative">
-                            <label class="absolute -top-2 left-3 text-[10px] font-semibold text-violet-600 bg-white px-1 z-10 uppercase tracking-wider">Year</label>
-                            <select name="year" class="form-input !rounded-xl h-11" onchange="this.form.submit()">
+                            <label for="filter-year" class="absolute -top-2 left-3 text-[10px] font-semibold text-violet-600 bg-white px-1 z-10 uppercase tracking-wider">Year</label>
+                            <select id="filter-year" name="year" class="form-input rounded-xl! h-11" onchange="this.form.submit()">
                                 <option value="">All Years</option>
                                 @foreach($years as $year)
                                     <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
@@ -93,8 +108,8 @@
                         {{-- Tag filter --}}
                         @if($allTags->isNotEmpty())
                         <div class="relative col-span-2 md:col-span-1">
-                            <label class="absolute -top-2 left-3 text-[10px] font-semibold text-violet-600 bg-white px-1 z-10 uppercase tracking-wider">Tag</label>
-                            <select name="tag" class="form-input !rounded-xl h-11" onchange="this.form.submit()">
+                            <label for="filter-tag" class="absolute -top-2 left-3 text-[10px] font-semibold text-violet-600 bg-white px-1 z-10 uppercase tracking-wider">Tag</label>
+                            <select id="filter-tag" name="tag" class="form-input rounded-xl! h-11" onchange="this.form.submit()">
                                 <option value="">All Tags</option>
                                 @foreach($allTags as $tag)
                                     <option value="{{ $tag }}" {{ request('tag') === $tag ? 'selected' : '' }}>{{ $tag }}</option>
@@ -152,14 +167,15 @@
 </div>
 
 {{-- ══════════════════════════════════════════════════════════════ Results --}}
-<div class="flex items-center justify-between gap-4 mb-4">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
     <p class="text-sm text-slate-500">
         <span class="font-semibold text-slate-800">{{ number_format($orders->total()) }}</span>
         {{ Str::plural('record', $orders->total()) }} found
         @if($orders->hasPages()) · showing {{ $orders->firstItem() }}–{{ $orders->lastItem() }} @endif
     </p>
-    {{-- Sort controls --}}
-    <div class="hidden sm:flex items-center gap-2 text-xs text-slate-400">
+
+    {{-- #4: Sort controls visible on all screen sizes --}}
+    <div class="flex items-center gap-2 text-xs text-slate-400 flex-wrap">
         <span class="font-medium">Sort:</span>
         @foreach([
             'date_issued' => 'Date',
@@ -201,26 +217,13 @@
 {{-- ── Mobile cards ─────────────────────────────────────────── --}}
 <div class="block md:hidden space-y-3">
     @foreach($orders as $eo)
+    {{-- #11: proper <a> wrapper — keyboard-navigable and screen-reader friendly --}}
     <a href="{{ route('public.show', $eo) }}"
-       class="card portal-card-hover flex items-start gap-4 p-4 no-underline border border-slate-100">
-        {{-- Status color stripe --}}
+       class="card portal-card-hover flex items-start gap-4 p-4 no-underline border border-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2">
+        {{-- Status colour icon --}}
         <div class="shrink-0 mt-1">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center
-                        @if($eo->status === 'active') bg-emerald-50
-                        @elseif($eo->status === 'amended') bg-amber-50
-                        @elseif($eo->status === 'repealed') bg-red-50
-                        @elseif($eo->status === 'suspended') bg-orange-50
-                        @elseif($eo->status === 'superseded') bg-violet-50
-                        @else bg-sky-50
-                        @endif">
-                <svg class="w-4 h-4
-                            @if($eo->status === 'active') text-emerald-600
-                            @elseif($eo->status === 'amended') text-amber-600
-                            @elseif($eo->status === 'repealed') text-red-600
-                            @elseif($eo->status === 'suspended') text-orange-600
-                            @elseif($eo->status === 'superseded') text-violet-600
-                            @else text-sky-600
-                            @endif"
+            <div class="w-9 h-9 rounded-xl flex items-center justify-center status-icon-bg-{{ $eo->status }}">
+                <svg class="w-4 h-4 status-icon-text-{{ $eo->status }}"
                      fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                 </svg>
@@ -254,24 +257,26 @@
 {{-- ── Desktop table ────────────────────────────────────────── --}}
 <div class="hidden md:block card overflow-hidden">
     <div class="overflow-x-auto">
-        <table class="w-full table-auto" style="min-width: 680px;">
-            <thead>
-                <tr>
-                    <th class="!pl-6 w-36">EO Number</th>
-                    <th>Title & Subject</th>
-                    <th class="w-32">Date Issued</th>
-                    <th class="w-44">Signatory</th>
-                    <th class="w-32">Status</th>
-                    <th class="w-20 !text-right !pr-6">View</th>
+        {{-- #11: replaced onclick tr with proper <a> links; table uses role="rowgroup" --}}
+        <table class="w-full table-auto" style="min-width: 680px;" role="table">
+            <thead role="rowgroup">
+                <tr role="row">
+                    <th class="pl-6! w-36" scope="col">EO Number</th>
+                    <th scope="col">Title & Subject</th>
+                    <th class="w-32" scope="col">Date Issued</th>
+                    <th class="w-44" scope="col">Signatory</th>
+                    <th class="w-32" scope="col">Status</th>
+                    <th class="w-20 text-right! pr-6!" scope="col"><span class="sr-only">Actions</span></th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody role="rowgroup">
                 @foreach($orders as $eo)
-                <tr class="group cursor-pointer" onclick="window.location='{{ route('public.show', $eo) }}'">
-                    <td class="!pl-6">
+                {{-- #11: each row's link covers the whole row via stretched-link pattern --}}
+                <tr class="group relative" role="row">
+                    <td class="pl-6!" role="cell">
                         <span class="eo-number-pill inline-block text-xs font-bold text-violet-700 bg-violet-50 border border-violet-100 px-2.5 py-1 rounded-lg">{{ $eo->eo_number }}</span>
                     </td>
-                    <td>
+                    <td role="cell">
                         <div class="text-[13px] font-semibold text-slate-800 mb-0.5 group-hover:text-violet-700 transition-colors">{{ Str::limit($eo->title, 70) }}</div>
                         @if($eo->subject)
                         <div class="text-xs text-slate-400">{{ Str::limit($eo->subject, 85) }}</div>
@@ -287,23 +292,29 @@
                         </div>
                         @endif
                     </td>
-                    <td class="whitespace-nowrap">
+                    <td class="whitespace-nowrap" role="cell">
                         <p class="text-[13px] font-medium text-slate-700">{{ $eo->date_issued->format('M d, Y') }}</p>
                         <p class="text-[11px] text-slate-400">{{ $eo->date_issued->format('l') }}</p>
                     </td>
-                    <td class="text-[13px] text-slate-600">
+                    <td class="text-[13px] text-slate-600" role="cell">
                         <div class="flex items-center gap-2">
-                            <div class="w-6 h-6 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center shrink-0 text-[10px] font-bold">
+                            <div class="w-6 h-6 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center shrink-0 text-[10px] font-bold" aria-hidden="true">
                                 {{ strtoupper(substr($eo->signed_by, 0, 1)) }}
                             </div>
                             <span class="truncate max-w-[120px]" title="{{ $eo->signed_by }}">{{ Str::limit($eo->signed_by, 22) }}</span>
                         </div>
                     </td>
-                    <td><span class="badge-{{ $eo->status }}">{{ $eo->status_label }}</span></td>
-                    <td class="!text-right !pr-5">
+                    <td role="cell"><span class="badge-{{ $eo->status }}">{{ $eo->status_label }}</span></td>
+                    <td class="text-right! pr-5!" role="cell">
+                        {{-- Stretched link makes the whole row clickable for pointer users
+                             while remaining keyboard-accessible via this visible <a> --}}
                         <a href="{{ route('public.show', $eo) }}"
-                           class="inline-flex items-center gap-1 text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors px-3 py-1.5 rounded-lg hover:bg-violet-50 border border-transparent hover:border-violet-100"
-                           onclick="event.stopPropagation()">
+                           class="inline-flex items-center gap-1 text-xs font-semibold text-violet-600
+                                  hover:text-violet-800 transition-colors px-3 py-1.5 rounded-lg
+                                  hover:bg-violet-50 border border-transparent hover:border-violet-100
+                                  focus:outline-none focus:ring-2 focus:ring-violet-400
+                                  after:absolute after:inset-0 after:content-['']"
+                           aria-label="View {{ $eo->eo_number }}">
                             View
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                         </a>
@@ -326,28 +337,41 @@
     @endif
 </div>
 
-{{-- Mobile pagination --}}
+{{-- #5: Mobile pagination — rendered properly below the card list --}}
 @if($orders->hasPages())
-<div class="block md:hidden mt-4">
+<div class="block md:hidden mt-4 flex justify-center">
     {{ $orders->links() }}
 </div>
 @endif
 
 @endif
 
-{{-- ═══════════════════════════════════════════════ Info banner --}}
-<div class="mt-8 rounded-2xl border border-violet-100 bg-violet-50/50 p-5 flex items-start gap-4">
-    <div class="w-9 h-9 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center shrink-0 mt-0.5">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
-        </svg>
-    </div>
-    <div>
-        <p class="text-sm font-semibold text-violet-900 mb-0.5">About this portal</p>
-        <p class="text-sm text-violet-700/80 leading-relaxed">
-            This is the official public registry of executive orders issued by the City Government. All documents are read-only. For official business, please visit the city government offices or contact the relevant department.
-        </p>
-    </div>
-</div>
-
 @endsection
+
+@push('scripts')
+<script>
+(function () {
+    const clockEl = document.getElementById('portal-clock');
+    const dateEl  = document.getElementById('portal-date');
+    if (!clockEl || !dateEl) return;
+
+    const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+    function tick() {
+        const now  = new Date();
+        let h      = now.getHours();
+        const m    = String(now.getMinutes()).padStart(2, '0');
+        const s    = String(now.getSeconds()).padStart(2, '0');
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+
+        clockEl.textContent = `${h}:${m}:${s} ${ampm}`;
+        dateEl.textContent  = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+    }
+
+    tick();
+    setInterval(tick, 1000);
+})();
+</script>
+@endpush

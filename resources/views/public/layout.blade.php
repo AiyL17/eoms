@@ -3,8 +3,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Executive Orders') — Public Portal</title>
+    <title>@yield('title', 'Executive Orders — Public Portal')</title>
     <meta name="description" content="Official Executive Order Registry — City Government. Browse and download all publicly available executive orders.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -39,13 +41,13 @@
 <div class="h-1 w-full" style="background: linear-gradient(90deg, #4c1d95, #7c3aed, #a78bfa, #7c3aed, #4c1d95); background-size: 200% auto;"></div>
 
 {{-- Header --}}
-<header class="bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm">
+<header role="banner" class="bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4">
-        <a href="{{ route('public.index') }}" class="flex items-center gap-3 group">
+        <a href="{{ route('public.index') }}" class="flex items-center gap-3 group" aria-label="Executive Order Registry — Home">
             {{-- Logo mark --}}
             <div class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-md shadow-violet-200"
                  style="background: linear-gradient(145deg, #4c1d95 0%, #7c3aed 100%);">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
                 </svg>
             </div>
@@ -63,8 +65,8 @@
                 </span>
                 Public Access
             </span>
-            <a href="{{ route('login') }}" class="btn-secondary btn-sm gap-1.5">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+            <a href="{{ route('login') }}" class="btn-secondary btn-sm gap-1.5" aria-label="Login to staff portal">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
                  Login
             </a>
         </div>
@@ -72,12 +74,12 @@
 </header>
 
 {{-- Main --}}
-<main class="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-8 py-8">
+<main role="main" class="flex-1 max-w-7xl w-full mx-auto px-4 lg:px-8 py-8">
     @yield('content')
 </main>
 
 {{-- Footer --}}
-<footer class="bg-white border-t border-slate-100 mt-12">
+<footer role="contentinfo" class="bg-white border-t border-slate-100 mt-12">
     <div class="max-w-7xl mx-auto px-4 lg:px-8 py-8">
         <div class="flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-3">
@@ -101,5 +103,6 @@
     </div>
 </footer>
 
+@stack('scripts')
 </body>
 </html>

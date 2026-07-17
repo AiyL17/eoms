@@ -23,6 +23,29 @@
 .badge-superseded   { @apply bg-violet-50 text-violet-700 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border border-violet-100; }
 .badge-under_review { @apply bg-sky-50 text-sky-700 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border border-sky-100; }
 
+/* ── Public portal: sidebar independent scroll (desktop only) ── */
+.eo-sidebar {
+    /* Mobile: natural flow, no height constraint */
+}
+@media (min-width: 1280px) {
+    .eo-sidebar {
+        max-height: clamp(520px, calc(100vh - 180px), 900px);
+        overflow-y: auto;
+    }
+}
+.status-icon-bg-active       { @apply bg-emerald-50; }
+.status-icon-bg-amended      { @apply bg-amber-50; }
+.status-icon-bg-repealed     { @apply bg-red-50; }
+.status-icon-bg-suspended    { @apply bg-orange-50; }
+.status-icon-bg-superseded   { @apply bg-violet-50; }
+.status-icon-bg-under_review { @apply bg-sky-50; }
+.status-icon-text-active       { @apply text-emerald-600; }
+.status-icon-text-amended      { @apply text-amber-600; }
+.status-icon-text-repealed     { @apply text-red-600; }
+.status-icon-text-suspended    { @apply text-orange-600; }
+.status-icon-text-superseded   { @apply text-violet-600; }
+.status-icon-text-under_review { @apply text-sky-600; }
+
 /* ── Action Icon Variants ───────────────────────────────────────── */
 .action-created        { @apply bg-emerald-100 text-emerald-600; }
 .action-updated        { @apply bg-sky-100 text-sky-600; }
@@ -140,6 +163,8 @@ select.form-input {
 .table-auto tbody tr:hover td { @apply bg-violet-50/30; }
 /* Sticky header — works when the scroll container is overflow-y-auto wrapping the table */
 .table-auto thead th { position: sticky; top: 0; z-index: 10; }
+/* Stretched-link rows — allow the <a> child with after:absolute to cover the whole row */
+.table-auto tbody tr { position: relative; }
 
 /* ── Alert ──────────────────────────────────────────────────────── */
 .alert-success { @apply flex items-start gap-3 p-4 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-100; }

@@ -34,12 +34,17 @@ Route::middleware('guest')->group(function () {
 });
 
 // ─── Public Portal (no auth required) ────────────────────────────────────────
+// throttle: 60 browse requests/min, downloads separately at 20/min
 
 Route::prefix('portal')->name('public.')->group(function () {
-    Route::get('/',                                   [\App\Http\Controllers\PublicPortalController::class, 'index'])->name('index');
-    Route::get('/{executiveOrder}',                   [\App\Http\Controllers\PublicPortalController::class, 'show'])->name('show');
-    Route::get('/{executiveOrder}/pdf',               [\App\Http\Controllers\PublicPortalController::class, 'viewPdf'])->name('pdf');
-    Route::get('/{executiveOrder}/download',          [\App\Http\Controllers\PublicPortalController::class, 'download'])->name('download');
+    Route::middleware('throttle:60,1')->group(function () {
+        Route::get('/',               [\App\Http\Controllers\PublicPortalController::class, 'index'])->name('index');
+        Route::get('/{executiveOrder}',[\App\Http\Controllers\PublicPortalController::class, 'show'])->name('show');
+        Route::get('/{executiveOrder}/pdf', [\App\Http\Controllers\PublicPortalController::class, 'viewPdf'])->name('pdf');
+    });
+    Route::middleware('throttle:20,1')->group(function () {
+        Route::get('/{executiveOrder}/download', [\App\Http\Controllers\PublicPortalController::class, 'download'])->name('download');
+    });
 });
 
 // ─── Authenticated Routes ─────────────────────────────────────────────────────

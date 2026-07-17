@@ -108,9 +108,18 @@ class ExecutiveOrder extends Model
 
     protected static function booted(): void
     {
-        static::saved(fn (self $eo) => EoSearchService::index($eo));
-        static::deleted(fn (self $eo) => EoSearchService::remove($eo->id));
-        static::restored(fn (self $eo) => EoSearchService::index($eo));
+        static::saved(function (self $eo) {
+            EoSearchService::index($eo);
+            \Illuminate\Support\Facades\Cache::forget('public_portal_meta');
+        });
+        static::deleted(function (self $eo) {
+            EoSearchService::remove($eo->id);
+            \Illuminate\Support\Facades\Cache::forget('public_portal_meta');
+        });
+        static::restored(function (self $eo) {
+            EoSearchService::index($eo);
+            \Illuminate\Support\Facades\Cache::forget('public_portal_meta');
+        });
     }
 
     // ─── Computed Attributes ─────────────────────────────────────────────────
