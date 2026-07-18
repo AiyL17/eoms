@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::withCount('uploadedDocuments')->latest();
+        $query = User::latest();
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
@@ -26,14 +26,20 @@ class UserController extends Controller
         }
 
         // ── Sorting ───────────────────────────────────────────────────────────
-        $sortable = ['name', 'email', 'role', 'uploaded_documents_count', 'created_at'];
+        $sortable = ['name', 'email', 'role', 'created_at'];
         $sort     = in_array($request->sort, $sortable) ? $request->sort : null;
         $dir      = $request->dir === 'asc' ? 'asc' : 'desc';
 
-        if ($sort === 'uploaded_documents_count') {
-            $query->reorder()->orderBy('uploaded_documents_count', $dir);
-        } elseif ($sort) {
-            $query->reorder()->orderBy($sort, $dir);
+        // Online users (active within last 5 min) always float to the top.
+        $onlineThreshold = now()->subMinutes(5)->toDateTimeString();
+        $query->reorder()
+              ->orderByRaw("CASE WHEN last_seen_at >= ? THEN 0 ELSE 1 END", [$onlineThreshold]);
+
+        // Apply secondary sort (column sort chosen by user), defaulting to name.
+        if ($sort) {
+            $query->orderBy($sort, $dir);
+        } else {
+            $query->orderBy('name', 'asc');
         }
 
         $users      = $query->paginate(20)->withQueryString();

@@ -46,8 +46,20 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            'last_seen_at'      => 'datetime',
             'password'          => 'hashed',
         ];
+    }
+
+    /**
+     * A user is considered online if they were active within the last 5 minutes.
+     * The TrackLastSeen middleware writes last_seen_at at most every 2 minutes,
+     * so a 5-minute window comfortably covers normal browsing activity.
+     */
+    public function isOnline(): bool
+    {
+        return $this->last_seen_at !== null
+            && $this->last_seen_at->gt(now()->subMinutes(5));
     }
 
     // ─── Role Helpers ────────────────────────────────────────────────────────

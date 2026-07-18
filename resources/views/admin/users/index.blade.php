@@ -150,8 +150,21 @@
                 @else
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-600 border border-slate-200"><span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>Staff</span>
                 @endif
+                @if($user->isOnline())
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span class="relative flex w-1.5 h-1.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full w-1.5 h-1.5 bg-emerald-500"></span>
+                        </span>
+                        Online
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-400 border border-slate-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span>
+                        Offline
+                    </span>
+                @endif
                 @if($user->position)<span>{{ $user->position }}</span>@endif
-                <span>{{ number_format($user->uploaded_documents_count) }} Docs</span>
                 <span>Since {{ $user->created_at->format('M d, Y') }}</span>
             </div>
         </div>
@@ -182,8 +195,8 @@
                     <th><a href="{{ $sortUrl('email') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Email {!! $sortIcon('email') !!}</a></th>
                     <th><a href="{{ $sortUrl('role') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Role {!! $sortIcon('role') !!}</a></th>
                     <th>Position</th>
-                    <th><a href="{{ $sortUrl('uploaded_documents_count') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Docs Uploaded {!! $sortIcon('uploaded_documents_count') !!}</a></th>
                     <th><a href="{{ $sortUrl('created_at') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Member Since {!! $sortIcon('created_at') !!}</a></th>
+                    <th>Status</th>
                     <th class="text-right pr-6">Actions</th>
                 </tr>
             </thead>
@@ -210,8 +223,23 @@
                         @endif
                     </td>
                     <td class="text-slate-500 text-[13px]">{{ $user->position ?: '—' }}</td>
-                    <td class="text-[13px]"><span class="font-semibold text-slate-700">{{ number_format($user->uploaded_documents_count) }}</span></td>
                     <td class="text-slate-400 text-[13px] whitespace-nowrap">{{ $user->created_at->format('M d, Y') }}</td>
+                    <td>
+                        @if($user->isOnline())
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span class="relative flex w-2 h-2">
+                                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span class="relative inline-flex rounded-full w-2 h-2 bg-emerald-500"></span>
+                                </span>
+                                Online
+                            </span>
+                        @else
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-400 border border-slate-200">
+                                <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                                Offline
+                            </span>
+                        @endif
+                    </td>
                     <td class="text-right pr-5 whitespace-nowrap">
                         <div class="flex items-center justify-end gap-1">
                             <a href="{{ route('admin.users.edit', $user) }}"

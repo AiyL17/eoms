@@ -34,6 +34,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'role'        => \App\Http\Middleware\EnsureRole::class,
             'maintenance' => \App\Http\Middleware\CheckMaintenance::class,
         ]);
+
+        // Track last_seen_at for every authenticated web request.
+        $middleware->appendToGroup('web', \App\Http\Middleware\TrackLastSeen::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
