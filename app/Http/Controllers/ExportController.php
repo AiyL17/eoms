@@ -2,34 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ExecutiveOrder;
+use App\Models\Document;
 use Illuminate\Http\Request;
 use League\Csv\Writer;
 
 class ExportController extends Controller
 {
     /**
-     * Export filtered EOs as CSV.
-     * Accepts the same query params as the index: search, status, year, tag, sort, dir.
+     * Export filtered documents as CSV.
+     * Accepts the same query params as the index: search, document_type, year, sort, dir.
      */
     public function exportCsv(Request $request)
     {
-        $query = ExecutiveOrder::with('uploader')->latest();
+        $query = Document::with('uploader')->latest();
 
         if ($request->filled('search')) {
             $query->search($request->search);
         }
-        if ($request->filled('status')) {
-            $query->byStatus($request->status);
-        }
-        if ($request->filled('year')) {
-            $query->byYear((int) $request->year);
-        }
-        if ($request->filled('tag')) {
-            $query->whereJsonContains('tags', $request->tag);
+        if ($request->filled('document_type')) {
+            $query->where('document_type', $request->document_type);
         }
 
-        $sortable = ['eo_number', 'date_issued', 'signed_by', 'status', 'year'];
+        $sortable = ['doc_number', 'date_issued'];
         $sort     = in_array($request->sort, $sortable) ? $request->sort : null;
         $dir      = $request->dir === 'asc' ? 'asc' : 'desc';
         if ($sort) {
@@ -40,31 +34,27 @@ class ExportController extends Controller
 
         $csv = Writer::createFromString();
         $csv->insertOne([
-            'EO Number', 'Item Number', 'Year', 'Title', 'Subject',
-            'Date Issued', 'Date Effective', 'Signed By', 'Status',
-            'Status Notes', 'Tags', 'Uploaded By', 'File Size', 'Created At',
+            'Document Number', 'Document Type', 'Title',
+            'Date Received', 'Expiration Date', 'Office / Origin', 'Recipient',
+            'Uploaded By', 'File Size', 'Created At',
         ]);
 
-        foreach ($orders as $eo) {
+        foreach ($orders as $doc) {
             $csv->insertOne([
-                $eo->eo_number,
-                $eo->item_number,
-                $eo->year,
-                $eo->title,
-                $eo->subject,
-                $eo->date_issued?->format('Y-m-d'),
-                $eo->date_effective?->format('Y-m-d'),
-                $eo->signed_by,
-                $eo->status_label,
-                $eo->status_notes,
-                $eo->tags ? implode('; ', $eo->tags) : '',
-                $eo->uploader?->name ?? 'System',
-                $eo->file_size_formatted,
-                $eo->created_at->format('Y-m-d H:i:s'),
+                $doc->doc_number,
+                $doc->document_type_label,
+                $doc->title,
+                $doc->date_issued?->format('Y-m-d'),
+                $doc->expiration_date?->format('Y-m-d'),
+                $doc->received_from,
+                $doc->recipient,
+                $doc->uploader?->name ?? 'System',
+                $doc->file_size_formatted,
+                $doc->created_at->format('Y-m-d H:i:s'),
             ]);
         }
 
-        $filename = 'executive-orders-' . now()->format('Y-m-d-His') . '.csv';
+        $filename = 'documents-' . now()->format('Y-m-d-His') . '.csv';
 
         return response((string) $csv, 200, [
             'Content-Type'        => 'text/csv; charset=UTF-8',
@@ -73,40 +63,33 @@ class ExportController extends Controller
     }
 
     /**
-     * Export a single EO's full details as CSV (for audit trail / reporting).
+     * Export a single document's full details as CSV (for audit trail / reporting).
      */
-    public function exportSingleCsv(ExecutiveOrder $executiveOrder)
+    public function exportSingleCsv(Document $Document)
     {
-        $executiveOrder->load(['uploader', 'updater', 'amends', 'amendedBy', 'activityLogs.user']);
+        $Document->load(['uploader', 'updater', 'activityLogs.user']);
 
         $csv = Writer::createFromString();
 
-        // EO Details section
-        $csv->insertOne(['=== EXECUTIVE ORDER DETAILS ===']);
+        $csv->insertOne(['=== DOCUMENT DETAILS ===']);
         $csv->insertOne(['Field', 'Value']);
-        $csv->insertOne(['EO Number',        $executiveOrder->eo_number]);
-        $csv->insertOne(['Title',            $executiveOrder->title]);
-        $csv->insertOne(['Subject',          $executiveOrder->subject]);
-        $csv->insertOne(['Date Issued',      $executiveOrder->date_issued?->format('F d, Y')]);
-        $csv->insertOne(['Date Effective',   $executiveOrder->date_effective?->format('F d, Y') ?? 'N/A']);
-        $csv->insertOne(['Signed By',        $executiveOrder->signed_by]);
-        $csv->insertOne(['Status',           $executiveOrder->status_label]);
-        $csv->insertOne(['Status Notes',     $executiveOrder->status_notes ?? 'N/A']);
-        $csv->insertOne(['Tags',             $executiveOrder->tags ? implode('; ', $executiveOrder->tags) : 'N/A']);
-        $csv->insertOne(['Content Summary',  $executiveOrder->content_summary ?? 'N/A']);
-        $csv->insertOne(['Amends',           $executiveOrder->amends?->eo_number ?? 'N/A']);
-        $csv->insertOne(['Amended By',       $executiveOrder->amendedBy?->eo_number ?? 'N/A']);
-        $csv->insertOne(['Uploaded By',      $executiveOrder->uploader?->name ?? 'System']);
-        $csv->insertOne(['Last Updated By',  $executiveOrder->updater?->name ?? 'N/A']);
-        $csv->insertOne(['Created At',       $executiveOrder->created_at->format('Y-m-d H:i:s')]);
-        $csv->insertOne(['Updated At',       $executiveOrder->updated_at->format('Y-m-d H:i:s')]);
+        $csv->insertOne(['Document Number',  $Document->doc_number]);
+        $csv->insertOne(['Document Type',    $Document->document_type_label]);
+        $csv->insertOne(['Title',            $Document->title]);
+        $csv->insertOne(['Date Received',    $Document->date_issued?->format('F d, Y')]);
+        $csv->insertOne(['Expiration Date',  $Document->expiration_date?->format('F d, Y') ?? 'N/A']);
+        $csv->insertOne(['Office / Origin',  $Document->received_from ?? 'N/A']);
+        $csv->insertOne(['Recipient',        $Document->recipient ?? 'N/A']);
+        $csv->insertOne(['Uploaded By',      $Document->uploader?->name ?? 'System']);
+        $csv->insertOne(['Last Updated By',  $Document->updater?->name ?? 'N/A']);
+        $csv->insertOne(['Created At',       $Document->created_at->format('Y-m-d H:i:s')]);
+        $csv->insertOne(['Updated At',       $Document->updated_at->format('Y-m-d H:i:s')]);
         $csv->insertOne([]);
 
-        // Activity log section
         $csv->insertOne(['=== ACTIVITY LOG ===']);
         $csv->insertOne(['Action', 'Performed By', 'Notes', 'IP Address', 'Date/Time']);
 
-        foreach ($executiveOrder->activityLogs as $log) {
+        foreach ($Document->activityLogs as $log) {
             $csv->insertOne([
                 $log->action_label,
                 $log->user?->name ?? 'System',
@@ -116,7 +99,7 @@ class ExportController extends Controller
             ]);
         }
 
-        $filename = 'eo-' . preg_replace('/[^a-z0-9\-]/', '-', strtolower($executiveOrder->eo_number))
+        $filename = 'document-' . preg_replace('/[^a-z0-9\-]/', '-', strtolower($Document->doc_number))
                    . '-' . now()->format('Y-m-d') . '.csv';
 
         return response((string) $csv, 200, [

@@ -1,20 +1,20 @@
 @extends('layouts.app')
 
-@section('title', 'Version History — ' . $eo->eo_number)
-@section('page-title', $eo->eo_number)
+@section('title', 'Version History — ' . $doc->title)
+@section('page-title', $doc->title)
 
 @section('breadcrumb')
-    <a href="{{ route('executive-orders.index') }}" class="hover:text-violet-600 transition-colors">Executive Orders</a>
+    <a href="{{ route('documents.index') }}" class="hover:text-violet-600 transition-colors">Documents</a>
     <span class="mx-1 opacity-40">/</span>
-    <a href="{{ route('executive-orders.show', $eo) }}" class="hover:text-violet-600 transition-colors">{{ $eo->eo_number }}</a>
+    <a href="{{ route('documents.show', $doc) }}" class="hover:text-violet-600 transition-colors">{{ $doc->title }}</a>
     <span class="mx-1 opacity-40">/</span>
     <span class="text-slate-700 font-semibold">Version History</span>
 @endsection
 
 @section('header-actions')
-    <a href="{{ route('executive-orders.show', $eo) }}" class="btn-secondary btn-sm" id="tour-vh-back">
+    <a href="{{ route('documents.show', $doc) }}" class="btn-secondary btn-sm" id="tour-vh-back">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" /></svg>
-        Back to EO
+        Back to Document
     </a>
 @endsection
 
@@ -42,13 +42,13 @@
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-slate-800">{{ $eo->original_filename }}</p>
-                        <p class="text-xs text-slate-400 mt-0.5">Current version · {{ $eo->file_size_formatted }} · {{ $eo->updated_at->format('M d, Y g:i A') }}</p>
+                        <p class="text-sm font-semibold text-slate-800">{{ $doc->original_filename }}</p>
+                        <p class="text-xs text-slate-400 mt-0.5">Current version · {{ $doc->file_size_formatted }} · {{ $doc->updated_at->format('M d, Y g:i A') }}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
                     <span class="text-[11px] font-bold bg-violet-600 text-white px-2 py-0.5 rounded-full">Current</span>
-                    <a href="{{ route('executive-orders.download', $eo) }}" class="btn-primary btn-sm">
+                    <a href="{{ route('documents.download', $doc) }}" class="btn-primary btn-sm">
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                         Download
                     </a>
@@ -72,7 +72,7 @@
                         </p>
                     </div>
                 </div>
-                <a href="{{ route('executive-orders.version-history.download', ['executiveOrder' => $eo->id, 'file' => $file['path']]) }}"
+                <a href="{{ route('documents.version-history.download', ['document' => $doc->id, 'file' => $file['path']]) }}"
                    class="btn-secondary btn-sm shrink-0">
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                     Download
@@ -118,9 +118,12 @@
                     @php
                         $allKeys = array_unique(array_merge(array_keys($diff['old']), array_keys($diff['new'])));
                         $fieldLabels = [
-                            'title' => 'Title', 'subject' => 'Subject', 'status' => 'Status',
-                            'date_issued' => 'Date Issued', 'date_effective' => 'Effective Date',
-                            'signed_by' => 'Signed By', 'content_summary' => 'Summary',
+                            'title'           => 'Document Name',
+                            'document_type'   => 'Document Type',
+                            'received_from'   => 'Office / Origin',
+                            'recipient'       => 'Recipient',
+                            'date_issued'     => 'Date Received',
+                            'expiration_date' => 'Expiration Date',
                         ];
                     @endphp
                     @foreach($allKeys as $key)
@@ -159,7 +162,7 @@
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
                 </div>
                 <p class="text-sm font-semibold text-slate-600">No changes recorded</p>
-                <p class="text-xs text-slate-400 mt-1">Metadata diffs appear here each time this EO is edited.</p>
+                <p class="text-xs text-slate-400 mt-1">Metadata diffs appear here each time this document is edited.</p>
             </div>
             @endforelse
         </div>

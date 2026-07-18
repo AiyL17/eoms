@@ -2,24 +2,24 @@
 
 namespace App\Console\Commands;
 
-use App\Services\EoSearchService;
+use App\Services\DocSearchService;
 use Illuminate\Console\Command;
 
 class RebuildSearchIndex extends Command
 {
-    protected $signature   = 'eo:rebuild-search-index';
-    protected $description = 'Rebuild the FTS5 full-text search index for executive orders.';
+    protected $signature   = 'doc:rebuild-search-index';
+    protected $description = 'Rebuild the FTS5 full-text search index for documents.';
 
     public function handle(): int
     {
-        if (! EoSearchService::ftsAvailable()) {
+        if (! DocSearchService::ftsAvailable()) {
             $this->warn('FTS5 index not available (non-SQLite database or table missing). Run migrations first.');
             return self::FAILURE;
         }
 
         $this->info('Rebuilding FTS5 search index…');
-        $count = EoSearchService::rebuild();
-        $this->info("Done. Indexed {$count} executive order(s).");
+        $count = DocSearchService::rebuild();
+        $this->info("Done. Indexed {$count} document(s).");
         return self::SUCCESS;
     }
 }

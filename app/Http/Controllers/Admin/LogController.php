@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\EoActivityLog;
-use App\Models\ExecutiveOrder;
+use App\Models\DocActivityLog;
+use App\Models\Document;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -12,7 +12,7 @@ class LogController extends Controller
 {
     public function index(Request $request)
     {
-        $query = EoActivityLog::with(['user', 'executiveOrder'])->latest();
+        $query = DocActivityLog::with(['user', 'document'])->latest();
 
         if ($request->filled('action')) {
             $query->where('action', $request->action);
@@ -22,14 +22,14 @@ class LogController extends Controller
             $query->where('user_id', $request->user_id);
         }
 
-        if ($request->filled('eo_id')) {
-            $query->where('executive_order_id', $request->eo_id);
+        if ($request->filled('doc_id')) {
+            $query->where('document_id', $request->doc_id);
         }
 
         if ($request->filled('search')) {
-            $query->whereHas('executiveOrder', function ($q) use ($request) {
+            $query->whereHas('document', function ($q) use ($request) {
                 $q->withTrashed()
-                  ->where('eo_number', 'like', '%' . $request->search . '%')
+                  ->where('doc_number', 'like', '%' . $request->search . '%')
                   ->orWhere('title', 'like', '%' . $request->search . '%');
             });
         }
@@ -45,7 +45,7 @@ class LogController extends Controller
 
         $logs    = $query->paginate(25)->withQueryString();
         $users   = User::orderBy('name')->get(['id', 'name']);
-        $orders  = ExecutiveOrder::withTrashed()->orderBy('year', 'desc')->orderBy('item_number')->get(['id', 'eo_number']);
+        $orders  = Document::withTrashed()->orderBy('doc_number')->get(['id', 'doc_number']);
         $actions = [
             'created'        => 'Uploaded',
             'updated'        => 'Updated',

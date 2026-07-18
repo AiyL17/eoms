@@ -13,11 +13,11 @@ return [
             'files' => [
                 /*
                  * The list of directories and files that will be included in the backup.
-                 * We only back up uploaded EO PDFs and archived/versioned PDFs.
+                 * We only back up uploaded document PDFs and archived/versioned PDFs.
                  */
                 'include' => [
-                    storage_path('app/private/executive-orders'),
-                    storage_path('app/private/executive-orders-archive'),
+                    storage_path('app/private/documents'),
+                    storage_path('app/private/documents-archive'),
                 ],
 
                 /*

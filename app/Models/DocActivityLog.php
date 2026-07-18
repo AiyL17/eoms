@@ -4,15 +4,17 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EoActivityLog extends Model
+class DocActivityLog extends Model
 {
     public $timestamps = true;
+
+    protected $table = 'doc_activity_logs';
 
     // updated_at is not needed for an immutable log — only created_at matters
     const UPDATED_AT = null;
 
     protected $fillable = [
-        'executive_order_id',
+        'document_id',
         'user_id',
         'action',
         'old_values',
@@ -28,9 +30,9 @@ class EoActivityLog extends Model
 
     // ─── Relationships ────────────────────────────────────────────────────────
 
-    public function executiveOrder()
+    public function document()
     {
-        return $this->belongsTo(ExecutiveOrder::class)->withTrashed();
+        return $this->belongsTo(Document::class, 'document_id')->withTrashed();
     }
 
     public function user()
@@ -41,14 +43,14 @@ class EoActivityLog extends Model
     // ─── Static Helper ────────────────────────────────────────────────────────
 
     public static function record(
-        ExecutiveOrder $eo,
+        Document $doc,
         string $action,
         ?array $oldValues = null,
         ?array $newValues = null,
         ?string $notes = null
     ): self {
         return self::create([
-            'executive_order_id' => $eo->id,
+            'document_id' => $doc->id,
             'user_id'            => auth()->id(),
             'action'             => $action,
             'old_values'         => $oldValues,

@@ -1,6 +1,6 @@
 <?php
 
-use App\Models\ExecutiveOrder;
+use App\Models\Document;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('signature_path')->nullable()->after('signature_data');
         });
 
-        Schema::table('executive_orders', function (Blueprint $table) {
+        Schema::table('documents', function (Blueprint $table) {
             $table->string('signature_path')->nullable()->after('signature_data');
         });
 
@@ -31,11 +31,11 @@ return new class extends Migration
             }
         });
 
-        // Executive Orders
-        ExecutiveOrder::withTrashed()->whereNotNull('signature_data')->each(function (ExecutiveOrder $eo) {
-            $path = $this->saveSignatureBlob($eo->signature_data, "signatures/executive-orders/{$eo->id}.png");
+        // Documents
+        Document::withTrashed()->whereNotNull('signature_data')->each(function (Document $doc) {
+            $path = $this->saveSignatureBlob($doc->signature_data, "signatures/documents/{$doc->id}.png");
             if ($path) {
-                $eo->updateQuietly(['signature_path' => $path]);
+                $doc->updateQuietly(['signature_path' => $path]);
             }
         });
 
@@ -45,7 +45,7 @@ return new class extends Migration
             $table->dropColumn('signature_data');
         });
 
-        Schema::table('executive_orders', function (Blueprint $table) {
+        Schema::table('documents', function (Blueprint $table) {
             $table->dropColumn('signature_data');
         });
     }
@@ -57,7 +57,7 @@ return new class extends Migration
             $table->longText('signature_data')->nullable()->after('signature_path');
         });
 
-        Schema::table('executive_orders', function (Blueprint $table) {
+        Schema::table('documents', function (Blueprint $table) {
             $table->longText('signature_data')->nullable()->after('signature_path');
         });
 
@@ -69,10 +69,10 @@ return new class extends Migration
             }
         });
 
-        ExecutiveOrder::withTrashed()->whereNotNull('signature_path')->each(function (ExecutiveOrder $eo) {
-            if (Storage::disk('local')->exists($eo->signature_path)) {
-                $blob = 'data:image/png;base64,' . base64_encode(Storage::disk('local')->get($eo->signature_path));
-                $eo->updateQuietly(['signature_data' => $blob]);
+        Document::withTrashed()->whereNotNull('signature_path')->each(function (Document $doc) {
+            if (Storage::disk('local')->exists($doc->signature_path)) {
+                $blob = 'data:image/png;base64,' . base64_encode(Storage::disk('local')->get($doc->signature_path));
+                $doc->updateQuietly(['signature_data' => $blob]);
             }
         });
 
@@ -81,7 +81,7 @@ return new class extends Migration
             $table->dropColumn('signature_path');
         });
 
-        Schema::table('executive_orders', function (Blueprint $table) {
+        Schema::table('documents', function (Blueprint $table) {
             $table->dropColumn('signature_path');
         });
     }

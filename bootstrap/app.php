@@ -17,17 +17,17 @@ return Application::configure(basePath: dirname(__DIR__))
         // ── Clean up old backups at 3:00 AM (keeps rolling 7-day window) ──
         $schedule->command('backup:clean')->dailyAt('03:00');
 
-        // ── Warn admins 5 days before archived EOs are permanently purged ──
-        $schedule->command('eo:notify-expiring')->dailyAt('03:30');
+        // ── Warn admins 5 days before archived documents are permanently purged ──
+        $schedule->command('doc:notify-expiring')->dailyAt('03:30');
 
-        // ── Permanently purge soft-deleted EOs older than 30 days ─────────
-        $schedule->command('eo:prune-deleted')->dailyAt('04:00');
+        // ── Permanently purge soft-deleted documents older than 30 days ───────
+        $schedule->command('doc:prune-deleted')->dailyAt('04:00');
 
-        // ── Annual review reminders for active EOs ────────────────────────
-        $schedule->command('eo:notify-review-due')->dailyAt('08:00');
+        // ── Warn all admins & staff of approaching document expiration dates ───
+        $schedule->command('doc:notify-expiration-warning')->dailyAt('08:30');
 
-        // ── Rebuild FTS5 search index nightly ─────────────────────────────
-        $schedule->command('eo:rebuild-search-index')->dailyAt('01:00');
+        // ── Rebuild FTS5 search index nightly ─────────────────────────────────
+        $schedule->command('doc:rebuild-search-index')->dailyAt('01:00');
     })
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([

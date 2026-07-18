@@ -8,15 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('executive_orders', function (Blueprint $table) {
+        Schema::create('documents', function (Blueprint $table) {
             $table->id();
 
-            // EO Identification
+            // Document Identification
             $table->string('eo_number')->unique(); // e.g. "E.O. No. 24-26"
             $table->integer('item_number');        // e.g. 24
             $table->integer('year');               // e.g. 2026 (full 4-digit year)
 
-            // EO Content
+            // Document Content
             $table->string('title');
             $table->string('subject');
             $table->text('content_summary')->nullable();
@@ -45,8 +45,8 @@ return new class extends Migration
             $table->text('status_notes')->nullable();
 
             // Amendment tracking (self-referential)
-            $table->unsignedBigInteger('amended_by_id')->nullable(); // Points to the NEW EO that amended this one
-            $table->unsignedBigInteger('amends_id')->nullable();     // Points to the OLD EO this one amends
+            $table->unsignedBigInteger('amended_by_id')->nullable(); // Points to the NEW document that amended this one
+            $table->unsignedBigInteger('amends_id')->nullable();     // Points to the OLD document this one amends
 
             // Tags / categories
             $table->json('tags')->nullable();
@@ -60,21 +60,21 @@ return new class extends Migration
         });
 
         // Add self-referential foreign keys after table creation
-        Schema::table('executive_orders', function (Blueprint $table) {
+        Schema::table('documents', function (Blueprint $table) {
             $table->foreign('amended_by_id')
                   ->references('id')
-                  ->on('executive_orders')
+                  ->on('documents')
                   ->nullOnDelete();
 
             $table->foreign('amends_id')
                   ->references('id')
-                  ->on('executive_orders')
+                  ->on('documents')
                   ->nullOnDelete();
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('executive_orders');
+        Schema::dropIfExists('documents');
     }
 };

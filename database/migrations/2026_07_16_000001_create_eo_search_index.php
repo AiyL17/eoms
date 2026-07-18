@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Creates a SQLite FTS5 virtual table to power full-text search with ranking.
- * The table mirrors searchable columns from executive_orders and is kept in
+ * The table mirrors searchable columns from documents and is kept in
  * sync via application-level upserts (no DB triggers — SQLite in XAMPP may
  * not support triggers reliably).
  */
@@ -19,10 +19,10 @@ return new class extends Migration
         }
 
         DB::statement('
-            CREATE VIRTUAL TABLE IF NOT EXISTS eo_search_index
+            CREATE VIRTUAL TABLE IF NOT EXISTS doc_search_index
             USING fts5(
-                eo_id UNINDEXED,
-                eo_number,
+                doc_id UNINDEXED,
+                doc_number,
                 title,
                 subject,
                 signed_by,
@@ -38,6 +38,6 @@ return new class extends Migration
         if (DB::getDriverName() !== 'sqlite') {
             return;
         }
-        DB::statement('DROP TABLE IF EXISTS eo_search_index');
+        DB::statement('DROP TABLE IF EXISTS doc_search_index');
     }
 };

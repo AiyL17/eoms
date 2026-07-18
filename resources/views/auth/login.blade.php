@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sign In — EOMS</title>
+    <title>Sign In — DTMS</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -27,12 +27,12 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
                 </svg>
             </div>
-            <span class="text-white font-bold text-lg">EOMS</span>
+            <span class="text-white font-bold text-lg">DTMS</span>
         </div>
 
         <div class="relative z-10">
-            <h2 class="text-white text-4xl font-bold leading-snug mb-4">Executive Order<br>Management System</h2>
-            <p class="text-violet-200 text-base leading-relaxed max-w-sm">Digitally catalog, store, and track executive orders for the City Government — with a full audit trail.</p>
+            <h2 class="text-white text-4xl font-bold leading-snug mb-4">Document Tracking<br>Management System</h2>
+            <p class="text-violet-200 text-base leading-relaxed max-w-sm">Digitally catalog, store, and track documents for the City Government — with a full audit trail.</p>
 
             <div class="mt-12 grid grid-cols-3 gap-4">
                 <div class="bg-white/10 rounded-2xl p-4 text-center">
@@ -50,7 +50,7 @@
             </div>
         </div>
 
-        <p class="relative z-10 text-violet-300/70 text-xs">&copy; {{ date('Y') }} City Government — EOMS v1.0</p>
+        <p class="relative z-10 text-violet-300/70 text-xs">&copy; {{ date('Y') }} City Government — DTMS v1.0</p>
     </div>
 
     {{-- Right: Login form --}}
@@ -64,7 +64,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
                     </svg>
                 </div>
-                <span class="font-bold text-slate-900">EOMS</span>
+                <span class="font-bold text-slate-900">DTMS</span>
             </div>
 
             <h1 class="text-2xl font-bold text-slate-900 mb-1">Welcome back</h1>
@@ -149,17 +149,9 @@
                 </form>
             </div>
 
-            <p class="text-center text-slate-400 text-xs mt-6">&copy; {{ date('Y') }} City Government · EOMS v1.0</p>
+            <p class="text-center text-slate-400 text-xs mt-6">&copy; {{ date('Y') }} City Government · DTMS v1.0</p>
 
-            <div class="text-center mt-3">
-                <a href="{{ route('public.index') }}"
-                   class="inline-flex items-center gap-1.5 text-xs font-medium text-violet-600 hover:text-violet-800 transition-colors">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" />
-                    </svg>
-                    Browse Public Registry
-                </a>
-            </div>
+
         </div>
     </div>
 

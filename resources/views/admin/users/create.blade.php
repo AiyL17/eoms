@@ -167,7 +167,7 @@
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-600 text-white">Admin</span>
                 </div>
                 <ul class="space-y-1 text-xs text-violet-700">
-                    <li class="flex gap-2"><svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>Full EO management (create, edit, delete)</li>
+                    <li class="flex gap-2"><svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>Full document management (create, edit, delete)</li>
                     <li class="flex gap-2"><svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>User management</li>
                     <li class="flex gap-2"><svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>View system audit logs</li>
                 </ul>
@@ -177,9 +177,9 @@
                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-500 text-white">Staff</span>
                 </div>
                 <ul class="space-y-1 text-xs text-violet-700">
-                    <li class="flex gap-2"><svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>View, create, and edit EOs</li>
+                    <li class="flex gap-2"><svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>View, create, and edit documents</li>
                     <li class="flex gap-2"><svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>View and download PDFs</li>
-                    <li class="flex gap-2 text-violet-400"><svg class="w-3 h-3 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>Cannot delete EOs or manage users</li>
+                    <li class="flex gap-2 text-violet-400"><svg class="w-3 h-3 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>Cannot delete documents or manage users</li>
                 </ul>
             </div>
         </div>

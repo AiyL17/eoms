@@ -17,7 +17,7 @@ class NotificationController extends Controller
         return view('notifications.index', compact('notifications'));
     }
 
-    /** Mark a single notification as read and redirect to the EO (or notifications index) */
+    /** Mark a single notification as read and redirect to the document (or notifications index) */
     public function markRead(Request $request, string $id)
     {
         $notification = auth()->user()
@@ -26,13 +26,13 @@ class NotificationController extends Controller
 
         $notification->markAsRead();
 
-        $eoId = $notification->data['eo_id'] ?? null;
+        $docId = $notification->data['doc_id'] ?? null;
 
-        if ($eoId) {
-            // Only redirect to the EO show page if the EO still exists (not deleted)
-            $eo = \App\Models\ExecutiveOrder::withTrashed()->find($eoId);
-            if ($eo && ! $eo->trashed()) {
-                return redirect()->route('executive-orders.show', $eoId);
+        if ($docId) {
+            // Only redirect to the document show page if it still exists (not deleted)
+            $doc = \App\Models\Document::withTrashed()->find($docId);
+            if ($doc && ! $doc->trashed()) {
+                return redirect()->route('documents.show', $docId);
             }
         }
 

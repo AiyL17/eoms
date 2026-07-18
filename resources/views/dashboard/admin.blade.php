@@ -11,18 +11,18 @@
             </svg>
             Manage Users
         </a>
-        <a href="{{ route('executive-orders.create') }}" class="btn-primary btn-sm">
+        <a href="{{ route('documents.create') }}" class="btn-primary btn-sm">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            Upload EO
+            Register Document
         </a>
     </div>
 @endsection
 
 @section('content')
 
-{{-- ── Welcome Banner ────────────────────────────────────────────────────── --}}
+{{-- Welcome Banner --}}
 <div class="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl px-6 py-5 mb-6 flex items-center justify-between" data-tour="welcome-banner">
     <div>
         <p class="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">Welcome back</p>
@@ -35,24 +35,22 @@
     </div>
 </div>
 
-{{-- ── KPI Stats Row ──────────────────────────────────────────────────────── --}}
+{{-- KPI Stats --}}
 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" data-tour="kpi-stats">
 
-    {{-- Total EOs --}}
-    <a href="{{ route('executive-orders.index') }}" class="stat-card hover:ring-2 hover:ring-violet-200 hover:shadow-md transition-all">
+    <a href="{{ route('documents.index') }}" class="stat-card hover:ring-2 hover:ring-violet-200 hover:shadow-md transition-all">
         <div class="stat-icon bg-violet-100 text-violet-600">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
             </svg>
         </div>
         <div>
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total EOs</p>
-            <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ number_format($totalEos) }}</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">{{ $thisYearEos }} this year</p>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Documents</p>
+            <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ number_format($totalDocs) }}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">{{ $thisYearDocs }} this year</p>
         </div>
     </a>
 
-    {{-- Total Users --}}
     <a href="{{ route('admin.users.index') }}" class="stat-card hover:ring-2 hover:ring-indigo-200 hover:shadow-md transition-all">
         <div class="stat-icon bg-indigo-100 text-indigo-600">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
@@ -66,67 +64,59 @@
         </div>
     </a>
 
-    {{-- Needs Review --}}
-    <a href="{{ route('executive-orders.index', ['status' => 'under_review']) }}" class="stat-card hover:ring-2 hover:ring-sky-200 hover:shadow-md transition-all">
-        <div class="stat-icon bg-sky-100 text-sky-600">
+    <a href="{{ route('documents.index', ['document_type' => 'incoming']) }}" class="stat-card hover:ring-2 hover:ring-blue-200 hover:shadow-md transition-all">
+        <div class="stat-icon bg-blue-100 text-blue-600">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 3.75H6.912a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859M12 3v8.25m0 0l-3-3m3 3l3-3" />
             </svg>
         </div>
         <div>
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Needs Review</p>
-            <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ number_format($needsReviewCount) }}</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">under review / suspended</p>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Incoming</p>
+            <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ number_format($typeCounts['incoming'] ?? 0) }}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">received documents</p>
         </div>
     </a>
 
-    {{-- Review Due (annual) —— Feature 5 ──────────────────────────────────── --}}
-    <a href="{{ route('executive-orders.index', ['status' => 'active']) }}"
-       class="stat-card hover:ring-2 hover:shadow-md transition-all
-              {{ $reviewDueCount > 0 ? 'hover:ring-amber-200' : 'hover:ring-emerald-200' }}">
-        <div class="stat-icon {{ $reviewDueCount > 0 ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600' }}">
+    <a href="{{ route('documents.index', ['document_type' => 'outgoing']) }}" class="stat-card hover:ring-2 hover:ring-emerald-200 hover:shadow-md transition-all">
+        <div class="stat-icon bg-emerald-100 text-emerald-600">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
             </svg>
         </div>
         <div>
-            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Review Due</p>
-            <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ number_format($reviewDueCount) }}</p>
-            <p class="text-[11px] text-slate-400 mt-0.5">active EOs ≥ 1 year old</p>
+            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Outgoing</p>
+            <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ number_format($typeCounts['outgoing'] ?? 0) }}</p>
+            <p class="text-[11px] text-slate-400 mt-0.5">sent documents</p>
         </div>
     </a>
 
 </div>
 
-{{-- ── Status Distribution + Year Volume ─────────────────────────────────── --}}
+{{-- Document Type Breakdown + Year Volume --}}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
-    <div class="lg:col-span-2 card" data-tour="status-distribution">
+    <div class="lg:col-span-2 card" data-tour="type-distribution">
         <div class="card-header">
             <div>
-                <h2 class="text-sm font-bold text-slate-800">Status Distribution</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Breakdown of all executive orders by current status</p>
+                <h2 class="text-sm font-bold text-slate-800">Document Type Breakdown</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Incoming vs outgoing across all registered documents</p>
             </div>
         </div>
-        <div class="p-6 space-y-3">
+        <div class="p-6 space-y-4">
             @php
-            $statusConfig = [
-                'active'       => ['label' => 'Active',       'color' => '#10b981'],
-                'amended'      => ['label' => 'Amended',      'color' => '#f59e0b'],
-                'repealed'     => ['label' => 'Repealed',     'color' => '#ef4444'],
-                'suspended'    => ['label' => 'Suspended',    'color' => '#f97316'],
-                'superseded'   => ['label' => 'Superseded',   'color' => '#8b5cf6'],
-                'under_review' => ['label' => 'Under Review', 'color' => '#0ea5e9'],
+            $typeConfig = [
+                'incoming' => ['label' => 'Incoming', 'color' => '#3b82f6'],
+                'outgoing' => ['label' => 'Outgoing', 'color' => '#10b981'],
             ];
             @endphp
-            @foreach($statusConfig as $key => $cfg)
-            @php $count = $statusCounts[$key] ?? 0; $pct = $totalEos > 0 ? round(($count / $totalEos) * 100) : 0; @endphp
+            @foreach($typeConfig as $key => $cfg)
+            @php $count = $typeCounts[$key] ?? 0; $pct = $totalDocs > 0 ? round(($count / $totalDocs) * 100) : 0; @endphp
             <div class="flex items-center gap-3">
-                <span class="w-24 text-xs font-semibold text-slate-600 shrink-0">{{ $cfg['label'] }}</span>
-                <div class="flex-1 bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div class="h-2 rounded-full transition-all duration-500" style="width: {{ $pct }}%; background-color: {{ $cfg['color'] }};"></div>
+                <span class="w-20 text-xs font-semibold text-slate-600 shrink-0">{{ $cfg['label'] }}</span>
+                <div class="flex-1 bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                    <div class="h-2.5 rounded-full transition-all duration-500" style="width: {{ $pct }}%; background-color: {{ $cfg['color'] }};"></div>
                 </div>
-                <span class="w-8 text-xs font-bold text-right text-slate-700">{{ $count }}</span>
+                <span class="w-10 text-xs font-bold text-right text-slate-700">{{ $count }}</span>
                 <span class="w-10 text-xs text-slate-400 text-right">{{ $pct }}%</span>
             </div>
             @endforeach
@@ -137,21 +127,17 @@
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">By Year</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Volume per issuance year</p>
+                <p class="text-xs text-slate-400 mt-0.5">Volume per year</p>
             </div>
         </div>
         <div class="overflow-x-auto overflow-y-auto" style="max-height: 260px;">
             <table class="w-full table-auto">
                 <thead class="sticky top-0 z-10">
-                    <tr>
-                        <th>Year</th>
-                        <th class="text-right">Count</th>
-                        <th class="text-right pr-6">Share</th>
-                    </tr>
+                    <tr><th>Year</th><th class="text-right">Count</th><th class="text-right pr-6">Share</th></tr>
                 </thead>
                 <tbody>
                     @forelse($yearList as $row)
-                    @php $pct = $totalEos > 0 ? round(($row->count / $totalEos) * 100) : 0; @endphp
+                    @php $pct = $totalDocs > 0 ? round(($row->count / $totalDocs) * 100) : 0; @endphp
                     <tr>
                         <td class="font-bold text-slate-800">{{ $row->year }}</td>
                         <td class="text-right font-semibold text-slate-700">{{ $row->count }}</td>
@@ -164,144 +150,110 @@
             </table>
         </div>
     </div>
-
 </div>
 
-{{-- ── Recent EOs + Needs Attention + Top Users ───────────────────────────── --}}
+{{-- Recent Documents + Top Users --}}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
 
     <div class="lg:col-span-2 card" data-tour="recent-eos">
         <div class="card-header">
             <div>
-                <h2 class="text-sm font-bold text-slate-800">Recently Uploaded</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Latest 5 executive orders added to the system</p>
+                <h2 class="text-sm font-bold text-slate-800">Recently Registered</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Latest 5 documents added to the system</p>
             </div>
-            <a href="{{ route('executive-orders.index') }}" class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors flex items-center gap-1">
+            <a href="{{ route('documents.index') }}" class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors flex items-center gap-1">
                 View All <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
             </a>
         </div>
-        {{-- Mobile cards --}}
         <div class="block md:hidden divide-y divide-slate-100">
-            @forelse($recentEos as $eo)
-            <a href="{{ route('executive-orders.show', $eo) }}" class="flex items-start gap-3 px-4 py-3.5 hover:bg-violet-50/40 transition-colors">
+            @forelse($recentDocs as $doc)
+            <a href="{{ route('documents.show', $doc) }}" class="flex items-start gap-3 px-4 py-3.5 hover:bg-violet-50/40 transition-colors">
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap mb-0.5">
-                        <span class="text-xs font-bold text-violet-700 font-mono">{{ $eo->eo_number }}</span>
-                        <span class="badge-{{ $eo->status }}">{{ $eo->status_label }}</span>
+                        <span class="text-xs font-bold text-violet-700 font-mono">{{ $doc->doc_number }}</span>
+                        <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded {{ $doc->document_type === 'incoming' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600' }}">{{ $doc->document_type_label }}</span>
                     </div>
-                    <p class="text-xs text-slate-500 truncate">{{ $eo->subject }}</p>
-                    <p class="text-[11px] text-slate-400 mt-0.5">{{ $eo->uploader->name ?? '—' }}</p>
+                    <p class="text-xs text-slate-500 truncate">{{ $doc->title }}</p>
                 </div>
                 <svg class="w-4 h-4 text-slate-300 shrink-0 mt-1" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
             </a>
             @empty
             <div class="py-12 text-center px-4">
-                <p class="text-sm font-semibold text-slate-700 mb-1">No executive orders yet</p>
-                <a href="{{ route('executive-orders.create') }}" class="text-violet-600 text-sm font-semibold hover:underline">Upload the first one →</a>
+                <p class="text-sm font-semibold text-slate-700 mb-1">No documents yet</p>
+                <a href="{{ route('documents.create') }}" class="text-violet-600 text-sm font-semibold hover:underline">Register the first one →</a>
             </div>
             @endforelse
         </div>
-        {{-- Desktop table --}}
         <div class="hidden md:block overflow-x-auto">
-        <table class="w-full table-auto">
-            <thead>
-                <tr>
-                    <th>EO Number</th>
-                    <th>Subject</th>
-                    <th>Uploaded By</th>
-                    <th>Status</th>
-                    <th class="text-right">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($recentEos as $eo)
-                <tr>
-                    <td class="font-bold text-slate-800 whitespace-nowrap text-[13px]">{{ $eo->eo_number }}</td>
-                    <td><div class="truncate max-w-[160px] text-slate-600 text-[13px]" title="{{ $eo->subject }}">{{ $eo->subject }}</div></td>
-                    <td class="text-slate-500 text-[13px]">{{ $eo->uploader->name ?? '—' }}</td>
-                    <td><span class="badge-{{ $eo->status }}">{{ $eo->status_label }}</span></td>
-                    <td class="text-right">
-                        <a href="{{ route('executive-orders.show', $eo) }}" class="inline-flex items-center gap-1 text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
-                            View <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
-                        </a>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" class="py-12 text-center">
-                        <p class="text-sm font-semibold text-slate-700 mb-1">No executive orders yet</p>
-                        <a href="{{ route('executive-orders.create') }}" class="text-violet-600 text-sm font-semibold hover:underline">Upload the first one →</a>
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+            <table class="w-full table-auto">
+                <thead>
+                    <tr>
+                        <th>Doc. No.</th>
+                        <th>Document Name</th>
+                        <th>Type</th>
+                        <th>Registered By</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($recentDocs as $doc)
+                    <tr>
+                        <td class="font-bold text-slate-800 whitespace-nowrap text-[13px]">{{ $doc->doc_number }}</td>
+                        <td><div class="truncate max-w-[160px] text-slate-600 text-[13px]" title="{{ $doc->title }}">{{ $doc->title }}</div></td>
+                        <td>
+                            <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded {{ $doc->document_type === 'incoming' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600' }}">
+                                {{ $doc->document_type_label }}
+                            </span>
+                        </td>
+                        <td class="text-slate-500 text-[13px]">{{ $doc->uploader->name ?? '—' }}</td>
+                        <td class="text-right">
+                            <a href="{{ route('documents.show', $doc) }}" class="inline-flex items-center gap-1 text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
+                                View <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="5" class="py-12 text-center">
+                            <p class="text-sm font-semibold text-slate-700 mb-1">No documents yet</p>
+                            <a href="{{ route('documents.create') }}" class="text-violet-600 text-sm font-semibold hover:underline">Register the first one →</a>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 
-    <div class="space-y-6">
-
-        {{-- Needs Attention --}}
-        <div class="card" data-tour="needs-attention">
-            <div class="card-header">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-800">Needs Attention</h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Under review or suspended EOs</p>
-                </div>
+    {{-- Most Active Users --}}
+    <div class="card" data-tour="top-users">
+        <div class="card-header">
+            <div>
+                <h2 class="text-sm font-bold text-slate-800">Most Active Users</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Last 30 days by actions</p>
             </div>
-            <div class="p-4 space-y-2 overflow-y-auto" style="max-height: 200px;">
-                @forelse($needsAttention as $eo)
-                <a href="{{ route('executive-orders.show', $eo) }}" class="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors group">
-                    <span class="w-2 h-2 rounded-full mt-1.5 shrink-0 {{ $eo->status === 'under_review' ? 'bg-sky-400' : 'bg-orange-400' }}"></span>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-[13px] font-bold text-slate-800 group-hover:text-violet-700 transition-colors">{{ $eo->eo_number }}</p>
-                        <p class="text-xs text-slate-500 truncate">{{ $eo->title }}</p>
-                        <span class="badge-{{ $eo->status }} mt-1 inline-block">{{ $eo->status_label }}</span>
-                    </div>
-                </a>
-                @empty
-                <div class="py-6 text-center">
-                    <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center mx-auto mb-2 text-emerald-500">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    </div>
-                    <p class="text-xs font-semibold text-slate-600">All clear</p>
-                    <p class="text-xs text-slate-400">No EOs need attention</p>
-                </div>
-                @endforelse
-            </div>
+            <a href="{{ route('admin.users.index') }}" class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors flex items-center gap-1">
+                All Users <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+            </a>
         </div>
-
-        {{-- Most Active Users --}}
-        <div class="card" data-tour="top-users">
-            <div class="card-header">
-                <div>
-                    <h2 class="text-sm font-bold text-slate-800">Most Active Users</h2>
-                    <p class="text-xs text-slate-400 mt-0.5">Last 30 days by actions</p>
+        <div class="p-4 space-y-2 overflow-y-auto" style="max-height: 260px;">
+            @forelse($topUsers as $entry)
+            <div class="flex items-center gap-3 px-2 py-1.5 rounded-xl hover:bg-slate-50 transition-colors">
+                <x-user-avatar :user="$entry->user ?? new \App\Models\User(['name' => '?'])" :size="7" />
+                <div class="flex-1 min-w-0">
+                    <p class="text-[13px] font-semibold text-slate-800 truncate">{{ $entry->user->name ?? 'Unknown' }}</p>
+                    <p class="text-[11px] text-slate-400">{{ ucfirst($entry->user->role ?? '') }}</p>
                 </div>
-                <a href="{{ route('admin.users.index') }}" class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors flex items-center gap-1">
-                    All Users <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
-                </a>
+                <span class="text-xs font-bold text-violet-700 bg-violet-50 px-2 py-0.5 rounded-full border border-violet-100">{{ $entry->action_count }}</span>
             </div>
-            <div class="p-4 space-y-2 overflow-y-auto" style="max-height: 200px;">
-                @forelse($topUsers as $entry)
-                <div class="flex items-center gap-3 px-2 py-1.5 rounded-xl hover:bg-slate-50 transition-colors">
-                    <x-user-avatar :user="$entry->user ?? new \App\Models\User(['name' => '?'])" :size="7" />
-                    <div class="flex-1 min-w-0">
-                        <p class="text-[13px] font-semibold text-slate-800 truncate">{{ $entry->user->name ?? 'Unknown' }}</p>
-                        <p class="text-[11px] text-slate-400">{{ ucfirst($entry->user->role ?? '') }}</p>
-                    </div>
-                    <span class="text-xs font-bold text-violet-700 bg-violet-50 px-2 py-0.5 rounded-full border border-violet-100">{{ $entry->action_count }}</span>
-                </div>
-                @empty
-                <p class="py-6 text-center text-sm text-slate-400">No activity in the last 30 days.</p>
-                @endforelse
-            </div>
+            @empty
+            <p class="py-6 text-center text-sm text-slate-400">No activity in the last 30 days.</p>
+            @endforelse
         </div>
-
     </div>
 </div>
 
-{{-- ── System Activity Feed + 7-day Upload Sparkline ──────────────────────── --}}
+{{-- Activity Feed + 7-day Sparkline --}}
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     <div class="lg:col-span-2 card" data-tour="activity-feed">
@@ -322,12 +274,8 @@
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
                     @elseif($log->action === 'updated')
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" /></svg>
-                    @elseif($log->action === 'status_changed')
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
                     @elseif($log->action === 'deleted')
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z" />
-                    </svg>
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z" /></svg>
                     @elseif($log->action === 'force_deleted')
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
                     @elseif($log->action === 'downloaded')
@@ -343,14 +291,14 @@
                     </div>
                     <p class="text-xs text-slate-500 mt-0.5">
                         <span class="action-badge-{{ $log->action }}">{{ $log->action_label }}</span>
-                        @if($log->executiveOrder)
-                            @if($log->executiveOrder->trashed())
-                                <a href="{{ route('executive-orders.archive') }}" class="ml-1 font-semibold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->executiveOrder->eo_number }}</a>
+                        @if($log->document)
+                            @if($log->document->trashed())
+                                <a href="{{ route('documents.archive') }}" class="ml-1 font-semibold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->document->doc_number }}</a>
                             @else
-                                <a href="{{ route('executive-orders.show', $log->executiveOrder) }}" class="ml-1 font-semibold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->executiveOrder->eo_number }}</a>
+                                <a href="{{ route('documents.show', $log->document) }}" class="ml-1 font-semibold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->document->doc_number }}</a>
                             @endif
                         @else
-                            <span class="ml-1 text-slate-400 italic">Deleted EO</span>
+                            <span class="ml-1 text-slate-400 italic">Deleted document</span>
                         @endif
                     </p>
                 </div>
@@ -364,8 +312,8 @@
     <div class="card" data-tour="upload-sparkline">
         <div class="card-header">
             <div>
-                <h2 class="text-sm font-bold text-slate-800">System Uploads — Last 7 Days</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Daily EO upload count (all users)</p>
+                <h2 class="text-sm font-bold text-slate-800">Registrations — Last 7 Days</h2>
+                <p class="text-xs text-slate-400 mt-0.5">Daily document registration count</p>
             </div>
         </div>
         <div class="p-6">
@@ -382,11 +330,9 @@
             </div>
             <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
                 <span class="text-xs text-slate-500">Total this week</span>
-                <span class="text-sm font-bold text-slate-900">{{ $last7Days->sum('count') }} uploads</span>
+                <span class="text-sm font-bold text-slate-900">{{ $last7Days->sum('count') }} documents</span>
             </div>
         </div>
-
-        {{-- Quick Admin Links --}}
         <div class="px-6 pb-6 pt-2 border-t border-slate-100 mt-4">
             <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Quick Actions</p>
             <div class="space-y-2">
@@ -398,23 +344,14 @@
                     <svg class="w-4 h-4 text-slate-400 group-hover:text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25z" /></svg>
                     <span class="text-sm font-medium">View Audit Logs</span>
                 </a>
-                <a href="{{ route('executive-orders.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-violet-50 text-slate-700 hover:text-violet-700 transition-colors group">
-                    <svg class="w-4 h-4 text-slate-400 group-hover:text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>
-                    <span class="text-sm font-medium">Browse All EOs</span>
-                </a>
-                <a href="{{ route('executive-orders.export') }}" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-violet-50 text-slate-700 hover:text-violet-700 transition-colors group">
+                <a href="{{ route('documents.export') }}" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-violet-50 text-slate-700 hover:text-violet-700 transition-colors group">
                     <svg class="w-4 h-4 text-slate-400 group-hover:text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                    <span class="text-sm font-medium">Export All EOs (CSV)</span>
+                    <span class="text-sm font-medium">Export All (CSV)</span>
                 </a>
-                <a href="{{ route('public.index') }}" target="_blank" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-violet-50 text-slate-700 hover:text-violet-700 transition-colors group">
-                    <svg class="w-4 h-4 text-slate-400 group-hover:text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418" /></svg>
-                    <span class="text-sm font-medium">View Public Portal</span>
-                    <svg class="w-3 h-3 ml-auto text-slate-300 group-hover:text-violet-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
-                </a>
+
             </div>
         </div>
     </div>
-
 </div>
 
 @endsection
@@ -425,22 +362,18 @@
     const clockEl = document.getElementById('dashboard-clock');
     const dateEl  = document.getElementById('dashboard-date');
     if (!clockEl || !dateEl) return;
-
     const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
     function tick() {
         const now = new Date();
-        let h   = now.getHours();
-        const m = String(now.getMinutes()).padStart(2, '0');
-        const s = String(now.getSeconds()).padStart(2, '0');
+        let h = now.getHours();
+        const m = String(now.getMinutes()).padStart(2,'0');
+        const s = String(now.getSeconds()).padStart(2,'0');
         const ampm = h >= 12 ? 'PM' : 'AM';
         h = h % 12 || 12;
-
         clockEl.textContent = `${h}:${m}:${s} ${ampm}`;
         dateEl.textContent  = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
     }
-
     tick();
     setInterval(tick, 1000);
 })();

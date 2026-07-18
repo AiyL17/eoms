@@ -9,15 +9,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('documents', function (Blueprint $table) {
-            // Stores the drawn e-signature as a base64-encoded PNG data URL
-            $table->longText('signature_data')->nullable()->after('signed_by');
+            // 'incoming' is the historic default — all existing records are incoming
+            $table->string('document_type')->default('incoming')->after('doc_number');
         });
     }
 
     public function down(): void
     {
         Schema::table('documents', function (Blueprint $table) {
-            $table->dropColumn('signature_data');
+            $table->dropColumn('document_type');
         });
     }
 };

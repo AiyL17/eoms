@@ -175,8 +175,8 @@
                 <span class="font-semibold text-slate-700">{{ $user->created_at->format('M d, Y') }}</span>
             </div>
             <div class="flex items-center justify-between">
-                <span class="text-slate-400 font-medium">EOs uploaded</span>
-                <span class="font-semibold text-slate-700">{{ $user->uploadedOrders()->count() }}</span>
+                <span class="text-slate-400 font-medium">Docs uploaded</span>
+                <span class="font-semibold text-slate-700">{{ $user->uploadedDocuments()->count() }}</span>
             </div>
             @if(auth()->id() === $user->id)
             <div class="flex items-center gap-2 mt-2 pt-2 border-t border-slate-200">

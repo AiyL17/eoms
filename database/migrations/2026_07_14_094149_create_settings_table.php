@@ -17,7 +17,7 @@ return new class extends Migration
 
         // Seed default values
         $defaults = [
-            // EO Management
+            // Document Management
             'archive_retention_days'    => '30',
 
             // Access

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Reset Password — EOMS</title>
+    <title>Reset Password — DTMS</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -23,7 +23,7 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
                 </svg>
             </div>
-            <span class="text-white font-bold text-lg">EOMS</span>
+            <span class="text-white font-bold text-lg">DTMS</span>
         </div>
 
         <div class="relative z-10">
@@ -31,7 +31,7 @@
             <p class="text-violet-200 text-base leading-relaxed max-w-sm">Choose a strong password — at least 8 characters, with mixed case, numbers, and symbols.</p>
         </div>
 
-        <p class="relative z-10 text-violet-300/70 text-xs">&copy; {{ date('Y') }} City Government — EOMS v1.0</p>
+        <p class="relative z-10 text-violet-300/70 text-xs">&copy; {{ date('Y') }} City Government — DTMS v1.0</p>
     </div>
 
     {{-- Right: form --}}
@@ -45,7 +45,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
                     </svg>
                 </div>
-                <span class="font-bold text-slate-900">EOMS</span>
+                <span class="font-bold text-slate-900">DTMS</span>
             </div>
 
             <h1 class="text-2xl font-bold text-slate-900 mb-1">Set a new password</h1>
@@ -137,7 +137,7 @@
                 </a>
             </p>
 
-            <p class="text-center text-slate-400 text-xs mt-4">&copy; {{ date('Y') }} City Government · EOMS v1.0</p>
+            <p class="text-center text-slate-400 text-xs mt-4">&copy; {{ date('Y') }} City Government · DTMS v1.0</p>
         </div>
     </div>
 

@@ -2,13 +2,13 @@
 
 namespace App\Services;
 
-use App\Models\ExecutiveOrder;
+use App\Models\Document;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
-class EoSearchService
+class DocSearchService
 {
     /**
      * Returns whether the FTS5 index is available in this environment.
@@ -19,7 +19,7 @@ class EoSearchService
             return false;
         }
         try {
-            $rows = DB::select("SELECT name FROM sqlite_master WHERE type='table' AND name='eo_search_index'");
+            $rows = DB::select("SELECT name FROM sqlite_master WHERE type='table' AND name='doc_search_index'");
             return ! empty($rows);
         } catch (\Throwable) {
             return false;
@@ -27,61 +27,58 @@ class EoSearchService
     }
 
     /**
-     * Upsert a single EO into the FTS index.
+     * Upsert a single document into the FTS index.
      * Called after create/update/restore.
      */
-    public static function index(ExecutiveOrder $eo): void
+    public static function index(Document $doc): void
     {
         if (! static::ftsAvailable()) return;
 
         try {
             // Remove existing row then insert fresh (FTS5 doesn't support ON CONFLICT)
-            DB::statement('DELETE FROM eo_search_index WHERE eo_id = ?', [$eo->id]);
+            DB::statement('DELETE FROM doc_search_index WHERE doc_id = ?', [$doc->id]);
             DB::statement(
-                'INSERT INTO eo_search_index (eo_id, eo_number, title, subject, signed_by, content_summary, tags)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)',
+                'INSERT INTO doc_search_index (doc_id, doc_number, title, received_from)
+                 VALUES (?, ?, ?, ?)',
                 [
-                    $eo->id,
-                    $eo->eo_number,
-                    $eo->title,
-                    $eo->subject,
-                    $eo->signed_by,
-                    $eo->content_summary ?? '',
-                    $eo->tags ? implode(' ', $eo->tags) : '',
+                    $doc->id,
+                    $doc->doc_number,
+                    $doc->title,
+                    $doc->received_from ?? '',
                 ]
             );
         } catch (\Throwable $e) {
-            Log::warning('FTS index update failed for EO ' . $eo->id . ': ' . $e->getMessage());
+            Log::warning('FTS index update failed for document ' . $doc->id . ': ' . $e->getMessage());
         }
     }
 
     /**
-     * Remove an EO from the FTS index.
+     * Remove a document from the FTS index.
      * Called on soft-delete or force-delete.
      */
-    public static function remove(int $eoId): void
+    public static function remove(int $docId): void
     {
         if (! static::ftsAvailable()) return;
         try {
-            DB::statement('DELETE FROM eo_search_index WHERE eo_id = ?', [$eoId]);
+            DB::statement('DELETE FROM doc_search_index WHERE doc_id = ?', [$docId]);
         } catch (\Throwable $e) {
-            Log::warning('FTS index removal failed for EO ' . $eoId . ': ' . $e->getMessage());
+            Log::warning('FTS index removal failed for document ' . $docId . ': ' . $e->getMessage());
         }
     }
 
     /**
-     * Rebuild the entire FTS index from the executive_orders table.
+     * Rebuild the entire FTS index from the documents table.
      */
     public static function rebuild(): int
     {
         if (! static::ftsAvailable()) return 0;
 
-        DB::statement('DELETE FROM eo_search_index');
+        DB::statement('DELETE FROM doc_search_index');
 
         $count = 0;
-        ExecutiveOrder::withoutTrashed()->chunk(200, function ($eos) use (&$count) {
-            foreach ($eos as $eo) {
-                static::index($eo);
+        Document::withoutTrashed()->chunk(200, function ($docs) use (&$count) {
+            foreach ($docs as $doc) {
+                static::index($doc);
                 $count++;
             }
         });
@@ -90,10 +87,10 @@ class EoSearchService
     }
 
     /**
-     * Perform an FTS5 search and return EO IDs ordered by relevance.
+     * Perform an FTS5 search and return document IDs ordered by relevance.
      * Falls back to an empty collection if FTS is unavailable.
      *
-     * @return Collection<int> EO IDs in relevance order (most relevant first)
+     * @return Collection<int> Document IDs in relevance order (most relevant first)
      */
     public static function search(string $term): Collection
     {
@@ -107,11 +104,11 @@ class EoSearchService
             if (empty($sanitised)) return collect();
 
             $rows = DB::select(
-                'SELECT eo_id, rank FROM eo_search_index WHERE eo_search_index MATCH ? ORDER BY rank',
+                'SELECT doc_id, rank FROM doc_search_index WHERE doc_search_index MATCH ? ORDER BY rank',
                 [$sanitised]
             );
 
-            return collect($rows)->pluck('eo_id');
+            return collect($rows)->pluck('doc_id');
         } catch (\Throwable $e) {
             Log::warning('FTS search failed: ' . $e->getMessage());
             return collect();
@@ -119,7 +116,7 @@ class EoSearchService
     }
 
     /**
-     * Apply FTS search to an EO query builder, preserving relevance order.
+     * Apply FTS search to a document query builder, preserving relevance order.
      * Returns null ONLY if FTS is unavailable (caller should fall back to LIKE).
      * When FTS is available but finds no matches, returns a zero-result query.
      */
@@ -138,7 +135,7 @@ class EoSearchService
 
         // Preserve relevance order using CASE WHEN
         $orderedIds = $ids->values()->toArray();
-        $caseWhen   = 'CASE executive_orders.id ';
+        $caseWhen   = 'CASE documents.id ';
         foreach ($orderedIds as $position => $id) {
             $caseWhen .= "WHEN {$id} THEN {$position} ";
         }

@@ -19,7 +19,7 @@
                         </svg>
                     </div>
                     <input type="text" name="search" value="{{ request('search') }}"
-                           placeholder="Search by EO number or title…"
+                           placeholder="Search by document number or title…"
                            class="form-input form-input-icon">
                 </div>
 
@@ -110,13 +110,12 @@
                 </div>
             </div>
             <div class="text-xs text-slate-500">
-                @if($log->executiveOrder)
-                    @if($log->executiveOrder->trashed())
-                        <a href="{{ route('executive-orders.archive') }}" class="font-bold text-violet-600">{{ $log->executiveOrder->eo_number }}</a>
+                @if($log->document)
+                    @if($log->document->trashed())
+                        <a href="{{ route('documents.archive') }}" class="font-bold text-violet-600">{{ Str::limit($log->document->title, 40) }}</a>
                         <span class="text-violet-400 ml-1">· Archived</span>
                     @else
-                        <a href="{{ route('executive-orders.show', $log->executiveOrder) }}" class="font-bold text-violet-600">{{ $log->executiveOrder->eo_number }}</a>
-                        <span class="text-slate-400 ml-1 truncate">· {{ Str::limit($log->executiveOrder->title, 40) }}</span>
+                        <a href="{{ route('documents.show', $log->document) }}" class="font-bold text-violet-600">{{ Str::limit($log->document->title, 40) }}</a>
                     @endif
                 @else
                     <span class="text-slate-400 italic">Record Deleted</span>
@@ -182,13 +181,12 @@
                     </td>
                     <td><span class="action-badge-{{ $log->action }}">{{ $log->action_label }}</span></td>
                     <td>
-                        @if($log->executiveOrder)
-                            @if($log->executiveOrder->trashed())
-                                <a href="{{ route('executive-orders.archive') }}" class="text-[13px] font-bold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->executiveOrder->eo_number }}</a>
+                        @if($log->document)
+                            @if($log->document->trashed())
+                                <a href="{{ route('documents.archive') }}" class="text-[13px] font-bold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->document->title }}</a>
                                 <p class="text-xs text-violet-400 mt-0.5">Archived</p>
                             @else
-                                <a href="{{ route('executive-orders.show', $log->executiveOrder) }}" class="text-[13px] font-bold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->executiveOrder->eo_number }}</a>
-                                <p class="text-xs text-slate-400 truncate max-w-sm mt-0.5">{{ $log->executiveOrder->title }}</p>
+                                <a href="{{ route('documents.show', $log->document) }}" class="text-[13px] font-bold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->document->title }}</a>
                             @endif
                         @else
                             <span class="text-[13px] text-slate-400 italic">Record Deleted</span>

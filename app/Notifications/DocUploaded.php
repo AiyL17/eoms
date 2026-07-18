@@ -2,18 +2,18 @@
 
 namespace App\Notifications;
 
-use App\Models\ExecutiveOrder;
+use App\Models\Document;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class EoUploaded extends Notification
+class DocUploaded extends Notification
 {
     use Queueable;
 
     public function __construct(
-        public ExecutiveOrder $eo,
+        public Document $doc,
         public User $uploader
     ) {}
 
@@ -32,25 +32,25 @@ class EoUploaded extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("New EO Uploaded: {$this->eo->eo_number}")
+            ->subject("New Document Uploaded: {$this->doc->doc_number}")
             ->greeting("Hello {$notifiable->name},")
-            ->line("{$this->uploader->name} uploaded a new executive order.")
-            ->line("**{$this->eo->eo_number}** — {$this->eo->title}")
-            ->line("Status: {$this->eo->status_label} | Date Issued: {$this->eo->date_issued->format('M d, Y')}")
-            ->action('View Executive Order', route('executive-orders.show', $this->eo))
-            ->line('You are receiving this because you are an administrator of EOMS.');
+            ->line("{$this->uploader->name} registered a new document.")
+            ->line("**{$this->doc->doc_number}** — {$this->doc->title}")
+            ->line("Date Received: {$this->doc->date_issued->format('M d, Y')}")
+            ->action('View Document', route('documents.show', $this->doc))
+            ->line('You are receiving this because you are an administrator of DTMS.');
     }
 
     public function toDatabase(object $notifiable): array
     {
         return [
-            'type'          => 'eo_uploaded',
-            'eo_id'         => $this->eo->id,
-            'eo_number'     => $this->eo->eo_number,
-            'title'         => $this->eo->title,
+            'type'          => 'doc_uploaded',
+            'doc_id'        => $this->doc->id,
+            'doc_number'    => $this->doc->doc_number,
+            'title'         => $this->doc->title,
             'uploader_id'   => $this->uploader->id,
             'uploader_name' => $this->uploader->name,
-            'message'       => "{$this->uploader->name} uploaded a new executive order: {$this->eo->eo_number}",
+            'message'       => "{$this->uploader->name} uploaded a new document: {$this->doc->doc_number}",
         ];
     }
 }

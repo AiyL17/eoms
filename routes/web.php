@@ -5,19 +5,19 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ExecutiveOrderController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// ─── Public root — redirect to the public portal for unauthenticated visitors ─
+// ─── Public root ──────────────────────────────────────────────────────────────
 
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
     }
-    return redirect()->route('public.index');
+    return redirect()->route('login');
 });
 
 // ─── Guest Routes ─────────────────────────────────────────────────────────────
@@ -31,20 +31,6 @@ Route::middleware('guest')->group(function () {
     Route::post('/forgot-password',               [PasswordResetController::class, 'sendLink'])->name('password.email')->middleware('throttle:6,1');
     Route::get('/reset-password/{token}',         [PasswordResetController::class, 'showReset'])->name('password.reset');
     Route::post('/reset-password',                [PasswordResetController::class, 'reset'])->name('password.update');
-});
-
-// ─── Public Portal (no auth required) ────────────────────────────────────────
-// throttle: 60 browse requests/min, downloads separately at 20/min
-
-Route::prefix('portal')->name('public.')->group(function () {
-    Route::middleware('throttle:60,1')->group(function () {
-        Route::get('/',               [\App\Http\Controllers\PublicPortalController::class, 'index'])->name('index');
-        Route::get('/{executiveOrder}',[\App\Http\Controllers\PublicPortalController::class, 'show'])->name('show');
-        Route::get('/{executiveOrder}/pdf', [\App\Http\Controllers\PublicPortalController::class, 'viewPdf'])->name('pdf');
-    });
-    Route::middleware('throttle:20,1')->group(function () {
-        Route::get('/{executiveOrder}/download', [\App\Http\Controllers\PublicPortalController::class, 'download'])->name('download');
-    });
 });
 
 // ─── Authenticated Routes ─────────────────────────────────────────────────────
@@ -70,38 +56,40 @@ Route::middleware(['auth', 'maintenance'])->group(function () {
     Route::delete('/profile/avatar',    [ProfileController::class, 'removeAvatar'])->name('profile.remove-avatar');
 
     // ── Signature image serving (local disk, not public) ──────────────────────
-    Route::get('/signatures/users/{user}',              [ProfileController::class, 'serveSignature'])->name('signature.user');
-    Route::get('/signatures/eo/{executiveOrder}',       [\App\Http\Controllers\ExecutiveOrderController::class, 'serveSignature'])->name('signature.eo');
+    Route::get('/signatures/users/{user}', [ProfileController::class, 'serveSignature'])->name('signature.user');
 
-    // ── Executive Orders ───────────────────────────────────────────────────────
-    Route::prefix('executive-orders')->name('executive-orders.')->group(function () {
-        Route::get('/',               [ExecutiveOrderController::class, 'index'])->name('index');
-        Route::get('/create',         [ExecutiveOrderController::class, 'create'])->name('create');
-        Route::post('/',              [ExecutiveOrderController::class, 'store'])->name('store');
+    // ── Documents ──────────────────────────────────────────────────────────────
+    Route::prefix('documents')->name('documents.')->group(function () {
+        Route::get('/',               [DocumentController::class, 'index'])->name('index');
+        Route::get('/create',         [DocumentController::class, 'create'])->name('create');
+        Route::post('/',              [DocumentController::class, 'store'])->name('store');
         Route::get('/export',         [\App\Http\Controllers\ExportController::class, 'exportCsv'])->name('export');
 
         // ── Archive routes (static segments — must come before wildcard routes) ──
         Route::middleware('role:admin')->group(function () {
-            Route::get('/archive',               [ExecutiveOrderController::class, 'archive'])->name('archive');
-            Route::post('/archive/{id}/restore', [ExecutiveOrderController::class, 'restore'])->name('restore');
-            Route::delete('/archive/{id}',       [ExecutiveOrderController::class, 'forceDestroy'])->name('force-destroy');
+            Route::get('/archive',               [DocumentController::class, 'archive'])->name('archive');
+            Route::post('/archive/{id}/restore', [DocumentController::class, 'restore'])->name('restore');
+            Route::delete('/archive/{id}',       [DocumentController::class, 'forceDestroy'])->name('force-destroy');
         });
 
         // ── Wildcard routes (must come after static segments) ─────────────────
-        Route::get('/{executiveOrder}',               [ExecutiveOrderController::class, 'show'])->name('show');
-        Route::get('/{executiveOrder}/edit',          [ExecutiveOrderController::class, 'edit'])->name('edit');
-        Route::put('/{executiveOrder}',               [ExecutiveOrderController::class, 'update'])->name('update');
-        Route::get('/{executiveOrder}/pdf',           [ExecutiveOrderController::class, 'viewPdf'])->name('pdf');
-        Route::get('/{executiveOrder}/download',      [ExecutiveOrderController::class, 'download'])->name('download');
-        Route::get('/{executiveOrder}/chain',         [ExecutiveOrderController::class, 'amendmentChain'])->name('chain');
-        Route::get('/{executiveOrder}/export',        [\App\Http\Controllers\ExportController::class, 'exportSingleCsv'])->name('export-single');
-        Route::get('/{executiveOrder}/version-history',[ExecutiveOrderController::class, 'versionHistory'])->name('version-history');
-        Route::get('/{executiveOrder}/version-history/download',[ExecutiveOrderController::class, 'downloadArchived'])->name('version-history.download');
+        Route::get('/{document}',               [DocumentController::class, 'show'])->name('show');
+        Route::get('/{document}/edit',          [DocumentController::class, 'edit'])->name('edit');
+        Route::put('/{document}',               [DocumentController::class, 'update'])->name('update');
+        Route::get('/{document}/pdf',           [DocumentController::class, 'viewPdf'])->name('pdf');
+        Route::get('/{document}/download',      [DocumentController::class, 'download'])->name('download');
+        Route::get('/{document}/chain',         [DocumentController::class, 'amendmentChain'])->name('chain');
+        Route::get('/{document}/export',        [\App\Http\Controllers\ExportController::class, 'exportSingleCsv'])->name('export-single');
+        Route::get('/{document}/version-history',[DocumentController::class, 'versionHistory'])->name('version-history');
+        Route::get('/{document}/version-history/download',[DocumentController::class, 'downloadArchived'])->name('version-history.download');
 
         // Admin-only destroy
-        Route::delete('/{executiveOrder}', [ExecutiveOrderController::class, 'destroy'])
+        Route::delete('/{document}', [DocumentController::class, 'destroy'])
             ->name('destroy')
             ->middleware('role:admin');
+
+        // Toggle document type (incoming ↔ outgoing)
+        Route::patch('/{document}/toggle-type', [DocumentController::class, 'toggleType'])->name('toggle-type');
     });
 
     // ── Admin-Only Routes ──────────────────────────────────────────────────────

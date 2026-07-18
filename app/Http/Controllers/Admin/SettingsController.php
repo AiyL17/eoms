@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ExecutiveOrder;
+use App\Models\Document;
 use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -29,12 +29,12 @@ class SettingsController extends Controller
         // 1. Database connectivity
         try {
             DB::connection()->getPdo();
-            $totalEos   = ExecutiveOrder::withTrashed()->count();
+            $totalDocs  = Document::withTrashed()->count();
             $totalUsers = User::count();
             $checks[] = [
                 'label'  => 'Database',
                 'status' => 'ok',
-                'detail' => "{$totalEos} EO records · {$totalUsers} users",
+                'detail' => "{$totalDocs} document records · {$totalUsers} users",
                 'hint'   => null,
             ];
         } catch (\Throwable $e) {
@@ -66,26 +66,26 @@ class SettingsController extends Controller
             'hint'   => $symlinkOk ? null : 'Uploaded files and avatars may not display correctly. Open the XAMPP Shell (or any terminal), navigate to the project folder, and run: php artisan storage:link — then re-check here.',
         ];
 
-        // 4. Orphaned EO files (record exists but PDF missing from disk)
+        // 4. Orphaned document files (record exists but PDF missing from disk)
         try {
-            $orphaned = ExecutiveOrder::whereNotNull('pdf_path')
+            $orphaned = Document::whereNotNull('pdf_path')
                 ->get()
-                ->filter(fn ($eo) => ! Storage::disk('local')->exists($eo->pdf_path))
+                ->filter(fn ($doc) => ! Storage::disk('local')->exists($doc->pdf_path))
                 ->count();
 
             $checks[] = [
-                'label'  => 'EO File Integrity',
+                'label'  => 'Document File Integrity',
                 'status' => $orphaned === 0 ? 'ok' : 'warn',
                 'detail' => $orphaned === 0
-                    ? 'All EO PDF files are present on disk.'
-                    : "{$orphaned} EO record(s) are missing their PDF file.",
-                'hint'   => $orphaned === 0 ? null : "One or more executive orders have a record in the system but their PDF file is missing from the server. Go to Executive Orders, find the affected entries (they will fail to open or download), and re-upload their PDF files by editing each one.",
+                    ? 'All document PDF files are present on disk.'
+                    : "{$orphaned} document record(s) are missing their PDF file.",
+                'hint'   => $orphaned === 0 ? null : "One or more documents have a record in the system but their PDF file is missing from the server. Go to Documents, find the affected entries (they will fail to open or download), and re-upload their PDF files by editing each one.",
             ];
         } catch (\Throwable) {
             $checks[] = [
-                'label'  => 'EO File Integrity',
+                'label'  => 'Document File Integrity',
                 'status' => 'warn',
-                'detail' => 'Could not verify EO file integrity.',
+                'detail' => 'Could not verify document file integrity.',
                 'hint'   => 'The system could not scan for missing files. Try re-checking. If this keeps appearing, contact your IT support.',
             ];
         }
@@ -126,18 +126,18 @@ class SettingsController extends Controller
             ];
         }
 
-        // 6. Soft-deleted EOs awaiting purge
+        // 6. Soft-deleted documents awaiting purge
         try {
-            $trashed       = ExecutiveOrder::onlyTrashed()->count();
+            $trashed       = Document::onlyTrashed()->count();
             $retentionDays = (int) Setting::get('archive_retention_days', 30);
             $checks[] = [
                 'label'  => 'Archive Queue',
                 'status' => $trashed > 0 ? 'warn' : 'ok',
                 'detail' => $trashed > 0
-                    ? "{$trashed} archived EO(s) pending permanent purge (after {$retentionDays}d)."
-                    : 'No EOs pending purge.',
+                    ? "{$trashed} archived document(s) pending permanent purge (after {$retentionDays}d)."
+                    : 'No documents pending purge.',
                 'hint'   => $trashed > 0
-                    ? "These are EOs that have been archived and are waiting to be permanently deleted after {$retentionDays} days. No action is needed — the system handles this automatically overnight. If you want to remove them sooner or recover them, go to the Archive page."
+                    ? "These are documents that have been archived and are waiting to be permanently deleted after {$retentionDays} days. No action is needed — the system handles this automatically overnight. If you want to remove them sooner or recover them, go to the Archive page."
                     : null,
             ];
         } catch (\Throwable) {
@@ -151,24 +151,24 @@ class SettingsController extends Controller
 
         // 7. FTS5 Search Index
         try {
-            if (\App\Services\EoSearchService::ftsAvailable()) {
-                $indexCount = \Illuminate\Support\Facades\DB::table('eo_search_index')->count();
-                $eoCount    = \App\Models\ExecutiveOrder::count();
+            if (\App\Services\DocSearchService::ftsAvailable()) {
+                $indexCount = \Illuminate\Support\Facades\DB::table('doc_search_index')->count();
+                $eoCount    = \App\Models\Document::count();
                 $inSync     = abs($indexCount - $eoCount) <= 2;
                 $checks[] = [
                     'label'  => 'Search Index (FTS5)',
                     'status' => $inSync ? 'ok' : 'warn',
                     'detail' => $inSync
                         ? "FTS5 index active · {$indexCount} entries in sync."
-                        : "Index has {$indexCount} entries but there are {$eoCount} EOs — may need rebuild.",
-                    'hint'   => $inSync ? null : 'Run "php artisan eo:rebuild-search-index" from the project folder to re-sync the full-text search index.',
+                        : "Index has {$indexCount} entries but there are {$eoCount} documents — may need rebuild.",
+                    'hint'   => $inSync ? null : 'Run "php artisan doc:rebuild-search-index" from the project folder to re-sync the full-text search index.',
                 ];
             } else {
                 $checks[] = [
                     'label'  => 'Search Index (FTS5)',
                     'status' => 'warn',
                     'detail' => 'FTS5 index not available — using fallback LIKE search.',
-                    'hint'   => 'Run "php artisan migrate" to create the FTS5 virtual table, then "php artisan eo:rebuild-search-index".',
+                    'hint'   => 'Run "php artisan migrate" to create the FTS5 virtual table, then "php artisan doc:rebuild-search-index".',
                 ];
             }
         } catch (\Throwable) {

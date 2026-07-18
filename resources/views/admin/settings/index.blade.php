@@ -16,7 +16,7 @@
 
             <div class="card divide-y divide-slate-100">
 
-                {{-- EO Management ------------------------------------------------}}
+                {{-- Document Management ------------------------------------------------}}
                 <div class="px-6 py-5">
                     <div class="flex items-center gap-2.5 mb-4">
                         <div class="w-7 h-7 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
@@ -25,15 +25,15 @@
                             </svg>
                         </div>
                         <div>
-                            <p class="text-sm font-bold text-slate-800">EO Management</p>
-                            <p class="text-xs text-slate-400">Rules governing how executive orders are handled</p>
+                            <p class="text-sm font-bold text-slate-800">Document Management</p>
+                            <p class="text-xs text-slate-400">Rules governing how documents are handled</p>
                         </div>
                     </div>
 
                     <div class="flex items-center justify-between gap-6">
                         <div class="flex-1">
                             <label for="archive_retention_days" class="form-label">Archive Retention Period</label>
-                            <p class="text-xs text-slate-400 mt-0.5 mb-3">Archived EOs older than this are automatically purged by the nightly scheduler.</p>
+                            <p class="text-xs text-slate-400 mt-0.5 mb-3">Archived documents older than this are automatically purged by the nightly scheduler.</p>
                         </div>
                         <div class="flex items-center gap-2 shrink-0">
                             <input type="number" id="archive_retention_days" name="archive_retention_days"
@@ -64,8 +64,8 @@
 
                     <div class="flex items-center justify-between gap-6">
                         <div class="flex-1">
-                            <p class="text-sm font-semibold text-slate-700">Allow Staff to Upload EOs</p>
-                            <p class="text-xs text-slate-400 mt-0.5">When disabled, only administrators can upload new executive orders. Staff can still view and download.</p>
+                            <p class="text-sm font-semibold text-slate-700">Allow Staff to Upload Documents</p>
+                            <p class="text-xs text-slate-400 mt-0.5">When disabled, only administrators can upload new documents. Staff can still view and download.</p>
                         </div>
                         <div class="relative shrink-0">
                             <input type="checkbox" name="staff_can_upload" value="1" id="staff_can_upload"

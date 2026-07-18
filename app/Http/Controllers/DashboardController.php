@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\EoActivityLog;
-use App\Models\ExecutiveOrder;
+use App\Models\DocActivityLog;
+use App\Models\Document;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
@@ -20,30 +20,23 @@ class DashboardController extends Controller
 
     private function adminDashboard()
     {
-        // ── Core EO counts ────────────────────────────────────────────────────
-        $totalEos    = ExecutiveOrder::count();
-        $thisYearEos = ExecutiveOrder::where('year', date('Y'))->count();
+        $totalDocs    = Document::count();
+        $thisYearDocs = Document::whereYear('date_issued', date('Y'))->count();
 
-        // ── Status distribution ───────────────────────────────────────────────
-        $statusCounts = ExecutiveOrder::selectRaw('status, COUNT(*) as count')
-            ->groupBy('status')
-            ->pluck('count', 'status')
-            ->toArray();
-
-        // ── EOs per year ──────────────────────────────────────────────────────
-        $yearList = ExecutiveOrder::selectRaw('year, COUNT(*) as count')
+        // ── Documents per year ────────────────────────────────────────────────
+        $yearList = Document::selectRaw("strftime('%Y', date_issued) as year, COUNT(*) as count")
             ->groupBy('year')
             ->orderBy('year', 'desc')
             ->get();
 
         // ── Recent uploads (system-wide) ─────────────────────────────────────
-        $recentEos = ExecutiveOrder::with('uploader')
+        $recentDocs = Document::with('uploader')
             ->latest()
             ->take(5)
             ->get();
 
-        // ── Recent activity (system-wide) ─────────────────────────────────────
-        $recentLogs = EoActivityLog::with(['user', 'executiveOrder'])
+        // ── Recent activity (system-wide) ────────────────────────────────────
+        $recentLogs = DocActivityLog::with(['user', 'document'])
             ->latest()
             ->take(10)
             ->get();
@@ -54,12 +47,11 @@ class DashboardController extends Controller
         $staffCount  = User::where('role', 'staff')->count();
 
         // ── System-wide metrics ───────────────────────────────────────────────
-        $totalLogs          = EoActivityLog::count();
-        $totalPdfViews      = EoActivityLog::where('action', 'pdf_viewed')->count();
-        $needsReviewCount   = ExecutiveOrder::whereIn('status', ['under_review', 'suspended'])->count();
+        $totalLogs     = DocActivityLog::count();
+        $totalPdfViews = DocActivityLog::where('action', 'pdf_viewed')->count();
 
         // ── Most active users (last 30 days) ──────────────────────────────────
-        $topUsers = EoActivityLog::select('user_id', DB::raw('COUNT(*) as action_count'))
+        $topUsers = DocActivityLog::select('user_id', DB::raw('COUNT(*) as action_count'))
             ->with('user')
             ->where('created_at', '>=', now()->subDays(30))
             ->whereNotNull('user_id')
@@ -68,37 +60,32 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        // ── EOs added in last 7 days ──────────────────────────────────────────
+        // ── Documents added in last 7 days ────────────────────────────────────
         $last7Days = collect(range(6, 0))->map(function ($daysAgo) {
             $date = now()->subDays($daysAgo);
             return [
                 'label' => $date->format('D'),
-                'count' => ExecutiveOrder::whereDate('created_at', $date->toDateString())->count(),
+                'count' => Document::whereDate('created_at', $date->toDateString())->count(),
             ];
         });
-
-        // ── EOs that need attention ───────────────────────────────────────────
-        $needsAttention = ExecutiveOrder::whereIn('status', ['under_review', 'suspended'])
-            ->latest()
-            ->take(5)
-            ->get();
 
         // ── New users this month ──────────────────────────────────────────────
         $newUsersThisMonth = User::whereMonth('created_at', date('m'))
             ->whereYear('created_at', date('Y'))
             ->count();
 
-        // ── EOs due for annual review (active and 1+ year old) ────────────────
-        $reviewDueCount = ExecutiveOrder::where('status', 'active')
-            ->where('date_issued', '<=', now()->subYear()->toDateString())
-            ->count();
+        // ── Document type breakdown ───────────────────────────────────────────
+        $typeCounts = Document::selectRaw('document_type, COUNT(*) as count')
+            ->groupBy('document_type')
+            ->pluck('count', 'document_type')
+            ->toArray();
 
         return view('dashboard.admin', compact(
-            'totalEos',
-            'thisYearEos',
-            'statusCounts',
+            'totalDocs',
+            'thisYearDocs',
+            'typeCounts',
             'yearList',
-            'recentEos',
+            'recentDocs',
             'recentLogs',
             'totalUsers',
             'adminCount',
@@ -107,10 +94,7 @@ class DashboardController extends Controller
             'totalPdfViews',
             'topUsers',
             'last7Days',
-            'needsAttention',
-            'needsReviewCount',
-            'newUsersThisMonth',
-            'reviewDueCount'
+            'newUsersThisMonth'
         ));
     }
 
@@ -120,47 +104,42 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // ── Personal EO stats ─────────────────────────────────────────────────
-        $myTotalUploads = ExecutiveOrder::where('uploaded_by', $user->id)->count();
-        $myThisMonth    = ExecutiveOrder::where('uploaded_by', $user->id)
+        // ── Personal document stats ───────────────────────────────────────────
+        $myTotalUploads = Document::where('uploaded_by', $user->id)->count();
+        $myThisMonth    = Document::where('uploaded_by', $user->id)
             ->whereMonth('created_at', date('m'))
             ->whereYear('created_at', date('Y'))
             ->count();
-        $myRecentEos    = ExecutiveOrder::where('uploaded_by', $user->id)
+        $myRecentDocs   = Document::where('uploaded_by', $user->id)
             ->latest()
             ->take(5)
             ->get();
 
         // ── Personal activity log ─────────────────────────────────────────────
-        $myRecentLogs = EoActivityLog::with('executiveOrder')
+        $myRecentLogs = DocActivityLog::with('document')
             ->where('user_id', $user->id)
             ->latest()
             ->take(10)
             ->get();
-        $myTotalActions = EoActivityLog::where('user_id', $user->id)->count();
+        $myTotalActions = DocActivityLog::where('user_id', $user->id)->count();
 
         // ── Personal download count ───────────────────────────────────────────
-        $myDownloads = EoActivityLog::where('user_id', $user->id)
+        $myDownloads = DocActivityLog::where('user_id', $user->id)
             ->where('action', 'downloaded')
             ->count();
 
-        // ── System-wide EO overview (read-only context) ───────────────────────
-        $totalEos     = ExecutiveOrder::count();
-        $activeEos    = ExecutiveOrder::where('status', 'active')->count();
-        $thisYearEos  = ExecutiveOrder::where('year', date('Y'))->count();
-        $statusCounts = ExecutiveOrder::selectRaw('status, COUNT(*) as count')
-            ->groupBy('status')
-            ->pluck('count', 'status')
+        // ── System-wide overview (read-only context) ──────────────────────────
+        $totalDocs    = Document::count();
+        $thisYearDocs = Document::whereYear('date_issued', date('Y'))->count();
+
+        // ── Document type breakdown ───────────────────────────────────────────
+        $typeCounts = Document::selectRaw('document_type, COUNT(*) as count')
+            ->groupBy('document_type')
+            ->pluck('count', 'document_type')
             ->toArray();
 
-        // ── EOs that need attention ───────────────────────────────────────────
-        $needsAttention = ExecutiveOrder::whereIn('status', ['under_review', 'suspended'])
-            ->latest()
-            ->take(5)
-            ->get();
-
-        // ── Recent EOs across system (for browsing) ───────────────────────────
-        $recentEos = ExecutiveOrder::with('uploader')
+        // ── Recent documents across system (for browsing) ─────────────────────
+        $recentDocs = Document::with('uploader')
             ->latest()
             ->take(5)
             ->get();
@@ -170,7 +149,7 @@ class DashboardController extends Controller
             $date = now()->subDays($daysAgo);
             return [
                 'label' => $date->format('D'),
-                'count' => ExecutiveOrder::where('uploaded_by', $user->id)
+                'count' => Document::where('uploaded_by', $user->id)
                     ->whereDate('created_at', $date->toDateString())
                     ->count(),
             ];
@@ -179,16 +158,14 @@ class DashboardController extends Controller
         return view('dashboard.staff', compact(
             'myTotalUploads',
             'myThisMonth',
-            'myRecentEos',
+            'myRecentDocs',
             'myRecentLogs',
             'myTotalActions',
             'myDownloads',
-            'totalEos',
-            'activeEos',
-            'thisYearEos',
-            'statusCounts',
-            'needsAttention',
-            'recentEos',
+            'totalDocs',
+            'thisYearDocs',
+            'typeCounts',
+            'recentDocs',
             'last7Days'
         ));
     }

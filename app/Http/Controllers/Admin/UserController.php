@@ -12,7 +12,7 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $query = User::withCount('uploadedOrders')->latest();
+        $query = User::withCount('uploadedDocuments')->latest();
 
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
@@ -26,12 +26,12 @@ class UserController extends Controller
         }
 
         // ── Sorting ───────────────────────────────────────────────────────────
-        $sortable = ['name', 'email', 'role', 'uploaded_orders_count', 'created_at'];
+        $sortable = ['name', 'email', 'role', 'uploaded_documents_count', 'created_at'];
         $sort     = in_array($request->sort, $sortable) ? $request->sort : null;
         $dir      = $request->dir === 'asc' ? 'asc' : 'desc';
 
-        if ($sort === 'uploaded_orders_count') {
-            $query->reorder()->orderBy('uploaded_orders_count', $dir);
+        if ($sort === 'uploaded_documents_count') {
+            $query->reorder()->orderBy('uploaded_documents_count', $dir);
         } elseif ($sort) {
             $query->reorder()->orderBy($sort, $dir);
         }

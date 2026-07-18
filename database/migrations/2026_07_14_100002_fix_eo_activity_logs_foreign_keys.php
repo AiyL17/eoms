@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('eo_activity_logs', function (Blueprint $table) {
+        Schema::table('doc_activity_logs', function (Blueprint $table) {
             // Drop the old cascading FK on user_id
             $table->dropForeign(['user_id']);
 
@@ -22,7 +22,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::table('eo_activity_logs', function (Blueprint $table) {
+        Schema::table('doc_activity_logs', function (Blueprint $table) {
             $table->dropForeign(['user_id']);
             $table->unsignedBigInteger('user_id')->nullable(false)->change();
             $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();

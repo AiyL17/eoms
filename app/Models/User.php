@@ -88,13 +88,13 @@ class User extends Authenticatable
 
     // ─── Relationships ────────────────────────────────────────────────────────
 
-    public function uploadedOrders()
+    public function uploadedDocuments()
     {
-        return $this->hasMany(ExecutiveOrder::class, 'uploaded_by');
+        return $this->hasMany(Document::class, 'uploaded_by');
     }
 
     public function activityLogs()
     {
-        return $this->hasMany(EoActivityLog::class);
+        return $this->hasMany(DocActivityLog::class);
     }
 }
