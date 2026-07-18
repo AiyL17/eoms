@@ -170,7 +170,6 @@
             <a href="{{ route('documents.show', $doc) }}" class="flex items-start gap-3 px-4 py-3.5 hover:bg-violet-50/40 transition-colors">
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap mb-0.5">
-                        <span class="text-xs font-bold text-violet-700 font-mono">{{ $doc->doc_number }}</span>
                         <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded {{ $doc->document_type === 'incoming' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600' }}">{{ $doc->document_type_label }}</span>
                     </div>
                     <p class="text-xs text-slate-500 truncate">{{ $doc->title }}</p>
@@ -188,7 +187,6 @@
             <table class="w-full table-auto">
                 <thead>
                     <tr>
-                        <th>Doc. No.</th>
                         <th>Document Name</th>
                         <th>Type</th>
                         <th>Registered By</th>
@@ -198,8 +196,7 @@
                 <tbody>
                     @forelse($recentDocs as $doc)
                     <tr>
-                        <td class="font-bold text-slate-800 whitespace-nowrap text-[13px]">{{ $doc->doc_number }}</td>
-                        <td><div class="truncate max-w-[160px] text-slate-600 text-[13px]" title="{{ $doc->title }}">{{ $doc->title }}</div></td>
+                        <td><div class="truncate max-w-[200px] text-slate-600 text-[13px]" title="{{ $doc->title }}">{{ $doc->title }}</div></td>
                         <td>
                             <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded {{ $doc->document_type === 'incoming' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600' }}">
                                 {{ $doc->document_type_label }}
@@ -214,7 +211,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="py-12 text-center">
+                        <td colspan="4" class="py-12 text-center">
                             <p class="text-sm font-semibold text-slate-700 mb-1">No documents yet</p>
                             <a href="{{ route('documents.create') }}" class="text-violet-600 text-sm font-semibold hover:underline">Register the first one →</a>
                         </td>

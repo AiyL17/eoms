@@ -645,6 +645,9 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
         danger: {
             okClass: 'btn-danger',
         },
+        archive: {
+            okClass: 'btn-primary',
+        },
         outgoing: {
             okClass: 'btn-success',
         },
@@ -674,8 +677,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
         const iconPath = icons[opts.action ? opts.action.toLowerCase() : 'delete'] || icons.delete;
         okIcon.querySelector('path').setAttribute('d', iconPath);
 
-        // Apply variant color scheme (outgoing=green, incoming=blue, default=danger/red)
-        const allOkClasses = ['btn-danger', 'btn-success', 'btn-info'];
+        // Apply variant color scheme (outgoing=green, incoming=blue, archive=violet, default=danger/red)
+        const allOkClasses = ['btn-danger', 'btn-success', 'btn-info', 'btn-primary'];
         const style = variantStyles[opts.variant] || variantStyles.danger;
 
         // OK button variant
