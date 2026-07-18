@@ -181,7 +181,7 @@
                             Expiration {!! $sortIcon('expiration_date') !!}
                         </a>
                     </th>
-                    <th class="w-36 text-right pr-6">Action</th>
+                    <th class="w-20 text-center">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -221,8 +221,8 @@
                             <span class="text-slate-300">—</span>
                         @endif
                     </td>
-                    <td class="text-right pr-5">
-                        <div class="inline-flex items-center gap-1" onclick="event.stopPropagation()">
+                    <td class="text-center">
+                        <div class="inline-flex items-center justify-center gap-1" onclick="event.stopPropagation()">
                             {{-- Toggle type button --}}
                             <form action="{{ route('documents.toggle-type', $doc) }}" method="POST"
                                   data-confirm="Change &quot;{{ Str::limit($doc->title, 40) }}&quot; from {{ ucfirst($doc->document_type) }} to {{ $doc->document_type === 'incoming' ? 'Outgoing' : 'Incoming' }}?"
@@ -245,10 +245,11 @@
                             </form>
                             {{-- View button --}}
                             <a href="{{ route('documents.show', $doc) }}"
-                               class="inline-flex items-center gap-1 text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors px-2 py-1 rounded-lg hover:bg-violet-50">
-                                View
-                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                               title="View document"
+                               class="inline-flex items-center text-violet-600 hover:text-violet-800 transition-colors p-1.5 rounded-lg hover:bg-violet-50">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                             </a>
                         </div>

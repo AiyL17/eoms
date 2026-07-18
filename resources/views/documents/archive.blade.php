@@ -152,7 +152,7 @@
                     <th><a href="{{ $sortUrl('title') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Title {!! $sortIcon('title') !!}</a></th>
                     <th class="w-40"><a href="{{ $sortUrl('deleted_at') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Archived On {!! $sortIcon('deleted_at') !!}</a></th>
                     <th class="w-40"><a href="{{ $sortUrl('uploaded_by') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Uploaded By {!! $sortIcon('uploaded_by') !!}</a></th>
-                    <th class="w-48 text-right pr-6">Actions</th>
+                    <th class="w-20 text-center">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -166,22 +166,20 @@
                         <p class="text-xs text-slate-400">{{ $doc->deleted_at->format('h:i A') }}</p>
                     </td>
                     <td class="text-slate-500 text-[13px]">{{ $doc->uploader->name ?? '—' }}</td>
-                    <td class="text-right pr-5 whitespace-nowrap">
-                        <div class="flex items-center justify-end gap-2">
+                    <td class="text-center whitespace-nowrap">
+                        <div class="inline-flex items-center justify-center gap-1">
                             <form action="{{ route('documents.restore', $doc->id) }}" method="POST">
                                 @csrf
-                                <button type="submit" class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors" title="Restore this document">
-                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
-                                    Restore
+                                <button type="submit" class="inline-flex items-center justify-center text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 p-1.5 rounded-lg transition-colors" title="Restore this document">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
                                 </button>
                             </form>
                             <form action="{{ route('documents.force-destroy', $doc->id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="inline-flex items-center gap-1.5 text-xs font-semibold text-red-500 hover:text-red-700 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors"
+                                <button type="submit" class="inline-flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
                                         data-confirm="Permanently delete {{ $doc->doc_number }}? The PDF and all previous versions will also be removed. This cannot be undone." title="Permanently delete">
-                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
-                                    Delete Forever
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
                                 </button>
                             </form>
                         </div>
