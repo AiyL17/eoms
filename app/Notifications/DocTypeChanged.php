@@ -5,11 +5,10 @@ namespace App\Notifications;
 use App\Models\Document;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class DocTypeChanged extends Notification implements ShouldQueue
+class DocTypeChanged extends Notification
 {
     use Queueable;
 
@@ -27,13 +26,14 @@ class DocTypeChanged extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
-        $oldLabel = ucfirst($this->oldType);
-        $newLabel = ucfirst($this->newType);
+        $oldLabel    = ucfirst($this->oldType);
+        $newLabel    = ucfirst($this->newType);
+        $changerRole = ucfirst($this->changedBy->role);
 
         return (new MailMessage)
             ->subject("Document Type Changed: {$this->doc->doc_number}")
             ->greeting("Hello {$notifiable->name},")
-            ->line("{$this->changedBy->name} changed the document type of **{$this->doc->doc_number}** from **{$oldLabel}** to **{$newLabel}**.")
+            ->line("{$this->changedBy->name} ({$changerRole}) changed the document type of **{$this->doc->doc_number}** from **{$oldLabel}** to **{$newLabel}**.")
             ->line("**Document:** {$this->doc->title}")
             ->line("**Office / Origin:** {$this->doc->received_from}")
             ->line("**Recipient:** {$this->doc->recipient}")
@@ -43,8 +43,9 @@ class DocTypeChanged extends Notification implements ShouldQueue
 
     public function toArray(object $notifiable): array
     {
-        $oldLabel = ucfirst($this->oldType);
-        $newLabel = ucfirst($this->newType);
+        $oldLabel    = ucfirst($this->oldType);
+        $newLabel    = ucfirst($this->newType);
+        $changerRole = ucfirst($this->changedBy->role);
 
         return [
             'type'            => 'doc_type_changed',
@@ -55,7 +56,7 @@ class DocTypeChanged extends Notification implements ShouldQueue
             'new_type'        => $this->newType,
             'changed_by_id'   => $this->changedBy->id,
             'changed_by_name' => $this->changedBy->name,
-            'message'         => "{$this->doc->doc_number} — \"{$this->doc->title}\" was changed from {$oldLabel} to {$newLabel} by {$this->changedBy->name}.",
+            'message'         => "{$this->changedBy->name} ({$changerRole}) changed {$this->doc->doc_number} document type from {$oldLabel} to {$newLabel}.",
             'url'             => route('documents.show', $this->doc),
         ];
     }

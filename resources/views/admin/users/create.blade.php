@@ -19,7 +19,7 @@
     <div class="xl:col-span-2 space-y-5">
 
         {{-- 1. Profile --}}
-        <div class="card">
+        <div class="card" id="tour-user-create-profile">
             <div class="p-6">
                 <h3 class="form-section-title">1 — Profile</h3>
                 <div class="space-y-5">
@@ -39,7 +39,19 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                            <label for="role" class="form-label">System Role</label>
+                            <div class="flex items-center gap-1.5 mb-1.5">
+                                <label for="role" class="form-label !mb-0">System Role</label>
+                                {{-- Role permissions info popover --}}
+                                <button type="button" id="role-info-btn"
+                                        class="flex items-center justify-center w-5 h-5 rounded-full text-violet-600 hover:text-violet-800 transition-colors focus:outline-none focus:ring-2 focus:ring-violet-300 focus:ring-offset-1 shrink-0"
+                                        aria-label="View role permissions"
+                                        aria-expanded="false"
+                                        aria-controls="role-permissions-popover">
+                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                                    </svg>
+                                </button>
+                            </div>
                             <select name="role" id="role" class="form-input {{ $errors->has('role') ? 'error' : '' }}" required>
                                 <option value="staff" {{ old('role', 'staff') === 'staff' ? 'selected' : '' }}>Staff</option>
                                 <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Administrator</option>
@@ -62,7 +74,7 @@
         </div>
 
         {{-- 2. Password --}}
-        <div class="card">
+        <div class="card" id="tour-user-create-password">
             <div class="p-6">
                 <h3 class="form-section-title">2 — Set Password</h3>
                 <div class="space-y-5">
@@ -127,7 +139,7 @@
     </div>
 
     {{-- ── RIGHT: Role guide ────────────────────────────────────────────── --}}
-    <div class="sticky top-20 self-start space-y-5">
+    <div class="sticky top-20 self-start space-y-5" id="tour-user-create-preview">
 
         {{-- Preview --}}
         <div class="card">
@@ -159,30 +171,6 @@
             </div>
         </div>
 
-        {{-- Role guide --}}
-        <div class="bg-violet-50 rounded-2xl border border-violet-100 p-5 space-y-4">
-            <h4 class="text-xs font-bold text-violet-900 uppercase tracking-widest">Role Permissions</h4>
-            <div>
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-violet-600 text-white">Admin</span>
-                </div>
-                <ul class="space-y-1 text-xs text-violet-700">
-                    <li class="flex gap-2"><svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>Full document management (create, edit, delete)</li>
-                    <li class="flex gap-2"><svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>User management</li>
-                    <li class="flex gap-2"><svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>View system audit logs</li>
-                </ul>
-            </div>
-            <div class="border-t border-violet-100 pt-4">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-500 text-white">Staff</span>
-                </div>
-                <ul class="space-y-1 text-xs text-violet-700">
-                    <li class="flex gap-2"><svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>View, create, and edit documents</li>
-                    <li class="flex gap-2"><svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>View and download PDFs</li>
-                    <li class="flex gap-2 text-violet-400"><svg class="w-3 h-3 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>Cannot delete documents or manage users</li>
-                </ul>
-            </div>
-        </div>
     </div>
 
 </div>
@@ -190,6 +178,123 @@
 
 @push('scripts')
 <script>
+// Role info popover — fixed-position (never clipped by overflow)
+(function () {
+    const btn = document.getElementById('role-info-btn');
+    if (!btn) return;
+
+    // Build the popover and append it to <body> so it's never clipped
+    const popover = document.createElement('div');
+    popover.id = 'role-permissions-popover';
+    popover.setAttribute('role', 'tooltip');
+    popover.style.cssText = 'display:none;position:fixed;z-index:9999;width:272px;';
+    popover.className = 'bg-white border border-slate-200 rounded-2xl shadow-xl p-5 space-y-4';
+    popover.innerHTML = `
+        <div id="rp-arrow" style="position:absolute;width:12px;height:12px;background:#fff;border-left:1px solid #e2e8f0;border-top:1px solid #e2e8f0;transform:rotate(45deg);"></div>
+        <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500 pt-1">Role Permissions</p>
+        <div>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-violet-600 text-white mb-2">Admin</span>
+            <ul class="space-y-1.5 text-xs text-slate-600">
+                <li class="flex items-start gap-1.5">
+                    <svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                    Full document management (create, edit, delete)
+                </li>
+                <li class="flex items-start gap-1.5">
+                    <svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                    User management
+                </li>
+                <li class="flex items-start gap-1.5">
+                    <svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                    View system audit logs
+                </li>
+            </ul>
+        </div>
+        <div class="border-t border-slate-100 pt-4">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-500 text-white mb-2">Staff</span>
+            <ul class="space-y-1.5 text-xs text-slate-600">
+                <li class="flex items-start gap-1.5">
+                    <svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                    View, create, and edit documents
+                </li>
+                <li class="flex items-start gap-1.5">
+                    <svg class="w-3 h-3 shrink-0 mt-0.5 text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                    View and download PDFs
+                </li>
+                <li class="flex items-start gap-1.5 text-slate-400">
+                    <svg class="w-3 h-3 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                    Cannot delete documents or manage users
+                </li>
+            </ul>
+        </div>`;
+    document.body.appendChild(popover);
+
+    const arrow = document.getElementById('rp-arrow');
+    let isOpen = false;
+    let hoverBtn = false, hoverPop = false;
+
+    function position() {
+        const r = btn.getBoundingClientRect();
+        const pw = 272;
+        const gap = 10; // gap between button bottom and popover top
+
+        // Prefer opening below; flip above if not enough space
+        const spaceBelow = window.innerHeight - r.bottom;
+        const popH = popover.offsetHeight || 300;
+        const openBelow = spaceBelow >= popH + gap || spaceBelow >= 150;
+
+        let top, arrowTop, arrowBorder;
+        if (openBelow) {
+            top = r.bottom + gap + window.scrollY;
+            arrowTop = -7;
+            arrowBorder = 'border-left:1px solid #e2e8f0;border-top:1px solid #e2e8f0;';
+        } else {
+            top = r.top - popH - gap + window.scrollY;
+            arrowTop = popH - 6;
+            arrowBorder = 'border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;';
+        }
+
+        // Horizontal: align left edge of popover with button, clamp to viewport
+        let left = r.left + window.scrollX;
+        const maxLeft = window.innerWidth - pw - 8;
+        left = Math.max(8, Math.min(left, maxLeft));
+
+        // Arrow horizontal offset relative to button center
+        const arrowLeft = Math.max(8, Math.min(r.left - left + r.width / 2 - 6, pw - 20));
+
+        popover.style.top  = top + 'px';
+        popover.style.left = left + 'px';
+        arrow.style.cssText = `position:absolute;top:${arrowTop}px;left:${arrowLeft}px;width:12px;height:12px;background:#fff;${arrowBorder}transform:rotate(45deg);`;
+    }
+
+    function show() {
+        isOpen = true;
+        popover.style.display = 'block';
+        btn.setAttribute('aria-expanded', 'true');
+        position();
+    }
+    function hide() {
+        isOpen = false;
+        popover.style.display = 'none';
+        btn.setAttribute('aria-expanded', 'false');
+    }
+    function syncHover() { (hoverBtn || hoverPop) ? show() : hide(); }
+
+    btn.addEventListener('mouseenter', () => { hoverBtn = true;  syncHover(); });
+    btn.addEventListener('mouseleave', () => { hoverBtn = false; setTimeout(syncHover, 80); });
+    popover.addEventListener('mouseenter', () => { hoverPop = true;  syncHover(); });
+    popover.addEventListener('mouseleave', () => { hoverPop = false; setTimeout(syncHover, 80); });
+
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        isOpen ? hide() : show();
+    });
+
+    document.addEventListener('click', () => { hoverBtn = false; hoverPop = false; hide(); });
+    popover.addEventListener('click', (e) => e.stopPropagation());
+    window.addEventListener('resize', () => { if (isOpen) position(); });
+    window.addEventListener('scroll', () => { if (isOpen) position(); }, true);
+})();
+
 function togglePassword(inputId, btn) {
     const input = document.getElementById(inputId);
     const isHidden = input.type === 'password';

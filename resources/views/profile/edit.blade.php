@@ -61,7 +61,7 @@
         <div class="space-y-5">
 
             {{-- Account Details card --}}
-            <div class="card">
+            <div class="card" data-tour="profile-account">
                 <div class="p-5 border-b border-slate-100">
                     <h3 class="text-sm font-bold text-slate-800">Account Details</h3>
                     <p class="text-xs text-slate-400 mt-0.5">Managed by your administrator.</p>

@@ -23,12 +23,12 @@
                            class="form-input form-input-icon">
                 </div>
 
-                {{-- Action type --}}
+                {{-- Document Type --}}
                 <div class="w-full lg:w-48 shrink-0">
-                    <select name="action" class="form-input">
-                        <option value="">All Actions</option>
-                        @foreach($actions as $value => $label)
-                            <option value="{{ $value }}" {{ request('action') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                    <select name="doc_type" class="form-input">
+                        <option value="">All Types</option>
+                        @foreach($docTypes as $value => $label)
+                            <option value="{{ $value }}" {{ request('doc_type') === $value ? 'selected' : '' }}>{{ $label }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -46,7 +46,7 @@
                 {{-- Actions --}}
                 <div class="flex gap-2 shrink-0 w-full lg:w-auto">
                     <button type="submit" class="btn-primary h-[42px] px-5 w-full lg:w-auto">Filter</button>
-                    @if(request()->anyFilled(['action', 'search', 'user_id']))
+                    @if(request()->anyFilled(['doc_type', 'search', 'user_id']))
                         <a href="{{ route('admin.logs.index') }}"
                            class="btn-secondary h-[42px] px-4 text-slate-400 hover:text-slate-600"
                            title="Clear filters">
@@ -69,7 +69,7 @@
         <p class="text-xs font-semibold text-slate-500">
             {{ number_format($logs->total()) }} {{ Str::plural('record', $logs->total()) }} found
         </p>
-        @if(request()->anyFilled(['search', 'action', 'user_id']))
+        @if(request()->anyFilled(['search', 'doc_type', 'user_id']))
         <div class="flex items-center gap-2 flex-wrap">
             @if(request('search'))
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-violet-50 text-violet-700 text-xs font-medium rounded-full border border-violet-100">
@@ -77,9 +77,9 @@
                     "{{ Str::limit(request('search'), 30) }}"
                 </span>
             @endif
-            @if(request('action'))
+            @if(request('doc_type'))
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-violet-50 text-violet-700 text-xs font-medium rounded-full border border-violet-100">
-                    Action: {{ $actions[request('action')] ?? request('action') }}
+                    Type: {{ $docTypes[request('doc_type')] ?? request('doc_type') }}
                 </span>
             @endif
             @if(request('user_id'))
@@ -131,7 +131,7 @@
             </div>
             <p class="text-sm font-bold text-slate-800 mb-1">No logs found</p>
             <p class="text-sm text-slate-500 mb-4">No activity logs match your current filters.</p>
-            @if(request()->anyFilled(['action', 'search', 'user_id']))<a href="{{ route('admin.logs.index') }}" class="btn-secondary btn-sm">Clear Filters</a>@endif
+            @if(request()->anyFilled(['doc_type', 'search', 'user_id']))<a href="{{ route('admin.logs.index') }}" class="btn-secondary btn-sm">Clear Filters</a>@endif
         </div>
         @endforelse
     </div>
@@ -204,7 +204,7 @@
                             </div>
                             <p class="text-sm font-bold text-slate-800 mb-1">No logs found</p>
                             <p class="text-sm text-slate-500 mb-4">No activity logs match your current filters.</p>
-                            @if(request()->anyFilled(['action', 'search', 'user_id']))<a href="{{ route('admin.logs.index') }}" class="btn-secondary btn-sm">Clear Filters</a>@endif
+                            @if(request()->anyFilled(['doc_type', 'search', 'user_id']))<a href="{{ route('admin.logs.index') }}" class="btn-secondary btn-sm">Clear Filters</a>@endif
                         </div>
                     </td>
                 </tr>

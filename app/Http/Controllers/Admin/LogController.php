@@ -14,16 +14,14 @@ class LogController extends Controller
     {
         $query = DocActivityLog::with(['user', 'document'])->latest();
 
-        if ($request->filled('action')) {
-            $query->where('action', $request->action);
-        }
-
         if ($request->filled('user_id')) {
             $query->where('user_id', $request->user_id);
         }
 
-        if ($request->filled('doc_id')) {
-            $query->where('document_id', $request->doc_id);
+        if ($request->filled('doc_type')) {
+            $query->whereHas('document', function ($q) use ($request) {
+                $q->withTrashed()->where('document_type', $request->doc_type);
+            });
         }
 
         if ($request->filled('search')) {
@@ -43,20 +41,10 @@ class LogController extends Controller
             $query->reorder()->orderBy($sort, $dir);
         }
 
-        $logs    = $query->paginate(25)->withQueryString();
-        $users   = User::orderBy('name')->get(['id', 'name']);
-        $orders  = Document::withTrashed()->orderBy('doc_number')->get(['id', 'doc_number']);
-        $actions = [
-            'created'        => 'Uploaded',
-            'updated'        => 'Updated',
-            'status_changed' => 'Status Changed',
-            'deleted'        => 'Archived',
-            'restored'       => 'Restored',
-            'force_deleted'  => 'Permanently Deleted',
-            'downloaded'     => 'Downloaded PDF',
-            'pdf_viewed'     => 'Viewed PDF',
-        ];
+        $logs     = $query->paginate(25)->withQueryString();
+        $users    = User::orderBy('name')->get(['id', 'name']);
+        $docTypes = Document::documentTypes();
 
-        return view('admin.logs.index', compact('logs', 'users', 'orders', 'actions', 'sort', 'dir'));
+        return view('admin.logs.index', compact('logs', 'users', 'docTypes', 'sort', 'dir'));
     }
 }

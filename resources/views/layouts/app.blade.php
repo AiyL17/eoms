@@ -379,13 +379,11 @@
                                 $data = $n->data;
                                 $icon = match($data['type'] ?? '') {
                                                     'doc_uploaded'           => ['bg' => 'bg-emerald-100', 'text' => 'text-emerald-600', 'path' => 'M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5'],
-                                    'doc_status_changed'     => ['bg' => 'bg-amber-100',   'text' => 'text-amber-600',   'path' => 'M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99'],
                                     'doc_updated'            => ['bg' => 'bg-blue-100',    'text' => 'text-blue-600',    'path' => 'M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z'],
                                     'doc_type_changed'       => ['bg' => 'bg-sky-100',     'text' => 'text-sky-600',     'path' => 'M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5'],
                                     'doc_archived'           => ['bg' => 'bg-red-100',     'text' => 'text-red-600',     'path' => 'M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0'],
                                     'doc_expiring'           => ['bg' => 'bg-orange-100',  'text' => 'text-orange-600',  'path' => 'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z'],
                                     'doc_expiration_warning' => ['bg' => 'bg-red-100',     'text' => 'text-red-600',     'path' => 'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z'],
-                                    'doc_review_due'         => ['bg' => 'bg-violet-100',  'text' => 'text-violet-600',  'path' => 'M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z'],
                                     default                  => ['bg' => 'bg-slate-100',   'text' => 'text-slate-500',   'path' => 'M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0'],
                                 };
                             @endphp
@@ -1045,7 +1043,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-header-btn',
                 popover: {
                     title: ico('M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z') + 'Quick Actions',
-                    description: 'Page-specific action buttons appear here — like <strong>Upload Document</strong> or <strong>Manage Users</strong>.',
+                    description: 'Page-specific action buttons appear here — like <strong>Register Document</strong> or <strong>Manage Users</strong>.',
                     side: 'bottom', align: 'end',
                 }
             },
@@ -1061,16 +1059,16 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '[data-tour="kpi-stats"]',
                 popover: {
                     title: ico('M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z') + 'KPI Statistics',
-                    description: 'At-a-glance numbers: total documents, total users, documents needing review, and annual review due count.'
+                    description: 'At-a-glance numbers: total documents, total users, incoming documents, and outgoing documents.'
                         + tip('Each card is clickable and takes you directly to the related section.'),
                     side: 'bottom', align: 'start',
                 }
             },
             {
-                element: '[data-tour="status-distribution"]',
+                element: '[data-tour="type-distribution"]',
                 popover: {
-                    title: ico('M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z') + 'Status Distribution',
-                    description: 'Visual breakdown of all documents by their current status — Active, Amended, Repealed, and more.',
+                    title: ico('M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z') + 'Document Type Breakdown',
+                    description: 'Visual breakdown of all documents by type — Incoming vs. Outgoing — shown as progress bars with counts and percentages.',
                     side: 'right', align: 'start',
                 }
             },
@@ -1085,20 +1083,9 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
             {
                 element: '[data-tour="recent-eos"]',
                 popover: {
-                    title: ico('M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z') + 'Recently Uploaded',
-                    description: 'The five most recently added documents. Click any row to open the full document detail page.',
+                    title: ico('M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z') + 'Recently Registered',
+                    description: 'The five most recently registered documents. Click any row to open the full document detail page.',
                     side: 'top', align: 'start',
-                }
-            },
-            {
-                element: '[data-tour="needs-attention"]',
-                onHighlightStarted: (el) => {
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                },
-                popover: {
-                    title: ico('M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z') + 'Needs Attention',
-                    description: 'Documents currently under review or suspended. Click any item to open it directly.',
-                    side: 'left', align: 'start',
                 }
             },
             {
@@ -1120,8 +1107,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
             {
                 element: '[data-tour="upload-sparkline"]',
                 popover: {
-                    title: ico('M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z') + 'Upload Trend & Quick Actions',
-                    description: 'Daily document upload count for the past 7 days, plus quick links to common admin tasks.',
+                    title: ico('M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z') + 'Registrations — Last 7 Days',
+                    description: 'Daily document registration count for the past 7 days, plus quick links to common admin tasks like adding users, viewing audit logs, and exporting records.',
                     side: 'left', align: 'start',
                 }
             },
@@ -1164,7 +1151,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-nav-dashboard',
                 popover: {
                     title: ico('M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25') + 'Dashboard',
-                    description: 'Your personal dashboard showing your upload stats, recent activity, and documents needing attention.',
+                    description: 'Your personal dashboard showing your upload stats, recent activity, and document type overview.',
                     side: 'right', align: 'start',
                 }
             },
@@ -1217,10 +1204,10 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 }
             },
             {
-                element: '[data-tour="status-distribution"]',
+                element: '[data-tour="type-distribution"]',
                 popover: {
-                    title: ico('M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z') + 'Document Status Overview',
-                    description: 'System-wide breakdown of all documents by their current status.',
+                    title: ico('M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z') + 'Document Types',
+                    description: 'System-wide breakdown of all documents by type — Incoming vs. Outgoing.',
                     side: 'left', align: 'start',
                 }
             },
@@ -1233,21 +1220,10 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 }
             },
             {
-                element: '[data-tour="needs-attention"]',
-                onHighlightStarted: (el) => {
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                },
-                popover: {
-                    title: ico('M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z') + 'Needs Attention',
-                    description: 'Documents currently under review or suspended. Click any item to open it directly.',
-                    side: 'left', align: 'start',
-                }
-            },
-            {
                 element: '[data-tour="upload-sparkline"]',
                 popover: {
-                    title: ico('M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z') + 'My Upload Trend',
-                    description: 'Your daily upload count for the past 7 days, plus quick links to common tasks.',
+                    title: ico('M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z') + 'My Uploads — Last 7 Days',
+                    description: 'Your daily registration count for the past 7 days, plus quick links to register a new document or browse all documents.',
                     side: 'left', align: 'start',
                 }
             },
@@ -1283,8 +1259,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-doc-filters',
                 popover: {
                     title: ico('M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z') + 'Search & Filters',
-                    description: 'Search by document number, title, subject, or signatory. Narrow results by Status, Year, or Tag.'
-                        + tip('Combine filters for precise results. Active filters appear as chips below the bar.'),
+                    description: 'Search by document name, office, or recipient. Narrow results by <strong>Document Type</strong> (Incoming or Outgoing).'
+                        + tip('Active filters appear as chips below the bar. Click the × to clear them.'),
                     side: 'bottom', align: 'start',
                 }
             },
@@ -1292,8 +1268,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-doc-table',
                 popover: {
                     title: ico('M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z') + 'Documents Table',
-                    description: 'All documents listed here. Click any row to open the full detail page with the PDF viewer.'
-                        + tip('Column headers (Document No., Date Received, Status) are clickable to sort.'),
+                    description: 'All documents listed here. Click any row to open the full detail page.'
+                        + tip('The <strong>Date Received</strong> and <strong>Expiration</strong> column headers are clickable to sort. Use the swap icon in the Action column to toggle a document between Incoming and Outgoing.'),
                     side: 'top', align: 'start',
                 }
             },
@@ -1335,6 +1311,14 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 }
             },
             {
+                element: '#tour-doc-open',
+                popover: {
+                    title: ico('M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25') + 'Open',
+                    description: 'Opens the PDF in a new browser tab — useful for reading without downloading.',
+                    side: 'bottom', align: 'end',
+                }
+            },
+            {
                 element: '#tour-doc-download',
                 popover: {
                     title: ico('M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3') + 'Download',
@@ -1346,20 +1330,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-doc-meta',
                 popover: {
                     title: ico('M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z') + 'Document Metadata',
-                    description: 'Everything about this document in one panel — status, title, and subject at the top, followed by dates, uploader, and any status notes.',
-                    side: 'left', align: 'start',
-                }
-            },
-            {
-                element: '#tour-doc-amendment-chain',
-                onHighlightStarted: (el) => {
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                },
-                popover: {
-                    title: ico('M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99') + 'Amendment Chain',
-                    description: 'When this document amends or is amended by another, the full lineage appears here — from the original through every revision to the latest amendment.'
-                        + '<br><br>Each node shows the document number, status, and issue date. Click any node to jump directly to that document.'
-                        + tip('The <strong>breadcrumb summary</strong> at the top shows the chain at a glance, while the timeline below gives the full detail.'),
+                    description: 'Everything about this document in one panel — document type (Incoming or Outgoing), date received, office/origin, recipient, expiration date, and who registered or last edited it.',
                     side: 'left', align: 'start',
                 }
             },
@@ -1382,7 +1353,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                     title: ico('M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5') + 'Action Buttons',
                     description: '<strong>Export</strong> downloads the full document record as a CSV for reports and offline recordkeeping.'
                         + '<br><br><strong>History</strong> opens the version history — every edit and status change with who made it.'
-                        + '<br><br><strong>Edit</strong> opens the edit form to update details or change the status. <strong>Archive</strong> soft-deletes the document (restorable).',
+                        + '<br><br><strong>Edit</strong> opens the edit form to update details or change the document type.'
+                        + '<br><br><strong>Archive</strong> soft-deletes the document (restorable from the Archive page).',
                     side: 'bottom', align: 'end',
                 }
             },
@@ -1390,17 +1362,6 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
 
         /* ── Version History ───────────────────────────────────────── */
         'documents.version-history': [
-            {
-                element: '#tour-vh-back',
-                onHighlightStarted: (el) => {
-                    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                },
-                popover: {
-                    title: ico('M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75') + 'Back to Document',
-                    description: 'Returns you to the main detail view of this document without losing any context.',
-                    side: 'bottom', align: 'end',
-                },
-            },
             {
                 element: '#tour-vh-pdf-archive',
                 onHighlightStarted: (el) => {
@@ -1450,77 +1411,32 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
         /* ── Upload / create ───────────────────────────────────────── */
         'documents.create': [
             {
-                element: '#tour-doc-form-preview',
-                popover: {
-                    title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
-                    description: 'This panel updates in real time as you fill in the form — document number, title, dates, and attached file all reflect instantly.',
-                    side: 'left', align: 'start',
-                }
-            },
-            {
                 element: '#tour-doc-form-file',
                 popover: {
                     title: ico('M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z') + 'Document File',
-                    description: 'Click or drag-and-drop to attach the official document. Only <strong>PDF files</strong> up to 20 MB are accepted.',
+                    description: 'Click or drag-and-drop to attach the official document. Only <strong>PDF files</strong> up to 20 MB are accepted. This field is required.',
                     side: 'right', align: 'start',
                 }
             },
             {
-                element: '#tour-doc-form-basic',
+                element: '#tour-doc-form-details',
                 popover: {
-                    title: ico('M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5') + 'Document Identification',
-                    description: 'Set the <strong>Item Number</strong> and <strong>Year</strong>. The system auto-suggests the next available number for the selected year — the preview below updates as you type.',
+                    title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z') + 'Document Information',
+                    description: 'Fill in the core details — <strong>Document Type</strong> (Incoming or Outgoing), <strong>Document Name</strong>, <strong>Office / Origin</strong>, <strong>Date Received</strong>, <strong>Recipient</strong>, and the optional <strong>Expiration Date</strong>.'
+                        + tip('The preview panel on the right updates in real time as you type.'),
                     side: 'right', align: 'start',
                 }
             },
             {
-                element: '#tour-doc-title-subject',
+                element: '#tour-doc-form-preview',
+                onHighlightStarted: () => {
+                    const main = document.querySelector('main.overflow-y-auto');
+                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                },
                 popover: {
-                    title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z') + 'Title & Subject',
-                    description: 'Enter the official <strong>Title</strong> of the document and a brief <strong>Subject</strong> summary. Both are required and appear on the document detail page and in search results.',
-                    side: 'right', align: 'start',
-                }
-            },
-            {
-                element: '#tour-doc-dates',
-                popover: {
-                    title: ico('M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5') + 'Issuance Dates',
-                    description: '<strong>Date Issued</strong> is required — it is the official date the document was signed. <strong>Date Effective</strong> is optional and used when the document takes effect on a different date.',
-                    side: 'right', align: 'start',
-                }
-            },
-            {
-                element: '#tour-doc-signatory',
-                popover: {
-                    title: ico('M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z') + 'Signatory & Tags',
-                    description: 'Enter the full name of the official who signed the document under <strong>Signed By</strong>. Add optional comma-separated <strong>Tags</strong> (e.g. Budget, Health) to make the document easier to filter and find.',
-                    side: 'right', align: 'start',
-                }
-            },
-            {
-                element: '#tour-doc-signature',
-                popover: {
-                    title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125') + 'E-Signature',
-                    description: 'Attach a digital signature that will appear on this document\'s record. If you have a saved profile signature, check the box to use it — or draw a new one directly on the canvas.'
-                        + tip('Drawing a new signature here also saves it to your profile for future use.'),
-                    side: 'right', align: 'start',
-                }
-            },
-            {
-                element: '#tour-doc-form-extra',
-                popover: {
-                    title: ico('M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L9.568 3z M6 6h.008v.008H6V6z') + 'Initial Status',
-                    description: 'Set the document\'s starting status. Most documents begin as <strong>Active</strong>. Choose <strong>Under Review</strong> or <strong>Suspended</strong> if it is not yet in full effect.'
-                        + tip('A Status Notes field appears when you choose any status other than Active.'),
-                    side: 'right', align: 'start',
-                }
-            },
-            {
-                element: '#tour-doc-form-amendment',
-                popover: {
-                    title: ico('M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99') + 'Amendment Link',
-                    description: 'If this document amends an existing one, select it here. The original document will automatically be marked as <strong>Amended</strong> when you save.',
-                    side: 'right', align: 'start',
+                    title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
+                    description: 'This panel updates in real time as you fill in the form — document type, name, office, dates, recipient, and attached file all reflect instantly before you submit.',
+                    side: 'left', align: 'start',
                 }
             },
         ],
@@ -1528,59 +1444,19 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
         /* ── Document edit ───────────────────────────────────────────────── */
         'documents.edit': [
             {
-                element: '#tour-doc-form-preview',
+                element: '#tour-doc-form-basic',
                 popover: {
-                    title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
-                    description: 'The preview panel on the right updates as you make changes — title, subject, dates, signatory, and file all reflect in real time.',
-                    side: 'left', align: 'start',
-                }
-            },
-            {
-                element: '#tour-doc-form-status',
-                popover: {
-                    title: ico('M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99') + 'Status',
-                    description: 'Update the document\'s current status here. Add a <strong>Status Note</strong> to document the reason for the change — this appears in the audit log.'
-                        + tip('The Status Notes field appears automatically for any status other than Active.'),
-                    side: 'right', align: 'start',
-                }
-            },
-            {
-                element: '#tour-doc-title-subject',
-                popover: {
-                    title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z') + 'Title & Subject',
-                    description: 'Edit the official <strong>Title</strong>, <strong>Subject</strong>, or the optional <strong>Content Summary</strong>. Changes are saved on submit and recorded in the activity log.',
-                    side: 'right', align: 'start',
-                }
-            },
-            {
-                element: '#tour-doc-dates',
-                popover: {
-                    title: ico('M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5') + 'Issuance Dates',
-                    description: 'Correct the <strong>Date Issued</strong> or set a <strong>Date Effective</strong> if the document takes effect on a different date than it was signed.',
-                    side: 'right', align: 'start',
-                }
-            },
-            {
-                element: '#tour-doc-signatory',
-                popover: {
-                    title: ico('M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z') + 'Signatory & Tags',
-                    description: 'Update the <strong>Signed By</strong> name or adjust <strong>Tags</strong> to improve searchability. Tags are comma-separated.',
-                    side: 'right', align: 'start',
-                }
-            },
-            {
-                element: '#tour-doc-signature',
-                popover: {
-                    title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125') + 'E-Signature',
-                    description: 'Attach or replace the digital signature on this document. Use your saved profile signature or draw a new one on the canvas.',
+                    title: ico('M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z') + 'Document Information',
+                    description: 'Update the core details of this document — <strong>Document Type</strong> (Incoming or Outgoing), <strong>Document Name</strong>, <strong>Office / Origin</strong>, <strong>Date Received</strong>, <strong>Recipient</strong>, and the optional <strong>Expiration Date</strong>.',
                     side: 'right', align: 'start',
                 }
             },
             {
                 element: '#tour-doc-form-file',
                 popover: {
-                    title: ico('M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z') + 'Replace PDF',
-                    description: 'Upload a new PDF to replace the current document. Leave this empty to keep the existing file. The replacement is logged in the audit trail.',
+                    title: ico('M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z') + 'Replace File',
+                    description: 'Upload a new PDF to replace the current file. Leave this empty to keep the existing one. Any replacement is logged in the audit trail.'
+                        + tip('Only PDF files are accepted. Maximum size is 20 MB.'),
                     side: 'right', align: 'start',
                 }
             },
@@ -1590,6 +1466,18 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                     title: ico('M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z') + 'Reason for Edit',
                     description: 'Briefly describe what changed and why. This note is optional but is saved to the <strong>audit log</strong> for this record — useful for accountability and future reference.',
                     side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-doc-form-preview',
+                onHighlightStarted: () => {
+                    const main = document.querySelector('main.overflow-y-auto');
+                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+                popover: {
+                    title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
+                    description: 'The preview panel updates in real time as you type — document type, name, office, dates, recipient, and the attached file all reflect your changes before you save.',
+                    side: 'left', align: 'start',
                 }
             },
         ],
@@ -1616,7 +1504,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '[data-tour="user-table"]',
                 popover: {
                     title: ico('M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z') + 'Users Table',
-                    description: 'Lists all accounts with their role, position, document count, and join date.'
+                    description: 'Lists all accounts with their name, email, role, position, join date, and online status.'
                         + tip('Click the edit icon to edit a user, or the trash icon to delete them. You cannot delete your own account.'),
                     side: 'top', align: 'start',
                 }
@@ -1631,37 +1519,55 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
             },
         ],
 
-        /* ── Admin: Edit User ─────────────────────────────────────── */
-        'admin.users.edit': [
+        /* ── Admin: Create User ───────────────────────────────────── */
+        'admin.users.create': [
             {
-                element: '#tour-user-preview',
+                element: '#tour-user-create-profile',
                 popover: {
-                    title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
-                    description: 'This panel reflects the user\'s name, email, role badge, and position in real time as you make changes — before anything is saved.',
-                    side: 'left', align: 'start',
-                }
-            },
-            {
-                element: '#tour-user-account-info',
-                popover: {
-                    title: ico('M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z') + 'Account Info',
-                    description: 'Read-only stats for this account — join date and total Docs uploaded. If you are editing your own account, a notice is shown here.',
-                    side: 'left', align: 'start',
-                }
-            },
-            {
-                element: '#tour-user-name-email',
-                popover: {
-                    title: ico('M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z') + 'Name & Email',
-                    description: 'Update the user\'s <strong>Full Name</strong> and <strong>Email Address</strong>. The email is used for login and all system notifications.',
+                    title: ico('M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z') + 'Profile',
+                    description: 'Enter the user\'s <strong>Full Name</strong>, <strong>Email Address</strong>, <strong>System Role</strong> (Admin or Staff), and optional <strong>Position / Title</strong>.',
                     side: 'right', align: 'start',
                 }
             },
             {
-                element: '#tour-user-role-position',
+                element: '#role-info-btn',
                 popover: {
-                    title: ico('M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z') + 'Role & Position',
-                    description: 'Set the user\'s <strong>System Role</strong> — <em>Administrator</em> has full access, <em>Staff</em> has limited access. The optional <strong>Position / Title</strong> appears on their profile and document records.'
+                    title: ico('M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z') + 'Role Permissions',
+                    description: 'Click or hover this <strong>ⓘ info icon</strong> beside the System Role label to see a full breakdown of what each role can do.'
+                        + tip('Admin — full document management, user management, and audit log access. Staff — view, create, and edit documents only.'),
+                    side: 'bottom', align: 'start',
+                }
+            },
+            {
+                element: '#tour-user-create-password',
+                popover: {
+                    title: ico('M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z') + 'Set Password',
+                    description: 'Set a temporary password for the new account. The user can change it later from their profile.'
+                        + tip('Passwords must be at least 8 characters and contain uppercase, lowercase, numbers, and symbols.'),
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-user-create-preview',
+                onHighlightStarted: () => {
+                    const main = document.querySelector('main.overflow-y-auto');
+                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+                popover: {
+                    title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
+                    description: 'The <strong>Preview</strong> card updates in real time as you fill in the form — the avatar initials, name, email, role badge, and position all reflect instantly before you submit.',
+                    side: 'left', align: 'start',
+                }
+            },
+        ],
+
+        /* ── Admin: Edit User ─────────────────────────────────────── */
+        'admin.users.edit': [
+            {
+                element: '#tour-user-profile',
+                popover: {
+                    title: ico('M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z') + 'Profile',
+                    description: 'Update the user\'s <strong>Full Name</strong>, <strong>Email Address</strong>, <strong>System Role</strong>, and optional <strong>Position / Title</strong>.'
                         + tip('You cannot change your own role to prevent accidental lockout.'),
                     side: 'right', align: 'start',
                 }
@@ -1675,6 +1581,26 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                     side: 'right', align: 'start',
                 }
             },
+            {
+                element: '#tour-user-preview',
+                onHighlightStarted: () => {
+                    const main = document.querySelector('main.overflow-y-auto');
+                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+                popover: {
+                    title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
+                    description: 'This panel reflects the user\'s name, email, role badge, and position in real time as you make changes — before anything is saved.',
+                    side: 'left', align: 'start',
+                }
+            },
+            {
+                element: '#tour-user-account-info',
+                popover: {
+                    title: ico('M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z') + 'Account Info',
+                    description: 'Read-only stats for this account — join date and total documents uploaded. If you are editing your own account, a notice is shown here.',
+                    side: 'left', align: 'start',
+                }
+            },
         ],
 
         /* ── Admin: System Logs ────────────────────────────────────── */
@@ -1683,15 +1609,25 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '[data-tour="logs-filters"]',
                 popover: {
                     title: ico('M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z') + 'Filter Logs',
-                    description: 'Filter the audit trail by <strong>user</strong>, <strong>action type</strong> (upload, edit, delete…), or <strong>date range</strong>.',
+                    description: 'Narrow down the audit trail using three filters:'
+                        + tip('<strong>Search</strong> — find entries by document number or title keyword.')
+                        + tip('<strong>Document Type</strong> — show only activity on <strong>Incoming</strong> or <strong>Outgoing</strong> documents.')
+                        + tip('<strong>User</strong> — show only activity from a specific staff member or admin.')
+                        + '<br>Active filters appear as chips in the results header. Use the <strong>✕ clear</strong> button to reset all filters at once.',
                     side: 'bottom', align: 'start',
                 }
             },
             {
                 element: '[data-tour="logs-table"]',
                 popover: {
-                    title: ico('M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z') + 'Activity Log',
-                    description: 'Every action in the system is recorded here — who performed it, on which document, and exactly when.',
+                    title: ico('M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z') + 'Activity Log Table',
+                    description: 'Every system action is recorded here in full detail. Each row shows:'
+                        + tip('<strong>Timestamp</strong> — exact date and time. Click the column header to sort ascending or descending.')
+                        + tip('<strong>User</strong> — the staff member or admin who performed the action.')
+                        + tip('<strong>Action</strong> — colour-coded badge (e.g. Uploaded, Edited, Deleted). Sortable.')
+                        + tip('<strong>Target Record</strong> — click the document title to jump straight to it. Archived documents are labelled accordingly.')
+                        + tip('<strong>IP Address</strong> — the originating IP for each action, useful for auditing.')
+                        + '<br>Records are paginated. The result count and any active filter chips are shown above the table.',
                     side: 'top', align: 'start',
                 }
             },
@@ -1726,12 +1662,21 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
         /* ── Archive ───────────────────────────────────────────────── */
         'documents.archive': [
             {
+                element: '[data-tour="archive-filters"]',
+                popover: {
+                    title: ico('M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z') + 'Search Archive',
+                    description: 'Search archived documents by <strong>document number</strong> or <strong>title</strong>. The active search term appears as a chip above the results. Use the <strong>✕ clear</strong> button to reset.',
+                    side: 'bottom', align: 'start',
+                }
+            },
+            {
                 element: '[data-tour="archive-table"]',
                 popover: {
-                    title: ico('M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z') + 'Archived Documents',
-                    description: 'Soft-deleted documents. They are hidden from normal lists but preserved here.'
-                        + tip('Click <strong>Restore</strong> to bring a document back to the active list.')
-                        + tip('<strong>Delete Permanently</strong> removes it forever — this cannot be undone.'),
+                    title: ico('M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z') + 'Archive Table',
+                    description: 'Each row shows the document <strong>title</strong>, the date it was archived, and who originally uploaded it. Columns are sortable by clicking the headers.'
+                        + tip('<strong>Restore</strong> (green) — moves the document back to the active list, fully intact.')
+                        + tip('<strong>Delete Forever</strong> (red) — permanently removes the document and its PDF. This action cannot be undone.')
+                        + '<br>Results are paginated. The record count is shown in the table header.',
                     side: 'top', align: 'start',
                 }
             },
@@ -1740,44 +1685,57 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
         /* ── Profile edit ──────────────────────────────────────────── */
         'profile.edit': [
             {
-                element: '#profile-card',
+                element: '[data-tour="profile-avatar"]',
+                popover: {
+                    title: ico('M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z') + 'Profile Picture',
+                    description: 'Click the avatar to open the photo picker. Upload a JPG, PNG, GIF, or WebP image (max 2 MB) that appears in the sidebar and across the system.'
+                        + tip('Use the camera icon badge as a hint that the avatar is clickable. You can also remove an existing photo from the same modal.'),
+                    side: 'bottom', align: 'start',
+                },
+                onHighlightStarted: () => {
+                    const main = document.querySelector('main.overflow-y-auto');
+                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+            },
+            {
+                element: '[data-tour="profile-account"]',
+                popover: {
+                    title: ico('M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z') + 'Account Details',
+                    description: 'A read-only summary of your account — your <strong>system role</strong>, the date you joined (<strong>Member Since</strong>), and your <strong>total document uploads</strong>. These are managed by your administrator.',
+                    side: 'right', align: 'start',
+                },
+                onHighlightStarted: () => {
+                    const main = document.querySelector('main.overflow-y-auto');
+                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                },
+            },
+            {
+                element: '[data-tour="profile-info"]',
                 popover: {
                     title: ico('M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z') + 'Personal Information',
-                    description: 'Update your display name, position/title, and email address.',
+                    description: 'Update your <strong>Full Name</strong>, <strong>Email Address</strong>, and optional <strong>Position / Title</strong>. Changes reflect immediately across the system — in the header, sidebar, and document logs.',
                     side: 'left', align: 'start',
                 },
                 onHighlightStarted: () => {
                     const btn = document.getElementById('tab-btn-info');
                     if (btn) btn.click();
+                    const main = document.querySelector('main.overflow-y-auto');
+                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
                 },
             },
             {
-                element: '[data-tour="profile-avatar"]',
+                element: '[data-tour="profile-info"]',
                 popover: {
-                    title: ico('M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z') + 'Profile Avatar',
-                    description: 'Upload a photo that appears in the sidebar and user lists.'
-                        + tip('Accepted formats: JPG, PNG. Recommended size: at least 200×200 px.'),
-                    side: 'right', align: 'start',
-                }
-            },
-            {
-                element: '[data-tour="profile-signature"]',
-                popover: {
-                    title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125') + 'E-Signature',
-                    description: 'Draw or upload your digital signature. It will appear on documents that list you as signatory.',
-                    side: 'right', align: 'start',
-                }
-            },
-            {
-                element: '#profile-card',
-                popover: {
-                    title: ico('M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z') + 'Change Password',
-                    description: 'Enter your current password, then set a new one. Passwords must meet the minimum security requirements.',
+                    title: ico('M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z') + 'Password & Security',
+                    description: 'Change your password by entering your <strong>current password</strong>, then a new one. The new password must be at least 8 characters and include letters and numbers.'
+                        + tip('If you forget your current password, ask your administrator to reset it for you from the User Profiles page.'),
                     side: 'left', align: 'start',
                 },
                 onHighlightStarted: () => {
                     const btn = document.getElementById('tab-btn-password');
                     if (btn) btn.click();
+                    const main = document.querySelector('main.overflow-y-auto');
+                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
                 },
             },
         ],

@@ -21,7 +21,7 @@
 @section('content')
 
 {{-- Filters --}}
-<div class="card mb-5">
+<div class="card mb-5" data-tour="archive-filters">
     <div class="px-5 py-4">
         <form action="{{ route('documents.archive') }}" method="GET">
             <div class="flex flex-col lg:flex-row gap-3 items-center">
