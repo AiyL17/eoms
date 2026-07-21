@@ -78,18 +78,15 @@ Route::middleware(['auth', 'maintenance'])->group(function () {
         Route::put('/{document}',               [DocumentController::class, 'update'])->name('update');
         Route::get('/{document}/pdf',           [DocumentController::class, 'viewPdf'])->name('pdf');
         Route::get('/{document}/download',      [DocumentController::class, 'download'])->name('download');
-        Route::get('/{document}/chain',         [DocumentController::class, 'amendmentChain'])->name('chain');
         Route::get('/{document}/export',        [\App\Http\Controllers\ExportController::class, 'exportSingleCsv'])->name('export-single');
         Route::get('/{document}/version-history',[DocumentController::class, 'versionHistory'])->name('version-history');
         Route::get('/{document}/version-history/download',[DocumentController::class, 'downloadArchived'])->name('version-history.download');
+        Route::patch('/{document}/toggle-type', [DocumentController::class, 'toggleType'])->name('toggle-type');
 
         // Admin-only destroy
         Route::delete('/{document}', [DocumentController::class, 'destroy'])
             ->name('destroy')
             ->middleware('role:admin');
-
-        // Toggle document type (incoming ↔ outgoing)
-        Route::patch('/{document}/toggle-type', [DocumentController::class, 'toggleType'])->name('toggle-type');
     });
 
     // ── Admin-Only Routes ──────────────────────────────────────────────────────

@@ -5,15 +5,13 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * Creates a SQLite FTS5 virtual table to power full-text search with ranking.
- * The table mirrors searchable columns from documents and is kept in
- * sync via application-level upserts (no DB triggers — SQLite in XAMPP may
- * not support triggers reliably).
+ * The table mirrors searchable columns from documents and is kept in sync via
+ * application-level upserts (no DB triggers).
  */
 return new class extends Migration
 {
     public function up(): void
     {
-        // Only create the FTS table if the database driver is SQLite
         if (DB::getDriverName() !== 'sqlite') {
             return;
         }
@@ -24,10 +22,7 @@ return new class extends Migration
                 doc_id UNINDEXED,
                 doc_number,
                 title,
-                subject,
-                signed_by,
-                content_summary,
-                tags,
+                received_from,
                 tokenize = "unicode61"
             )
         ');
