@@ -26,7 +26,9 @@
 <div class="bg-gradient-to-r from-violet-600 to-indigo-600 rounded-2xl px-6 py-5 mb-6 flex items-center justify-between" data-tour="welcome-banner">
     <div>
         <p class="text-white/70 text-xs font-semibold uppercase tracking-wider mb-1">Welcome back</p>
-        <h2 class="text-white text-xl font-bold">{{ auth()->user()->name }}</h2>
+        <h2 class="text-white text-xl font-bold">
+            <span id="welcome-name-text"></span><span id="welcome-cursor" class="inline-block w-0.5 h-5 bg-white/80 align-middle ml-0.5 animate-pulse"></span>
+        </h2>
         <p class="text-white/60 text-sm mt-0.5">{{ auth()->user()->position ?? ucfirst(auth()->user()->role) }}</p>
     </div>
     <div class="text-right hidden sm:block">
@@ -356,23 +358,50 @@
 @push('scripts')
 <script>
 (function () {
+    // Clock
     const clockEl = document.getElementById('dashboard-clock');
     const dateEl  = document.getElementById('dashboard-date');
-    if (!clockEl || !dateEl) return;
-    const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-    function tick() {
-        const now = new Date();
-        let h = now.getHours();
-        const m = String(now.getMinutes()).padStart(2,'0');
-        const s = String(now.getSeconds()).padStart(2,'0');
-        const ampm = h >= 12 ? 'PM' : 'AM';
-        h = h % 12 || 12;
-        clockEl.textContent = `${h}:${m}:${s} ${ampm}`;
-        dateEl.textContent  = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+    if (clockEl && dateEl) {
+        const days   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        function tick() {
+            const now = new Date();
+            let h = now.getHours();
+            const m = String(now.getMinutes()).padStart(2,'0');
+            const s = String(now.getSeconds()).padStart(2,'0');
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12 || 12;
+            clockEl.textContent = `${h}:${m}:${s} ${ampm}`;
+            dateEl.textContent  = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+        }
+        tick();
+        setInterval(tick, 1000);
     }
-    tick();
-    setInterval(tick, 1000);
+
+    // Typewriter for welcome name
+    const nameEl   = document.getElementById('welcome-name-text');
+    const cursorEl = document.getElementById('welcome-cursor');
+    if (nameEl && cursorEl) {
+        const fullName = @json(auth()->user()->name);
+        let i = 0;
+        const speed = 60; // ms per character
+        function typeChar() {
+            if (i < fullName.length) {
+                nameEl.textContent += fullName.charAt(i);
+                i++;
+                setTimeout(typeChar, speed);
+            } else {
+                // Remove Tailwind pulse class so inline transition works, then fade out
+                setTimeout(() => {
+                    cursorEl.classList.remove('animate-pulse');
+                    cursorEl.style.transition = 'opacity 0.5s';
+                    cursorEl.style.opacity = '0';
+                }, 800);
+            }
+        }
+        // Small initial delay so it feels intentional
+        setTimeout(typeChar, 300);
+    }
 })();
 </script>
 @endpush

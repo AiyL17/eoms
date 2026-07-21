@@ -339,8 +339,11 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
                         </svg>
                         @if($unreadCount > 0)
-                        <span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
-                            {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                        <span class="absolute -top-0.5 -right-0.5 flex items-center justify-center">
+                            <span class="absolute w-4 h-4 bg-red-400 rounded-full animate-ping opacity-60"></span>
+                            <span class="relative w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                                {{ $unreadCount > 9 ? '9+' : $unreadCount }}
+                            </span>
                         </span>
                         @endif
                     </button>
@@ -363,7 +366,7 @@
                                 @endif
                             </p>
                             @if($unreadCount > 0)
-                            <form action="{{ route('notifications.read-all') }}" method="POST">
+                            <form action="{{ route('notifications.read-all') }}" method="POST" data-no-loader>
                                 @csrf
                                 <button type="submit" class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors">
                                     Mark all read
@@ -387,7 +390,7 @@
                                     default                  => ['bg' => 'bg-slate-100',   'text' => 'text-slate-500',   'path' => 'M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0'],
                                 };
                             @endphp
-                            <form action="{{ route('notifications.read', $n->id) }}" method="POST">
+                            <form action="{{ route('notifications.read', $n->id) }}" method="POST" data-no-loader>
                                 @csrf
                                 <button type="submit"
                                         class="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors {{ $n->read_at ? 'opacity-60' : '' }}">
