@@ -31,12 +31,16 @@ class ExportController extends Controller
      *
      * ZIP structure:
      *   DTS-Export-YYYY-MM-DD.zip
-     *     └── {year}/
-     *           ├── Excel/
-     *           │    └── DTS-{year}.xlsx   (hyperlinks in Title col → ../PDF/file.pdf)
-     *           └── PDF/
-     *                ├── DOC-001-title.pdf
-     *                └── ...
+     *     └── DTS-Export-YYYY-MM-DD/
+     *           ├── {year}/
+     *           │     ├── Excel/
+     *           │     │    └── DTS-{year}.xlsx   (hyperlinks in Title col → ../PDF/file.pdf)
+     *           │     └── PDF/
+     *           │          ├── DOC-001-title.pdf
+     *           │          └── ...
+     *           └── {year}/
+     *                 ├── Excel/ ...
+     *                 └── PDF/  ...
      */
     public function exportCsv(Request $request)
     {
@@ -85,8 +89,9 @@ class ExportController extends Controller
         $today   = now()->startOfDay();
 
         // ── Create a temp ZIP file ─────────────────────────────────────────────
-        $zipTmpPath = tempnam(sys_get_temp_dir(), 'dts_export_');
-        $zip        = new \ZipArchive();
+        $zipFilename = 'DTS-Export-' . now()->format('Y-m-d');   // used as both root folder and zip name
+        $zipTmpPath  = tempnam(sys_get_temp_dir(), 'dts_export_');
+        $zip         = new \ZipArchive();
         $zip->open($zipTmpPath, \ZipArchive::OVERWRITE);
 
         foreach ($byYear as $year => $docs) {
@@ -233,17 +238,18 @@ class ExportController extends Controller
             $sheet->freezePane("A{$dataStartRow}");
 
             // ── Save XLSX to a temp file and add to ZIP ───────────────────────
+            // Entry path: {rootFolder}/{year}/Excel/DTS-{year}.xlsx
             $xlsTmp = tempnam(sys_get_temp_dir(), 'dts_xlsx_');
             (new Xlsx($spreadsheet))->save($xlsTmp);
-            $zip->addFile($xlsTmp, "{$year}/Excel/DTS-{$year}.xlsx");
+            $zip->addFile($xlsTmp, "{$zipFilename}/{$year}/Excel/DTS-{$year}.xlsx");
 
-            // ── Add PDFs for this year into {year}/PDF/ ───────────────────────
+            // ── Add PDFs for this year into {rootFolder}/{year}/PDF/ ─────────
             foreach ($docs as $doc) {
                 if (! $doc->pdf_path) continue;
                 $diskPath = \Illuminate\Support\Facades\Storage::disk('local')->path($doc->pdf_path);
                 if (! file_exists($diskPath)) continue;
 
-                $zip->addFile($diskPath, "{$year}/PDF/" . $this->safePdfFilename($doc));
+                $zip->addFile($diskPath, "{$zipFilename}/{$year}/PDF/" . $this->safePdfFilename($doc));
             }
 
             // Track temp files to clean up after ZIP is closed
@@ -258,7 +264,7 @@ class ExportController extends Controller
         }
 
         // ── Stream ZIP response ───────────────────────────────────────────────
-        $zipFilename = 'DTS-Export-' . now()->format('Y-m-d') . '.zip';
+        $downloadName = $zipFilename . '.zip';   // e.g. DTS-Export-2026-07-23.zip
 
         return response()->streamDownload(function () use ($zipTmpPath) {
             $handle = fopen($zipTmpPath, 'rb');
@@ -269,9 +275,9 @@ class ExportController extends Controller
             }
             fclose($handle);
             @unlink($zipTmpPath);
-        }, $zipFilename, [
+        }, $downloadName, [
             'Content-Type'        => 'application/zip',
-            'Content-Disposition' => 'attachment; filename="' . $zipFilename . '"',
+            'Content-Disposition' => 'attachment; filename="' . $downloadName . '"',
             'Cache-Control'       => 'max-age=0',
         ]);
     }
@@ -280,9 +286,10 @@ class ExportController extends Controller
      * Export a single document's full details as a ZIP archive.
      *
      * ZIP structure:
-     *   DTS-{title}-YYYY-MM-DD.zip
-     *     ├── DTS-{ref}-{title}.xlsx   (Title cell hyperlinks to the PDF)
-     *     └── DTS-{ref}-{title}.pdf
+     *   DTS-{ref}-{title}-YYYY-MM-DD.zip
+     *     └── DTS-{ref}-{title}-YYYY-MM-DD/
+     *           ├── DTS-{ref}-{title}.xlsx   (Title cell hyperlinks to the PDF)
+     *           └── DTS-{ref}-{title}.pdf
      *
      * Sheet 1: Document Details
      * Sheet 2: Activity Log
@@ -512,10 +519,11 @@ class ExportController extends Controller
         // Open on Sheet 1 by default
         $spreadsheet->setActiveSheetIndex(0);
 
-        // ── Build ZIP (XLSX + PDF side by side) ───────────────────────────────
-        $baseName   = $this->safePdfFilename($Document);           // e.g. DOC-001-Title.pdf
-        $xlsName    = substr($baseName, 0, -4) . '.xlsx';          // e.g. DOC-001-Title.xlsx
-        $zipName    = substr($baseName, 0, -4) . '-' . now()->format('Y-m-d') . '.zip';
+        // ── Build ZIP (XLSX + PDF inside a named root folder) ────────────────
+        $baseName    = $this->safePdfFilename($Document);                        // e.g. DOC-001-Title.pdf
+        $xlsName     = substr($baseName, 0, -4) . '.xlsx';                      // e.g. DOC-001-Title.xlsx
+        $rootFolder  = substr($baseName, 0, -4) . '-' . now()->format('Y-m-d'); // e.g. DOC-001-Title-2026-07-23
+        $zipName     = $rootFolder . '.zip';                                     // e.g. DOC-001-Title-2026-07-23.zip
 
         $xlsTmp  = tempnam(sys_get_temp_dir(), 'dts_single_xlsx_');
         $zipTmp  = tempnam(sys_get_temp_dir(), 'dts_single_zip_');
@@ -524,12 +532,12 @@ class ExportController extends Controller
 
         $zip = new \ZipArchive();
         $zip->open($zipTmp, \ZipArchive::OVERWRITE);
-        $zip->addFile($xlsTmp, $xlsName);
+        $zip->addFile($xlsTmp, "{$rootFolder}/{$xlsName}");
 
         // Add the PDF if it exists on disk
         if ($Document->pdf_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($Document->pdf_path)) {
             $pdfDiskPath = \Illuminate\Support\Facades\Storage::disk('local')->path($Document->pdf_path);
-            $zip->addFile($pdfDiskPath, $pdfFilename);
+            $zip->addFile($pdfDiskPath, "{$rootFolder}/{$pdfFilename}");
         }
 
         $zip->close();
