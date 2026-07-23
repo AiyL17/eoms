@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', $doc->title)
-@section('page-title', ucfirst($doc->document_type))
+@section('page-title', $doc->reference_number)
 
 @section('breadcrumb')
     <a href="{{ route('documents.index') }}" class="hover:text-violet-600 transition-colors shrink-0 whitespace-nowrap">Documents</a>

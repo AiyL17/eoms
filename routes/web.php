@@ -81,6 +81,7 @@ Route::middleware(['auth', 'maintenance'])->group(function () {
         Route::get('/{document}/export',        [\App\Http\Controllers\ExportController::class, 'exportSingleCsv'])->name('export-single');
         Route::get('/{document}/version-history',[DocumentController::class, 'versionHistory'])->name('version-history');
         Route::get('/{document}/version-history/download',[DocumentController::class, 'downloadArchived'])->name('version-history.download');
+        Route::get('/{document}/version-history/open',[DocumentController::class, 'openArchived'])->name('version-history.open');
         Route::patch('/{document}/toggle-type', [DocumentController::class, 'toggleType'])->name('toggle-type');
 
         // Admin-only destroy

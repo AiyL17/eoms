@@ -167,7 +167,7 @@ class DocumentController extends Controller
 
         DB::transaction(function () use ($request, $validated, $Document) {
             $oldValues = $Document->only([
-                'reference_number', 'title', 'received_from', 'recipient', 'date_issued', 'expiration_date', 'document_type',
+                'reference_number', 'title', 'received_from', 'recipient', 'date_issued', 'expiration_date', 'document_type', 'original_filename',
             ]);
 
             // Capture document_type change before the model is updated
@@ -178,9 +178,11 @@ class DocumentController extends Controller
             if ($request->hasFile('pdf_file')) {
                 $oldPath = $Document->pdf_path;
                 if ($oldPath && Storage::disk('local')->exists($oldPath)) {
+                    // Use the document's original_filename so the archive has a meaningful name
+                    $safeName    = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', $Document->original_filename);
                     $archivePath = 'documents-archive/'
                         . $Document->id . '/'
-                        . now()->format('Y-m-d_His') . '_' . basename($oldPath);
+                        . now()->format('Y-m-d_His') . '_' . $safeName;
                     Storage::disk('local')->move($oldPath, $archivePath);
                 }
 
@@ -197,7 +199,7 @@ class DocumentController extends Controller
             $Document->update($validated);
 
             $newValues = $Document->only([
-                'reference_number', 'title', 'received_from', 'recipient', 'date_issued', 'expiration_date', 'document_type',
+                'reference_number', 'title', 'received_from', 'recipient', 'date_issued', 'expiration_date', 'document_type', 'original_filename',
             ]);
 
             DocActivityLog::record($Document, 'updated', $oldValues, $newValues, $logNotes);
@@ -344,10 +346,11 @@ class DocumentController extends Controller
                     $timestamp = \Carbon\Carbon::createFromFormat('Y-m-d_His', $m[1], config('app.timezone'));
                 }
                 $archivedFiles[] = [
-                    'path'      => $file,
-                    'filename'  => $basename,
-                    'size'      => Storage::disk('local')->size($file),
-                    'timestamp' => $timestamp,
+                    'path'          => $file,
+                    'filename'      => $basename,
+                    'original_name' => preg_replace('/^\d{4}-\d{2}-\d{2}_\d{6}_/', '', $basename),
+                    'size'          => Storage::disk('local')->size($file),
+                    'timestamp'     => $timestamp,
                 ];
             }
         }
@@ -390,6 +393,24 @@ class DocumentController extends Controller
             Storage::disk('local')->path($file),
             basename($file)
         );
+    }
+
+    public function openArchived(Document $Document, Request $request)
+    {
+        $file    = $request->query('file');
+        $allowed = 'documents-archive/' . $Document->id . '/';
+        if (! $file || ! str_starts_with($file, $allowed) || ! Storage::disk('local')->exists($file)) {
+            abort(404);
+        }
+
+        // Strip the timestamp prefix (YYYY-MM-DD_HHMMSS_) to get the original filename
+        $basename         = basename($file);
+        $originalFilename = preg_replace('/^\d{4}-\d{2}-\d{2}_\d{6}_/', '', $basename);
+
+        return response()->file(Storage::disk('local')->path($file), [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="' . $originalFilename . '"',
+        ]);
     }
 
     // ─── Toggle Document Type ─────────────────────────────────────────────────

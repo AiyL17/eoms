@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
 @section('title', 'Version History — ' . $doc->title)
-@section('page-title', $doc->title)
+@section('page-title', $doc->reference_number)
 
 @section('breadcrumb')
-    <a href="{{ route('documents.index') }}" class="hover:text-violet-600 transition-colors">Documents</a>
-    <span class="mx-1 opacity-40">/</span>
-    <a href="{{ route('documents.show', $doc) }}" class="hover:text-violet-600 transition-colors">{{ $doc->title }}</a>
-    <span class="mx-1 opacity-40">/</span>
-    <span class="text-slate-700 font-semibold">Version History</span>
+    <a href="{{ route('documents.index') }}" class="hover:text-violet-600 transition-colors shrink-0">Documents</a>
+    <span class="mx-1 opacity-40 shrink-0">/</span>
+    <a href="{{ route('documents.show', $doc) }}" class="hover:text-violet-600 transition-colors truncate min-w-0">{{ $doc->title }}</a>
+    <span class="mx-1 opacity-40 shrink-0">/</span>
+    <span class="text-slate-700 font-semibold shrink-0">Version History</span>
 @endsection
 
 @section('header-actions')
@@ -25,11 +25,11 @@
     {{-- ── PDF Version Archive ─────────────────────────────────────────────── --}}
     <div class="card" id="tour-vh-pdf-archive">
         <div class="card-header">
-            <div>
+            <div class="min-w-0">
                 <h2 class="text-sm font-bold text-slate-800">PDF Version Archive</h2>
                 <p class="text-xs text-slate-400 mt-0.5">Previous PDF files kept when the document was replaced</p>
             </div>
-            <span class="text-xs font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100">
+            <span class="text-xs font-semibold text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full border border-slate-100 whitespace-nowrap shrink-0">
                 {{ count($archivedFiles) }} archived
             </span>
         </div>
@@ -37,17 +37,20 @@
         {{-- Current version --}}
         <div class="px-5 py-4 border-b border-slate-100 bg-violet-50/30" id="tour-vh-current">
             <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 min-w-0">
                     <div class="w-8 h-8 bg-violet-100 text-violet-600 rounded-xl flex items-center justify-center shrink-0">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
-                    <div>
-                        <p class="text-sm font-semibold text-slate-800">{{ $doc->original_filename }}</p>
-                        <p class="text-xs text-slate-400 mt-0.5">Current version · {{ $doc->file_size_formatted }} · {{ $doc->updated_at->format('M d, Y g:i A') }}</p>
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold text-slate-800 truncate">{{ $doc->original_filename }}</p>
+                        <p class="text-xs text-slate-400 mt-0.5 truncate">Current version · {{ $doc->file_size_formatted }} · {{ $doc->updated_at->format('M d, Y g:i A') }}</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
-                    <span class="text-[11px] font-bold bg-violet-600 text-white px-2 py-0.5 rounded-full">Current</span>
+                    <a href="{{ route('documents.pdf', $doc) }}" target="_blank" class="btn-secondary btn-sm">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                        Open
+                    </a>
                     <a href="{{ route('documents.download', $doc) }}" class="btn-primary btn-sm">
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                         Download
@@ -60,23 +63,31 @@
         @forelse($archivedFiles as $i => $file)
         <div class="px-5 py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
             <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-3 min-w-0">
                     <div class="w-8 h-8 bg-slate-100 text-slate-500 rounded-xl flex items-center justify-center shrink-0">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
                     </div>
-                    <div>
-                        <p class="text-sm font-semibold text-slate-700">Version {{ count($archivedFiles) - $i }}</p>
-                        <p class="text-xs text-slate-400 mt-0.5">
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold text-slate-700 truncate">{{ $file['original_name'] }}</p>
+                        <p class="text-xs text-slate-400 mt-0.5 truncate">
                             {{ $file['timestamp'] ? $file['timestamp']->format('M d, Y g:i A') : 'Unknown date' }}
                             · {{ number_format($file['size'] / 1024, 1) }} KB
                         </p>
                     </div>
                 </div>
-                <a href="{{ route('documents.version-history.download', ['document' => $doc->id, 'file' => $file['path']]) }}"
-                   class="btn-secondary btn-sm shrink-0">
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                    Download
-                </a>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="{{ route('documents.version-history.open', ['document' => $doc->id, 'file' => $file['path']]) }}"
+                       target="_blank"
+                       class="btn-secondary btn-sm">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
+                        Open
+                    </a>
+                    <a href="{{ route('documents.version-history.download', ['document' => $doc->id, 'file' => $file['path']]) }}"
+                       class="btn-secondary btn-sm">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                        Download
+                    </a>
+                </div>
             </div>
         </div>
         @empty
@@ -111,19 +122,21 @@
                     <span class="ml-auto text-[11px] text-slate-400">{{ $diff['created_at']->format('M d, Y g:i A') }}</span>
                 </div>
                 @if($diff['notes'])
-                <p class="text-xs italic text-slate-400 mb-3">"{{ $diff['notes'] }}"</p>
+                <p class="text-xs text-slate-400 mb-3"><span class="font-semibold text-slate-500">Reason for edit:</span> <span class="italic">"{{ $diff['notes'] }}"</span></p>
                 @endif
                 @if(! empty($diff['old']) || ! empty($diff['new']))
                 <div class="space-y-2">
                     @php
                         $allKeys = array_unique(array_merge(array_keys($diff['old']), array_keys($diff['new'])));
                         $fieldLabels = [
-                            'title'           => 'Document Name',
-                            'document_type'   => 'Document Type',
-                            'received_from'   => 'Office / Origin',
-                            'recipient'       => 'Recipient',
-                            'date_issued'     => 'Date Received',
-                            'expiration_date' => 'Deadline',
+                            'title'             => 'Document Name',
+                            'document_type'     => 'Document Type',
+                            'received_from'     => 'Office / Origin',
+                            'recipient'         => 'Recipient',
+                            'date_issued'       => 'Date Received',
+                            'expiration_date'   => 'Deadline',
+                            'reference_number'  => 'Reference Number',
+                            'original_filename' => 'PDF File',
                         ];
                     @endphp
                     @foreach($allKeys as $key)

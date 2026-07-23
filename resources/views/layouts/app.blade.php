@@ -315,13 +315,13 @@
                 <h1 class="font-bold text-slate-800 truncate shrink-0 max-w-[80px] sm:max-w-[160px] lg:max-w-xs">@yield('page-title', 'Dashboard')</h1>
                 @hasSection('breadcrumb')
                 <span class="text-slate-300 shrink-0">/</span>
-                <nav class="flex items-center gap-1 text-sm font-medium text-slate-400 min-w-0 overflow-hidden">
+                <nav class="flex items-center gap-1 text-sm font-medium text-slate-400 min-w-0 overflow-hidden whitespace-nowrap">
                     @yield('breadcrumb')
                 </nav>
                 @endif
                 </div>
             </div>
-            <div class="flex items-center gap-2 shrink-0 min-w-0 overflow-hidden" id="tour-header-actions">
+            <div class="flex items-center gap-2 shrink-0 ml-4" id="tour-header-actions">
 
                 {{-- Page-specific action buttons --}}
                 @yield('header-actions')
