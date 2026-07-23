@@ -345,7 +345,7 @@
                 </a>
                 <a href="{{ route('documents.export') }}" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-violet-50 text-slate-700 hover:text-violet-700 transition-colors group">
                     <svg class="w-4 h-4 text-slate-400 group-hover:text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                    <span class="text-sm font-medium">Export All (CSV)</span>
+                    <span class="text-sm font-medium">Export All (ZIP)</span>
                 </a>
 
             </div>

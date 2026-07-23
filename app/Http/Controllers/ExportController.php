@@ -27,9 +27,16 @@ class ExportController extends Controller
     private const COLOR_TOTAL_FG     = 'FF1E3A5F'; // totals row text
 
     /**
-     * Export filtered documents as XLSX.
-     * Documents are grouped into one sheet per year (newest year first),
-     * and sorted by date received descending within each sheet.
+     * Export filtered documents as a ZIP archive.
+     *
+     * ZIP structure:
+     *   DTS-Export-YYYY-MM-DD.zip
+     *     └── {year}/
+     *           ├── Excel/
+     *           │    └── DTS-{year}.xlsx   (hyperlinks in Title col → ../PDF/file.pdf)
+     *           └── PDF/
+     *                ├── DOC-001-title.pdf
+     *                └── ...
      */
     public function exportCsv(Request $request)
     {
@@ -51,25 +58,22 @@ class ExportController extends Controller
 
         $documents = $query->get();
 
-        // ── Group by year of date_issued, newest year first ───────────────────
+        // ── Group by year, newest first ───────────────────────────────────────
         $byYear = $documents
             ->sortByDesc(fn ($d) => $d->date_issued?->timestamp ?? 0)
             ->groupBy(fn ($d) => $d->date_issued?->year ?? 'Unknown')
-            ->sortKeysDesc();   // 2026 → 2025 → 2024 …
+            ->sortKeysDesc();
 
-        // Build a readable filter summary for the metadata block
+        // Filter summary for metadata block
         $filterParts = [];
         if ($request->filled('search'))        $filterParts[] = 'Search: "' . $request->search . '"';
         if ($request->filled('document_type')) $filterParts[] = 'Type: ' . ucfirst($request->document_type);
         $filterSummary = $filterParts ? implode(' | ', $filterParts) : 'None';
 
-        $spreadsheet = new Spreadsheet();
-        $spreadsheet->removeSheetByIndex(0);   // remove the default blank sheet
-
         $headers = [
             'A' => 'Reference Number',
             'B' => 'Document Type',
-            'C' => 'Title',
+            'C' => 'Title',            // ← hyperlink to PDF
             'D' => 'Date Received',
             'E' => 'Deadline',
             'F' => 'Office / Origin',
@@ -77,16 +81,21 @@ class ExportController extends Controller
             'H' => 'Uploaded By',
             'I' => 'Created At',
         ];
-        $lastCol     = 'I';
-        $headerRange = "A1:{$lastCol}1";
-        $today       = now()->startOfDay();
+        $lastCol = 'I';
+        $today   = now()->startOfDay();
+
+        // ── Create a temp ZIP file ─────────────────────────────────────────────
+        $zipTmpPath = tempnam(sys_get_temp_dir(), 'dts_export_');
+        $zip        = new \ZipArchive();
+        $zip->open($zipTmpPath, \ZipArchive::OVERWRITE);
 
         foreach ($byYear as $year => $docs) {
-            $sheet = $spreadsheet->createSheet();
+            // ── Build the XLSX for this year ──────────────────────────────────
+            $spreadsheet = new Spreadsheet();
+            $sheet       = $spreadsheet->getActiveSheet();
             $sheet->setTitle((string) $year);
 
-            // ── Metadata block (rows 1–4) ─────────────────────────────────────
-            // Row 1: System title
+            // Metadata block (rows 1–4)
             $sheet->mergeCells("A1:{$lastCol}1");
             $sheet->setCellValue('A1', 'Document Tracking System — Export Report');
             $sheet->getStyle('A1')->applyFromArray([
@@ -96,8 +105,7 @@ class ExportController extends Controller
             ]);
             $sheet->getRowDimension(1)->setRowHeight(22);
 
-            // Row 2: Year band + export date
-            $sheet->mergeCells("A2:D2");
+            $sheet->mergeCells('A2:D2');
             $sheet->mergeCells("E2:{$lastCol}2");
             $sheet->setCellValue('A2', "Year: {$year}");
             $sheet->setCellValue('E2', 'Exported: ' . now()->format('F j, Y  g:i A'));
@@ -112,7 +120,6 @@ class ExportController extends Controller
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_RIGHT, 'indent' => 1],
             ]);
 
-            // Row 3: Filters applied
             $sheet->mergeCells("A3:{$lastCol}3");
             $sheet->setCellValue('A3', "Filters Applied: {$filterSummary}");
             $sheet->getStyle('A3')->applyFromArray([
@@ -121,17 +128,16 @@ class ExportController extends Controller
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'indent' => 1],
             ]);
 
-            // Row 4: Colour legend
             $sheet->mergeCells("A4:{$lastCol}4");
-            $sheet->setCellValue('A4', '  🔴 Expired deadline    🟡 Expiring within 30 days');
+            $sheet->setCellValue('A4', '  🔴 Expired deadline    🟡 Expiring within 30 days    🔗 Click Title to open PDF');
             $sheet->getStyle('A4')->applyFromArray([
                 'font'      => ['size' => 9, 'italic' => true, 'color' => ['argb' => self::COLOR_META_FG]],
                 'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => self::COLOR_META_BG]],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'indent' => 1],
             ]);
 
-            // ── Column header row (row 5) ─────────────────────────────────────
-            $headerRow   = 5;
+            // Column headers (row 5)
+            $headerRow    = 5;
             $dataStartRow = 6;
 
             foreach ($headers as $col => $label) {
@@ -141,20 +147,17 @@ class ExportController extends Controller
                 'font'      => ['bold' => true, 'color' => ['argb' => self::COLOR_HEADER_FG], 'size' => 10],
                 'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => self::COLOR_HEADER_BG]],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                'borders'   => [
-                    'allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => self::COLOR_HEADER_BG]],
-                ],
+                'borders'   => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['argb' => self::COLOR_HEADER_BG]]],
             ]);
             $sheet->getRowDimension($headerRow)->setRowHeight(18);
 
-            // ── Data rows ─────────────────────────────────────────────────────
+            // Data rows
             $row = $dataStartRow;
             foreach ($docs as $doc) {
-                $isEven  = (($row - $dataStartRow) % 2 === 1); // 0-indexed even/odd
-                $rowBg   = $isEven ? self::COLOR_ROW_EVEN : self::COLOR_ROW_ODD;
-
-                // Deadline colour overrides banding
+                $isEven    = (($row - $dataStartRow) % 2 === 1);
+                $rowBg     = $isEven ? self::COLOR_ROW_EVEN : self::COLOR_ROW_ODD;
                 $deadlineBg = $rowBg;
+
                 if ($doc->expiration_date) {
                     if ($doc->expiration_date->lt($today)) {
                         $deadlineBg = self::COLOR_EXPIRED;
@@ -163,25 +166,37 @@ class ExportController extends Controller
                     }
                 }
 
-                // Fill row background (banding)
                 $sheet->getStyle("A{$row}:{$lastCol}{$row}")->getFill()
-                    ->setFillType(Fill::FILL_SOLID)
-                    ->getStartColor()->setARGB($rowBg);
-
-                // Override deadline cell colour
+                    ->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($rowBg);
                 $sheet->getStyle("E{$row}")->getFill()
-                    ->setFillType(Fill::FILL_SOLID)
-                    ->getStartColor()->setARGB($deadlineBg);
-
-                // Cell borders for entire row
+                    ->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB($deadlineBg);
                 $sheet->getStyle("A{$row}:{$lastCol}{$row}")->getBorders()->getAllBorders()
-                    ->setBorderStyle(Border::BORDER_THIN)
-                    ->getColor()->setARGB(self::COLOR_BORDER);
+                    ->setBorderStyle(Border::BORDER_THIN)->getColor()->setARGB(self::COLOR_BORDER);
 
-                // Write values
+                // ── Build a safe PDF filename (same logic used when adding to ZIP) ──
+                $pdfFilename = $this->safePdfFilename($doc);
+
+                // Reference Number cell — plain text
                 $sheet->setCellValue("A{$row}", $doc->reference_number);
+
+                // Document Type
                 $sheet->setCellValue("B{$row}", $doc->document_type_label);
+
+                // Title cell — hyperlink to ../PDF/{filename} (relative path from Excel/ folder)
                 $sheet->setCellValue("C{$row}", $doc->title);
+                if ($doc->pdf_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($doc->pdf_path)) {
+                    $sheet->getCell("C{$row}")
+                        ->getHyperlink()
+                        ->setUrl('../PDF/' . $pdfFilename)
+                        ->setTooltip('Click to open PDF');
+                    $sheet->getStyle("C{$row}")->applyFromArray([
+                        'font' => [
+                            'color'     => ['argb' => 'FF1D4ED8'],
+                            'underline' => \PhpOffice\PhpSpreadsheet\Style\Font::UNDERLINE_SINGLE,
+                        ],
+                    ]);
+                }
+
                 $this->setDate($sheet, "D{$row}", $doc->date_issued);
                 $this->setDate($sheet, "E{$row}", $doc->expiration_date);
                 $sheet->setCellValue("F{$row}", $doc->received_from);
@@ -189,62 +204,86 @@ class ExportController extends Controller
                 $sheet->setCellValue("H{$row}", $doc->uploader?->name ?? 'System');
                 $this->setDatetime($sheet, "I{$row}", $doc->created_at);
 
-                // Column-specific alignment
-                foreach (['A', 'B', 'D', 'E', 'I'] as $centerCol) {
-                    $sheet->getStyle("{$centerCol}{$row}")->getAlignment()
-                        ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+                foreach (['A', 'B', 'D', 'E', 'I'] as $c) {
+                    $sheet->getStyle("{$c}{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
                 }
-                foreach (['C', 'F', 'G', 'H'] as $leftCol) {
-                    $sheet->getStyle("{$leftCol}{$row}")->getAlignment()
-                        ->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                foreach (['C', 'F', 'G', 'H'] as $c) {
+                    $sheet->getStyle("{$c}{$row}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                 }
 
                 $row++;
             }
 
-            // ── Totals row ────────────────────────────────────────────────────
+            // Totals row
             $totalRow = $row;
             $docCount = count($docs);
-
             $sheet->mergeCells("A{$totalRow}:H{$totalRow}");
             $sheet->setCellValue("A{$totalRow}", "Total Documents: {$docCount}");
             $sheet->setCellValue("I{$totalRow}", '');
-
             $sheet->getStyle("A{$totalRow}:{$lastCol}{$totalRow}")->applyFromArray([
                 'font'      => ['bold' => true, 'color' => ['argb' => self::COLOR_TOTAL_FG]],
                 'fill'      => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['argb' => self::COLOR_TOTAL_BG]],
                 'alignment' => ['horizontal' => Alignment::HORIZONTAL_LEFT, 'indent' => 1],
-                'borders'   => [
-                    'outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['argb' => self::COLOR_BORDER]],
-                ],
+                'borders'   => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['argb' => self::COLOR_BORDER]]],
             ]);
 
-            // ── Auto-size + freeze below metadata + header ────────────────────
             foreach (array_keys($headers) as $col) {
                 $sheet->getColumnDimension($col)->setAutoSize(true);
             }
-            // Freeze panes so metadata + column headers stay visible
             $sheet->freezePane("A{$dataStartRow}");
+
+            // ── Save XLSX to a temp file and add to ZIP ───────────────────────
+            $xlsTmp = tempnam(sys_get_temp_dir(), 'dts_xlsx_');
+            (new Xlsx($spreadsheet))->save($xlsTmp);
+            $zip->addFile($xlsTmp, "{$year}/Excel/DTS-{$year}.xlsx");
+
+            // ── Add PDFs for this year into {year}/PDF/ ───────────────────────
+            foreach ($docs as $doc) {
+                if (! $doc->pdf_path) continue;
+                $diskPath = \Illuminate\Support\Facades\Storage::disk('local')->path($doc->pdf_path);
+                if (! file_exists($diskPath)) continue;
+
+                $zip->addFile($diskPath, "{$year}/PDF/" . $this->safePdfFilename($doc));
+            }
+
+            // Track temp files to clean up after ZIP is closed
+            $tmpFiles[] = $xlsTmp;
         }
 
-        // Make the first sheet (newest year) active on open
-        $spreadsheet->setActiveSheetIndex(0);
+        $zip->close();
 
-        // ── Stream response ───────────────────────────────────────────────────
-        $filename = 'DTS-Export-' . now()->format('Y-m-d') . '.xlsx';
-        $writer   = new Xlsx($spreadsheet);
+        // Clean up spreadsheet temp files
+        foreach ($tmpFiles ?? [] as $tmp) {
+            @unlink($tmp);
+        }
 
-        return response()->streamDownload(function () use ($writer) {
-            $writer->save('php://output');
-        }, $filename, [
-            'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        // ── Stream ZIP response ───────────────────────────────────────────────
+        $zipFilename = 'DTS-Export-' . now()->format('Y-m-d') . '.zip';
+
+        return response()->streamDownload(function () use ($zipTmpPath) {
+            $handle = fopen($zipTmpPath, 'rb');
+            while (! feof($handle)) {
+                echo fread($handle, 8192);
+                ob_flush();
+                flush();
+            }
+            fclose($handle);
+            @unlink($zipTmpPath);
+        }, $zipFilename, [
+            'Content-Type'        => 'application/zip',
+            'Content-Disposition' => 'attachment; filename="' . $zipFilename . '"',
             'Cache-Control'       => 'max-age=0',
         ]);
     }
 
     /**
-     * Export a single document's full details as XLSX.
+     * Export a single document's full details as a ZIP archive.
+     *
+     * ZIP structure:
+     *   DTS-{title}-YYYY-MM-DD.zip
+     *     ├── DTS-{ref}-{title}.xlsx   (Title cell hyperlinks to the PDF)
+     *     └── DTS-{ref}-{title}.pdf
+     *
      * Sheet 1: Document Details
      * Sheet 2: Activity Log
      */
@@ -255,6 +294,7 @@ class ExportController extends Controller
         $spreadsheet = new Spreadsheet();
         $today       = now()->startOfDay();
         $exportedAt  = now()->format('F j, Y  g:i A');
+        $pdfFilename = $this->safePdfFilename($Document);
 
         // =====================================================================
         // SHEET 1 — Document Details
@@ -306,7 +346,7 @@ class ExportController extends Controller
         $details = [
             ['Reference Number', $Document->reference_number],
             ['Document Type',    $Document->document_type_label],
-            ['Title',            $Document->title],
+            ['Title',            $Document->title],   // hyperlink added below
             ['Date Received',    null],   // filled via setDate below
             ['Deadline',         null],   // filled via setDate below
             ['Office / Origin',  $Document->received_from ?? 'N/A'],
@@ -341,6 +381,21 @@ class ExportController extends Controller
         $deadlineRow     = $detailStartRow + 4;
         $createdAtRow    = $detailStartRow + 9;
         $updatedAtRow    = $detailStartRow + 10;
+
+        // Title row (index 2) — hyperlink to the PDF sitting beside the XLSX in the ZIP
+        $titleRow = $detailStartRow + 2;
+        if ($Document->pdf_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($Document->pdf_path)) {
+            $sheet->getCell("B{$titleRow}")
+                ->getHyperlink()
+                ->setUrl($pdfFilename)        // same folder in ZIP, so just the filename
+                ->setTooltip('Click to open PDF');
+            $sheet->getStyle("B{$titleRow}")->applyFromArray([
+                'font' => [
+                    'color'     => ['argb' => 'FF1D4ED8'],
+                    'underline' => \PhpOffice\PhpSpreadsheet\Style\Font::UNDERLINE_SINGLE,
+                ],
+            ]);
+        }
 
         $this->setDate($sheet,     "B{$dateReceivedRow}", $Document->date_issued);
         $this->setDate($sheet,     "B{$deadlineRow}",     $Document->expiration_date, 'N/A');
@@ -457,20 +512,61 @@ class ExportController extends Controller
         // Open on Sheet 1 by default
         $spreadsheet->setActiveSheetIndex(0);
 
-        // ── Stream response ───────────────────────────────────────────────────
-        $filename = 'DTS-' . $Document->title . '-' . now()->format('Y-m-d') . '.xlsx';
-        $writer   = new Xlsx($spreadsheet);
+        // ── Build ZIP (XLSX + PDF side by side) ───────────────────────────────
+        $baseName   = $this->safePdfFilename($Document);           // e.g. DOC-001-Title.pdf
+        $xlsName    = substr($baseName, 0, -4) . '.xlsx';          // e.g. DOC-001-Title.xlsx
+        $zipName    = substr($baseName, 0, -4) . '-' . now()->format('Y-m-d') . '.zip';
 
-        return response()->streamDownload(function () use ($writer) {
-            $writer->save('php://output');
-        }, $filename, [
-            'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        $xlsTmp  = tempnam(sys_get_temp_dir(), 'dts_single_xlsx_');
+        $zipTmp  = tempnam(sys_get_temp_dir(), 'dts_single_zip_');
+
+        (new Xlsx($spreadsheet))->save($xlsTmp);
+
+        $zip = new \ZipArchive();
+        $zip->open($zipTmp, \ZipArchive::OVERWRITE);
+        $zip->addFile($xlsTmp, $xlsName);
+
+        // Add the PDF if it exists on disk
+        if ($Document->pdf_path && \Illuminate\Support\Facades\Storage::disk('local')->exists($Document->pdf_path)) {
+            $pdfDiskPath = \Illuminate\Support\Facades\Storage::disk('local')->path($Document->pdf_path);
+            $zip->addFile($pdfDiskPath, $pdfFilename);
+        }
+
+        $zip->close();
+        @unlink($xlsTmp);
+
+        // ── Stream ZIP response ───────────────────────────────────────────────
+        return response()->streamDownload(function () use ($zipTmp) {
+            $handle = fopen($zipTmp, 'rb');
+            while (! feof($handle)) {
+                echo fread($handle, 8192);
+                ob_flush();
+                flush();
+            }
+            fclose($handle);
+            @unlink($zipTmp);
+        }, $zipName, [
+            'Content-Type'        => 'application/zip',
+            'Content-Disposition' => 'attachment; filename="' . $zipName . '"',
             'Cache-Control'       => 'max-age=0',
         ]);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
+
+    /**
+     * Build a safe, unique PDF filename for use inside the ZIP.
+     * Format: {reference_number}-{sanitised_title}.pdf
+     */
+    private function safePdfFilename(Document $doc): string
+    {
+        $ref   = preg_replace('/[^a-zA-Z0-9\-_]/', '_', $doc->reference_number ?? 'DOC');
+        $title = preg_replace('/[^a-zA-Z0-9\-_ ]/', '', $doc->title ?? 'untitled');
+        $title = trim(preg_replace('/\s+/', '_', $title));
+        $title = substr($title, 0, 60); // cap length
+
+        return "{$ref}-{$title}.pdf";
+    }
 
     /**
      * Write a Carbon/DateTime value into a cell and apply a date format (YYYY-MM-DD).
