@@ -127,7 +127,10 @@
 
                     <div class="flex justify-between items-start">
                         <span class="text-xs text-slate-400 font-medium">Date Received</span>
-                        <span class="text-sm font-semibold text-slate-800 text-right">{{ $doc->date_issued->format('F d, Y') }}</span>
+                        <div class="text-right">
+                            <span class="text-sm font-semibold text-slate-800">{{ $doc->date_issued->format('F d, Y') }}</span>
+                            <p class="text-xs text-slate-400 mt-0.5">{{ $doc->created_at->format('h:i A') }}</p>
+                        </div>
                     </div>
 
                     <div class="flex justify-between items-start">

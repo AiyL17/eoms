@@ -113,7 +113,7 @@
                 </div>
                 <p class="text-sm font-semibold text-slate-800 leading-snug">{{ Str::limit($doc->title, 70) }}</p>
                 <div class="flex items-center gap-3 mt-2 text-xs text-slate-400">
-                    <span>{{ $doc->date_issued->format('M d, Y') }}</span>
+                    <span>{{ $doc->date_issued->format('M d, Y') }} · {{ $doc->created_at->format('h:i A') }}</span>
                     @if($doc->recipient)
                     <span class="text-slate-200">·</span>
                     <span class="truncate">{{ Str::limit($doc->recipient, 28) }}</span>
@@ -189,7 +189,10 @@
                             {{ Str::limit($doc->title, 65) }}
                         </div>
                     </td>
-                    <td class="text-slate-500 whitespace-nowrap text-[13px]">{{ $doc->date_issued->format('M d, Y') }}</td>
+                    <td class="text-slate-500 whitespace-nowrap text-[13px]">
+                        <div>{{ $doc->date_issued->format('M d, Y') }}</div>
+                        <div class="text-[11px] text-slate-400">{{ $doc->created_at->format('h:i A') }}</div>
+                    </td>
                     <td class="text-slate-600 text-[13px] truncate" title="{{ $doc->recipient }}">
                         {{ Str::limit($doc->recipient ?? '—', 26) }}
                     </td>
