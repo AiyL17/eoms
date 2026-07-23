@@ -137,7 +137,7 @@
     <div class="sticky top-20 self-start space-y-5" id="tour-user-preview">
 
         {{-- Live preview --}}
-        <div class="card">
+        <div class="card" id="tour-user-preview-card">
             <div class="p-5 border-b border-slate-100">
                 <h3 class="text-sm font-bold text-slate-800">Preview</h3>
                 <p class="text-xs text-slate-400 mt-0.5">Updates as you edit</p>

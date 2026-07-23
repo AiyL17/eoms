@@ -969,6 +969,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
     /* ── Page-aware tour steps ────────────────────────────────────── */
     const isAdmin   = {{ auth()->user()->isAdmin() ? 'true' : 'false' }};
     const routeName = '{{ Route::currentRouteName() }}';
+    const hasArchivedVersions = {{ isset($archivedFiles) && count($archivedFiles) > 0 ? 'true' : 'false' }};
 
     /* Shared helper: wrap a tip line */
     function tip(text) {
@@ -1052,10 +1053,18 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 }
             },
             {
-                element: '#tour-header-btn',
+                element: '#tour-header-manage-users',
                 popover: {
-                    title: ico('M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z') + 'Quick Actions',
-                    description: 'Page-specific action buttons appear here — like <strong>Upload Document</strong> or <strong>Manage Users</strong>.',
+                    title: ico('M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z') + 'Manage Users',
+                    description: 'Takes you to the <strong>User Profiles</strong> page where you can create, edit, or remove user accounts and assign roles.',
+                    side: 'bottom', align: 'end',
+                }
+            },
+            {
+                element: '#tour-header-upload',
+                popover: {
+                    title: ico('M12 4.5v15m7.5-7.5h-15') + 'Upload Document',
+                    description: 'Takes you directly to the <strong>Upload Document</strong> form to register a new document into the system.',
                     side: 'bottom', align: 'end',
                 }
             },
@@ -1128,7 +1137,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-sidebar-profile-link',
                 popover: {
                     title: ico('M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z') + 'Your Profile',
-                    description: 'Click here to edit your name, position, avatar, e-signature, or password.',
+                    description: 'Click here to edit your name, position, avatar, or password.',
                     side: 'top', align: 'start',
                 }
             },
@@ -1243,7 +1252,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-sidebar-profile-link',
                 popover: {
                     title: ico('M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z') + 'Your Profile',
-                    description: 'Click here to update your name, position, avatar, and e-signature.',
+                    description: 'Click here to update your name, position, and avatar.',
                     side: 'top', align: 'start',
                 }
             },
@@ -1280,9 +1289,26 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-doc-table',
                 popover: {
                     title: ico('M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z') + 'Documents Table',
-                    description: 'All documents listed here. Click any row to open the full detail page.'
-                        + tip('The <strong>Date Received</strong> and <strong>Deadline</strong> column headers are clickable to sort. Use the swap icon in the Action column to toggle a document between Incoming and Outgoing.'),
+                    description: 'All documents are listed here. Click any row to open the full detail page.'
+                        + tip('The <strong>Reference No.</strong> and <strong>Date Received</strong> column headers are clickable to sort ascending or descending.'),
                     side: 'top', align: 'start',
+                }
+            },
+            {
+                element: '#tour-doc-toggle-type',
+                popover: {
+                    title: ico('M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5') + 'Toggle Document Type',
+                    description: 'Click the <strong>swap icon</strong> to switch a document between <strong>Incoming</strong> and <strong>Outgoing</strong>. A confirmation dialog will appear before the change is saved.'
+                        + tip('This action is logged in the document\'s activity history and notifies relevant users.'),
+                    side: 'top', align: 'center',
+                }
+            },
+            {
+                element: '#tour-doc-view-btn',
+                popover: {
+                    title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'View Document',
+                    description: 'Click the <strong>eye icon</strong> to open the full document detail page — view the PDF, all metadata, and the complete activity log.',
+                    side: 'top', align: 'center',
                 }
             },
             {
@@ -1399,10 +1425,35 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 },
                 popover: {
                     title: ico('M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z') + 'Current Version',
-                    description: 'The highlighted row is the <strong>active document</strong> — the file currently shown in the PDF viewer on the document detail page. Use the <strong>Download</strong> button to save it.',
+                    description: 'The highlighted row is the <strong>active document</strong> — the file currently shown in the PDF viewer on the document detail page.',
                     side: 'bottom', align: 'start',
                 },
             },
+            {
+                element: '#tour-vh-open',
+                popover: {
+                    title: ico('M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25') + 'Open',
+                    description: 'Opens the current PDF in a new browser tab — useful for reading or printing without downloading the file.',
+                    side: 'bottom', align: 'end',
+                },
+            },
+            {
+                element: '#tour-vh-download',
+                popover: {
+                    title: ico('M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3') + 'Download',
+                    description: 'Downloads the current version of the PDF directly to your device. Every download is recorded in the document\'s activity log.',
+                    side: 'bottom', align: 'end',
+                },
+            },
+            ...(hasArchivedVersions ? [{
+                element: '#tour-vh-archived-versions',
+                popover: {
+                    title: ico('M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z') + 'Earlier Versions',
+                    description: 'These are the previous PDF files that were replaced during edits. Each row shows the original filename, the date it was archived, and its file size.'
+                        + tip('Use <strong>Open</strong> to preview an older version in the browser, or <strong>Download</strong> to save it — without affecting the current active file.'),
+                    side: 'right', align: 'start',
+                },
+            }] : []),
             {
                 element: '#tour-vh-meta-history',
                 onHighlightStarted: (el) => {
@@ -1442,8 +1493,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
             {
                 element: '#tour-doc-form-preview',
                 onHighlightStarted: () => {
-                    const main = document.querySelector('main.overflow-y-auto');
-                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                    const main = document.querySelector('main');
+                    if (main) main.scrollTop = 0;
                 },
                 popover: {
                     title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
@@ -1482,10 +1533,10 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 }
             },
             {
-                element: '#tour-doc-form-preview',
+                element: '#tour-doc-preview-card',
                 onHighlightStarted: () => {
-                    const main = document.querySelector('main.overflow-y-auto');
-                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                    const main = document.querySelector('main');
+                    if (main) main.scrollTop = 0;
                 },
                 popover: {
                     title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
@@ -1518,9 +1569,25 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '[data-tour="user-table"]',
                 popover: {
                     title: ico('M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z') + 'Users Table',
-                    description: 'Lists all accounts with their name, email, role, position, join date, and online status.'
-                        + tip('Click the edit icon to edit a user, or the trash icon to delete them. You cannot delete your own account.'),
+                    description: 'Lists all accounts with their name, email, role, position, join date, and online status. Column headers are sortable by clicking them.',
                     side: 'top', align: 'start',
+                }
+            },
+            {
+                element: '#tour-user-edit-btn',
+                popover: {
+                    title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125') + 'Edit User',
+                    description: 'Click the <strong>pencil icon</strong> to open the edit form for that user — update their name, email, role, position, or password.',
+                    side: 'left', align: 'center',
+                }
+            },
+            {
+                element: '#tour-user-delete-btn',
+                popover: {
+                    title: ico('M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0') + 'Delete User',
+                    description: 'Click the <strong>trash icon</strong> to permanently delete a user account. A confirmation dialog will appear before anything is removed.'
+                        + tip('You cannot delete your own account — the trash icon is hidden on your own row for safety.'),
+                    side: 'left', align: 'center',
                 }
             },
             {
@@ -1564,8 +1631,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
             {
                 element: '#tour-user-create-preview',
                 onHighlightStarted: () => {
-                    const main = document.querySelector('main.overflow-y-auto');
-                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                    const main = document.querySelector('main');
+                    if (main) main.scrollTop = 0;
                 },
                 popover: {
                     title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
@@ -1596,22 +1663,14 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 }
             },
             {
-                element: '#tour-user-preview',
+                element: '#tour-user-preview-card',
                 onHighlightStarted: () => {
-                    const main = document.querySelector('main.overflow-y-auto');
-                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                    const main = document.querySelector('main');
+                    if (main) main.scrollTop = 0;
                 },
                 popover: {
                     title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
                     description: 'This panel reflects the user\'s name, email, role badge, and position in real time as you make changes — before anything is saved.',
-                    side: 'left', align: 'start',
-                }
-            },
-            {
-                element: '#tour-user-account-info',
-                popover: {
-                    title: ico('M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z') + 'Account Info',
-                    description: 'Read-only stats for this account — join date and total documents uploaded. If you are editing your own account, a notice is shown here.',
                     side: 'left', align: 'start',
                 }
             },
@@ -1622,12 +1681,12 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
             {
                 element: '[data-tour="logs-filters"]',
                 popover: {
-                    title: ico('M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z') + 'Filter Logs',
-                    description: 'Narrow down the audit trail using three filters:'
+                    title: ico('M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z') + 'Search & Filters',
+                    description: 'Narrow down the audit trail with three filters:'
                         + tip('<strong>Search</strong> — find entries by document number or title keyword.')
-                        + tip('<strong>Document Type</strong> — show only activity on <strong>Incoming</strong> or <strong>Outgoing</strong> documents.')
-                        + tip('<strong>User</strong> — show only activity from a specific staff member or admin.')
-                        + '<br>Active filters appear as chips in the results header. Use the <strong>✕ clear</strong> button to reset all filters at once.',
+                        + tip('<strong>All Types</strong> — filter by document type: Incoming or Outgoing.')
+                        + tip('<strong>All Users</strong> — show activity from a specific staff member or admin only.')
+                        + '<br>Active filters appear as chips above the table. Click the <strong>✕</strong> button to clear all at once.',
                     side: 'bottom', align: 'start',
                 }
             },
@@ -1635,13 +1694,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '[data-tour="logs-table"]',
                 popover: {
                     title: ico('M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z') + 'Activity Log Table',
-                    description: 'Every system action is recorded here in full detail. Each row shows:'
-                        + tip('<strong>Timestamp</strong> — exact date and time. Click the column header to sort ascending or descending.')
-                        + tip('<strong>User</strong> — the staff member or admin who performed the action.')
-                        + tip('<strong>Action</strong> — colour-coded badge (e.g. Uploaded, Edited, Deleted). Sortable.')
-                        + tip('<strong>Target Record</strong> — click the document title to jump straight to it. Archived documents are labelled accordingly.')
-                        + tip('<strong>IP Address</strong> — the originating IP for each action, useful for auditing.')
-                        + '<br>Records are paginated. The result count and any active filter chips are shown above the table.',
+                    description: 'A full audit trail of every action taken in the system — who did it, when, on which document, and from what IP address. The <strong>Timestamp</strong> and <strong>Action</strong> columns are sortable. Click any document title in the <strong>Target Record</strong> column to jump straight to it.'
+                        + tip('Records are paginated. Apply filters above to narrow results by keyword, document type, or user.'),
                     side: 'top', align: 'start',
                 }
             },
@@ -1653,10 +1707,33 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '[data-tour="settings-form"]',
                 popover: {
                     title: ico('M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28zM15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'System Settings',
-                    description: 'Control system-wide behavior here.'
-                        + tip('<strong>Archive Retention Period</strong> sets how many days before archived documents are permanently purged by the nightly scheduler.')
-                        + tip('<strong>Maintenance Mode</strong> locks the system for non-admins.')
-                        + tip('<strong>Staff Can Upload</strong> toggle lets you restrict uploads to admins only.'),
+                    description: 'All system-wide configuration lives here. Click <strong>Save Settings</strong> at the bottom to apply any changes immediately.',
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-setting-retention',
+                popover: {
+                    title: ico('M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z') + 'Archive Retention Period',
+                    description: 'Sets how many days an archived document is kept before the nightly scheduler permanently deletes it. The default is <strong>30 days</strong>.'
+                        + tip('Increase this number if you need a longer safety window before permanent deletion.'),
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-setting-staff-upload',
+                popover: {
+                    title: ico('M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z') + 'Allow Staff to Upload',
+                    description: 'When this toggle is <strong>on</strong>, staff members can upload new documents. When <strong>off</strong>, only administrators can upload — staff can still view and download existing documents.',
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-setting-maintenance',
+                popover: {
+                    title: ico('M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437m6.615 8.206L15.75 15.75M4.867 19.125h.008v.008h-.008v-.008z') + 'Maintenance Mode',
+                    description: 'When enabled, only administrators can log in. All active staff sessions are terminated and they see a maintenance notice on the login page.'
+                        + tip('Use this before performing major updates or data migrations. Remember to turn it off when done.'),
                     side: 'right', align: 'start',
                 }
             },
@@ -1664,10 +1741,16 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '[data-tour="health-panel"]',
                 popover: {
                     title: ico('M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z') + 'System Health',
-                    description: 'Live sanity checks for critical system components.'
-                        + tip('The badge shows <strong>Healthy</strong>, <strong>Warnings</strong>, or <strong>Issues</strong> — reflecting the worst check result.')
-                        + tip('Use the refresh icon to re-run all checks instantly without reloading.')
-                        + tip('Expand <strong>How to fix</strong> on any failing check for resolution steps.'),
+                    description: 'Live sanity checks for critical system components. Each row shows a check name, its current status, and a colour-coded dot — green for healthy, amber for warnings, red for issues.'
+                        + tip('Expand <strong>How to fix</strong> on any failing or warning check for resolution steps.'),
+                    side: 'left', align: 'start',
+                }
+            },
+            {
+                element: '#health-recheck-btn',
+                popover: {
+                    title: ico('M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99') + 'Re-check Now',
+                    description: 'Click this button to instantly re-run all system health checks without reloading the page. The badge and all check rows update in real time.',
                     side: 'left', align: 'start',
                 }
             },
@@ -1687,11 +1770,25 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '[data-tour="archive-table"]',
                 popover: {
                     title: ico('M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z') + 'Archive Table',
-                    description: 'Each row shows the document <strong>title</strong>, the date it was archived, and who originally uploaded it. Columns are sortable by clicking the headers.'
-                        + tip('<strong>Restore</strong> (green) — moves the document back to the active list, fully intact.')
-                        + tip('<strong>Delete Forever</strong> (red) — permanently removes the document and its PDF. This action cannot be undone.')
-                        + '<br>Results are paginated. The record count is shown in the table header.',
+                    description: 'Lists all soft-deleted documents with their <strong>reference number</strong>, <strong>title</strong>, <strong>archived date</strong>, and <strong>who uploaded</strong> them. All column headers are sortable. The record count is shown above the table.',
                     side: 'top', align: 'start',
+                }
+            },
+            {
+                element: '#tour-archive-restore',
+                popover: {
+                    title: ico('M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99') + 'Restore',
+                    description: 'Moves the document back to the active document list, fully intact with all its metadata and PDF history preserved.',
+                    side: 'left', align: 'center',
+                }
+            },
+            {
+                element: '#tour-archive-delete',
+                popover: {
+                    title: ico('M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0') + 'Delete Forever',
+                    description: 'Permanently removes the document, its PDF, and all previous file versions from the system. A confirmation dialog will appear first.'
+                        + tip('This action is irreversible. Use Restore if you are unsure.'),
+                    side: 'left', align: 'center',
                 }
             },
         ],
@@ -1707,8 +1804,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                     side: 'bottom', align: 'start',
                 },
                 onHighlightStarted: () => {
-                    const main = document.querySelector('main.overflow-y-auto');
-                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                    const main = document.querySelector('main');
+                    if (main) main.scrollTop = 0;
                 },
             },
             {
@@ -1719,8 +1816,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                     side: 'right', align: 'start',
                 },
                 onHighlightStarted: () => {
-                    const main = document.querySelector('main.overflow-y-auto');
-                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                    const main = document.querySelector('main');
+                    if (main) main.scrollTop = 0;
                 },
             },
             {
@@ -1733,8 +1830,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 onHighlightStarted: () => {
                     const btn = document.getElementById('tab-btn-info');
                     if (btn) btn.click();
-                    const main = document.querySelector('main.overflow-y-auto');
-                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                    const main = document.querySelector('main');
+                    if (main) main.scrollTop = 0;
                 },
             },
             {
@@ -1748,8 +1845,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 onHighlightStarted: () => {
                     const btn = document.getElementById('tab-btn-password');
                     if (btn) btn.click();
-                    const main = document.querySelector('main.overflow-y-auto');
-                    if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
+                    const main = document.querySelector('main');
+                    if (main) main.scrollTop = 0;
                 },
             },
         ],

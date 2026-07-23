@@ -47,11 +47,11 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
-                    <a href="{{ route('documents.pdf', $doc) }}" target="_blank" class="btn-secondary btn-sm">
+                    <a href="{{ route('documents.pdf', $doc) }}" target="_blank" id="tour-vh-open" class="btn-secondary btn-sm">
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
                         Open
                     </a>
-                    <a href="{{ route('documents.download', $doc) }}" class="btn-primary btn-sm">
+                    <a href="{{ route('documents.download', $doc) }}" id="tour-vh-download" class="btn-primary btn-sm">
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
                         Download
                     </a>
@@ -60,6 +60,7 @@
         </div>
 
         {{-- Archived versions --}}
+        <div id="tour-vh-archived-versions">
         @forelse($archivedFiles as $i => $file)
         <div class="px-5 py-4 border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
             <div class="flex items-center justify-between gap-3">
@@ -99,6 +100,7 @@
             <p class="text-xs text-slate-400 mt-1">Previous PDF versions appear here when the document is replaced during an edit.</p>
         </div>
         @endforelse
+        </div>
     </div>
 
     {{-- ── Metadata Change History ──────────────────────────────────────────── --}}

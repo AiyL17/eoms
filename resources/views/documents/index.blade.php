@@ -218,6 +218,7 @@
                                 @csrf
                                 @method('PATCH')
                                 <button type="submit"
+                                        @if($loop->first) id="tour-doc-toggle-type" @endif
                                         title="Switch to {{ $doc->document_type === 'incoming' ? 'Outgoing' : 'Incoming' }}"
                                         class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg transition-colors
                                                {{ $doc->document_type === 'incoming'
@@ -230,6 +231,7 @@
                             </form>
                             {{-- View button --}}
                             <a href="{{ route('documents.show', $doc) }}"
+                               @if($loop->first) id="tour-doc-view-btn" @endif
                                title="View document"
                                class="inline-flex items-center text-violet-600 hover:text-violet-800 transition-colors p-1.5 rounded-lg hover:bg-violet-50">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">

@@ -17,7 +17,7 @@
             <div class="card divide-y divide-slate-100">
 
                 {{-- Document Management ------------------------------------------------}}
-                <div class="px-6 py-5">
+                <div class="px-6 py-5" id="tour-setting-retention">
                     <div class="flex items-center gap-2.5 mb-4">
                         <div class="w-7 h-7 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -49,7 +49,7 @@
                 </div>
 
                 {{-- Access Control -----------------------------------------------}}
-                <div class="px-6 py-5">
+                <div class="px-6 py-5" id="tour-setting-staff-upload">
                     <div class="flex items-center gap-2.5 mb-4">
                         <div class="w-7 h-7 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -78,7 +78,7 @@
                 </div>
 
                 {{-- Maintenance --------------------------------------------------}}
-                <div class="px-6 py-5 {{ ($settings['maintenance_mode'] ?? '0') === '1' ? 'bg-amber-50/40' : '' }} rounded-b-2xl transition-colors">
+                <div class="px-6 py-5 {{ ($settings['maintenance_mode'] ?? '0') === '1' ? 'bg-amber-50/40' : '' }} rounded-b-2xl transition-colors" id="tour-setting-maintenance">
                     <div class="flex items-center gap-2.5 mb-4">
                         <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">

@@ -96,6 +96,7 @@
                 <span class="text-xs text-slate-400">{{ $doc->deleted_at->format('M d, Y') }}</span>
             </div>
             <p class="text-sm font-semibold text-slate-800 leading-snug mb-0.5">{{ Str::limit($doc->title, 70) }}</p>
+            <p class="text-[11px] font-mono font-bold text-violet-700 mb-1">{{ $doc->reference_number }}</p>
             <p class="text-xs text-slate-400 mb-3">Uploaded by: <span class="font-medium text-slate-600">{{ $doc->uploader->name ?? '—' }}</span></p>
             <div class="flex items-center gap-2">
                 <form action="{{ route('documents.restore', $doc->id) }}" method="POST">
@@ -149,7 +150,8 @@
                     };
                 @endphp
                 <tr>
-                    <th><a href="{{ $sortUrl('title') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Title {!! $sortIcon('title') !!}</a></th>
+                    <th class="w-36"><a href="{{ $sortUrl('reference_number') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Reference No. {!! $sortIcon('reference_number') !!}</a></th>
+                    <th><a href="{{ $sortUrl('title') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Document Name {!! $sortIcon('title') !!}</a></th>
                     <th class="w-40"><a href="{{ $sortUrl('deleted_at') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Archived On {!! $sortIcon('deleted_at') !!}</a></th>
                     <th class="w-40"><a href="{{ $sortUrl('uploaded_by') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">Uploaded By {!! $sortIcon('uploaded_by') !!}</a></th>
                     <th class="w-20 text-center">Actions</th>
@@ -158,6 +160,9 @@
             <tbody>
                 @forelse($orders as $doc)
                 <tr class="group">
+                    <td class="whitespace-nowrap">
+                        <span class="text-[13px] font-mono font-bold text-violet-700">{{ $doc->reference_number }}</span>
+                    </td>
                     <td>
                         <div class="text-[13px] font-semibold text-slate-800 mb-0.5 truncate max-w-xs" title="{{ $doc->title }}">{{ Str::limit($doc->title, 65) }}</div>
                     </td>
@@ -170,14 +175,18 @@
                         <div class="inline-flex items-center justify-center gap-1">
                             <form action="{{ route('documents.restore', $doc->id) }}" method="POST">
                                 @csrf
-                                <button type="submit" class="inline-flex items-center justify-center text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 p-1.5 rounded-lg transition-colors" title="Restore this document">
+                                <button type="submit"
+                                        @if($loop->first) id="tour-archive-restore" @endif
+                                        class="inline-flex items-center justify-center text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 p-1.5 rounded-lg transition-colors" title="Restore this document">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" /></svg>
                                 </button>
                             </form>
                             <form action="{{ route('documents.force-destroy', $doc->id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="inline-flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+                                <button type="submit"
+                                        @if($loop->first) id="tour-archive-delete" @endif
+                                        class="inline-flex items-center justify-center text-red-500 hover:text-red-700 hover:bg-red-50 p-1.5 rounded-lg transition-colors"
                                         data-confirm="Permanently delete {{ $doc->reference_number }}? The PDF and all previous versions will also be removed. This cannot be undone." title="Permanently delete">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
                                 </button>
@@ -187,7 +196,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="py-16 text-center">
+                    <td colspan="6" class="py-16 text-center">
                         <div class="flex flex-col items-center">
                             <div class="w-14 h-14 bg-amber-50 rounded-2xl flex items-center justify-center mb-4 text-amber-400">
                                 <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z" /></svg>

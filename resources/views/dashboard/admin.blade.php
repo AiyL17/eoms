@@ -4,14 +4,14 @@
 @section('page-title', 'Administrator Dashboard')
 
 @section('header-actions')
-    <div id="tour-header-btn" class="flex items-center gap-2">
-        <a href="{{ route('admin.users.index') }}" class="btn-secondary btn-sm" title="Manage Users">
+    <div class="flex items-center gap-2">
+        <a href="{{ route('admin.users.index') }}" id="tour-header-manage-users" class="btn-secondary btn-sm" title="Manage Users">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
             </svg>
             <span class="hidden sm:inline">Manage Users</span>
         </a>
-        <a href="{{ route('documents.create') }}" class="btn-primary btn-sm" title="Upload Document">
+        <a href="{{ route('documents.create') }}" id="tour-header-upload" class="btn-primary btn-sm" title="Upload Document">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>

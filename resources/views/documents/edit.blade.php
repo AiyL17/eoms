@@ -215,7 +215,7 @@
 
     {{-- ── RIGHT: Live preview panel ────────────────────────────────────── --}}
     <div class="sticky top-6 self-start space-y-5" id="tour-doc-form-preview">
-        <div class="card">
+        <div class="card" id="tour-doc-preview-card">
             <div class="p-5 border-b border-slate-100">
                 <h3 class="text-sm font-bold text-slate-800">Preview</h3>
                 <p class="text-xs text-slate-400 mt-0.5">Updates as you edit</p>
