@@ -148,8 +148,8 @@
     </div>
 
     {{-- ── Desktop table ────────────────────────────────────────────────────── --}}
-    <div class="hidden md:block overflow-x-auto">
-        <table class="w-full table-auto table-wide">
+    <div class="hidden md:block">
+        <table class="w-full table-auto">
             <thead>
                 @php
                     $sortUrl = function (string $col) use ($sort, $dir) {
@@ -167,21 +167,21 @@
                     };
                 @endphp
                 <tr>
-                    <th class="w-28">Type</th>
+                    <th class="w-24">Type</th>
                     <th>Document Name</th>
-                    <th class="w-36">
+                    <th class="w-32">
                         <a href="{{ $sortUrl('date_issued') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
                             Date Received {!! $sortIcon('date_issued') !!}
                         </a>
                     </th>
-                    <th class="w-44">Office / Origin</th>
-                    <th class="w-36">Recipient</th>
-                    <th class="w-36">
+                    <th class="w-36">Office / Origin</th>
+                    <th class="w-28 hidden xl:table-cell">Recipient</th>
+                    <th class="w-28">
                         <a href="{{ $sortUrl('expiration_date') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
                             Deadline {!! $sortIcon('expiration_date') !!}
                         </a>
                     </th>
-                    <th class="w-20 text-center">Action</th>
+                    <th class="w-16 text-center">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -209,7 +209,7 @@
                     <td class="text-slate-600 text-[13px] truncate" title="{{ $doc->received_from }}">
                         {{ Str::limit($doc->received_from ?? '—', 26) }}
                     </td>
-                    <td class="text-slate-600 text-[13px] truncate" title="{{ $doc->recipient }}">
+                    <td class="text-slate-600 text-[13px] truncate hidden xl:table-cell" title="{{ $doc->recipient }}">
                         {{ Str::limit($doc->recipient ?? '—', 22) }}
                     </td>
                     <td class="text-[13px] whitespace-nowrap">

@@ -302,7 +302,7 @@
 
         {{-- Top Bar --}}
         <header class="bg-white border-b border-slate-100 px-4 lg:px-8 py-0 flex items-center justify-between shrink-0 h-16 sticky top-0 z-40">
-            <div class="flex items-center gap-3 min-w-0">
+            <div class="flex items-center gap-3 min-w-0 flex-1 overflow-hidden">
                 {{-- Hamburger — mobile only --}}
                 <button @click="sidebarOpen = true"
                         class="lg:hidden w-9 h-9 flex items-center justify-center rounded-xl text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors shrink-0"
@@ -311,11 +311,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
                 </button>
-                <div class="flex items-center gap-2 text-sm min-w-0">
-                <h1 class="font-bold text-slate-800 truncate">@yield('page-title', 'Dashboard')</h1>
+                <div class="flex items-center gap-2 text-sm min-w-0 overflow-hidden">
+                <h1 class="font-bold text-slate-800 truncate shrink-0 max-w-[80px] sm:max-w-[160px] lg:max-w-xs">@yield('page-title', 'Dashboard')</h1>
                 @hasSection('breadcrumb')
-                <span class="text-slate-300 mx-1">/</span>
-                <nav class="flex items-center gap-1.5 text-sm font-medium text-slate-400 truncate">
+                <span class="text-slate-300 shrink-0">/</span>
+                <nav class="flex items-center gap-1 text-sm font-medium text-slate-400 min-w-0 overflow-hidden">
                     @yield('breadcrumb')
                 </nav>
                 @endif

@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
 @section('title', $doc->title)
-@section('page-title', $doc->title)
+@section('page-title', ucfirst($doc->document_type))
 
 @section('breadcrumb')
-    <a href="{{ route('documents.index') }}" class="hover:text-violet-600 transition-colors">Documents</a>
-    <span class="mx-1 opacity-40">/</span>
-    <span class="text-slate-700 font-semibold">{{ $doc->title }}</span>
+    <a href="{{ route('documents.index') }}" class="hover:text-violet-600 transition-colors shrink-0 whitespace-nowrap">Documents</a>
+    <span class="opacity-40 shrink-0">/</span>
+    <span class="text-slate-700 font-semibold truncate min-w-0">{{ $doc->title }}</span>
 @endsection
 
 @section('header-actions')
@@ -51,24 +51,24 @@
     {{-- PDF Viewer --}}
     <div class="xl:col-span-2 min-h-[400px]" id="tour-doc-pdf" style="height: clamp(400px, calc(100vh - 140px), 900px);">
         <div class="card h-full flex flex-col">
-            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
-                <div class="flex items-center gap-3">
+            <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 gap-3">
+                <div class="flex items-center gap-3 min-w-0">
                     <div class="w-9 h-9 rounded-xl bg-red-50 text-red-500 flex items-center justify-center shrink-0">
                         <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m3.75 9v6m3-3H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>
                     </div>
-                    <div>
-                        <p class="text-sm font-semibold text-slate-800">{{ $doc->original_filename }}</p>
+                    <div class="min-w-0">
+                        <p class="text-sm font-semibold text-slate-800 truncate">{{ $doc->original_filename }}</p>
                         <p class="text-xs text-slate-400">{{ $doc->file_size_formatted }}</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2">
-                    <a href="{{ route('documents.pdf', $doc) }}" target="_blank" id="tour-doc-open" class="btn-secondary btn-sm">
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="{{ route('documents.pdf', $doc) }}" target="_blank" id="tour-doc-open" class="btn-secondary btn-sm" title="Open PDF">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" /></svg>
-                        Open
+                        <span class="hidden sm:inline">Open</span>
                     </a>
-                    <a href="{{ route('documents.download', $doc) }}" id="tour-doc-download" class="btn-primary btn-sm">
+                    <a href="{{ route('documents.download', $doc) }}" id="tour-doc-download" class="btn-primary btn-sm" title="Download PDF">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-                        Download
+                        <span class="hidden sm:inline">Download</span>
                     </a>
                 </div>
             </div>
