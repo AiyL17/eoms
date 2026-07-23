@@ -13,6 +13,14 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     {{-- Alpine.js is bundled via Vite (resources/js/app.js) --}}
+    {{-- x-cloak hides Alpine-controlled elements until Alpine has initialised,
+         preventing the sidebar flash/slide-away on mobile page load.
+         Only applies below lg breakpoint — desktop sidebar is always visible. --}}
+    <style>
+        @media (max-width: 1023px) {
+            [x-cloak] { display: none !important; }
+        }
+    </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
 </head>
@@ -166,7 +174,7 @@
          style="display:none;"></div>
 
     {{-- ══════════════════════════════════════════════════════════════ SIDEBAR ══ --}}
-    <aside id="tour-sidebar" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+    <aside x-cloak id="tour-sidebar" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
            class="w-64 flex flex-col shrink-0 fixed inset-y-0 left-0 z-50 sidebar-scroll overflow-y-auto
                   transform transition-transform duration-300 ease-in-out
                   lg:translate-x-0 lg:static lg:z-auto lg:h-screen"
