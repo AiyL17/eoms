@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Register Incoming Document')
-@section('page-title', 'Register Incoming Document')
+@section('title', 'Upload Document')
+@section('page-title', 'Upload Document')
 
 @section('breadcrumb')
-    <a href="{{ route('documents.index') }}" class="hover:text-violet-600 transition-colors">Incoming Documents</a>
+    <a href="{{ route('documents.index') }}" class="hover:text-violet-600 transition-colors">Documents</a>
     <span class="mx-1 opacity-40">/</span>
-    <span class="text-slate-700 font-semibold">Register New</span>
+    <span class="text-slate-700 font-semibold">Upload New</span>
 @endsection
 
 @section('content')
@@ -59,6 +59,21 @@
             <div class="p-6">
                 <h3 class="form-section-title">2 — Document Information</h3>
                 <div class="space-y-5">
+
+                    {{-- Reference Number --}}
+                    <div>
+                        <label for="reference_number" class="form-label">Reference Number</label>
+                        <input type="text" name="reference_number" id="reference_number"
+                               value="{{ old('reference_number') }}"
+                               class="form-input font-mono {{ $errors->has('reference_number') ? 'error' : '' }}"
+                               required
+                               placeholder="e.g. 2026-001 or REC-2026-07-001">
+                        @error('reference_number') <p class="form-error">{{ $message }}</p> @enderror
+                        <p class="form-hint mt-1.5 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
+                            Must be unique. Use your office's official numbering format.
+                        </p>
+                    </div>
 
                     {{-- Document Type --}}
                     <div>
@@ -161,7 +176,7 @@
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
-                <span id="submit-label">Register Document</span>
+                <span id="submit-label">Upload Document</span>
             </button>
         </div>
     </div>
@@ -174,6 +189,11 @@
                 <p class="text-xs text-slate-400 mt-0.5">Updates as you fill in the form</p>
             </div>
             <div class="p-5 space-y-4">
+
+                <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Reference No.</p>
+                    <p id="prev-ref-number" class="text-sm font-bold text-violet-700 tracking-wide font-mono">—</p>
+                </div>
 
                 <div>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Document Type</p>
@@ -237,6 +257,7 @@
     const uploadSel     = document.getElementById('upload-selected');
     const selFilename   = document.getElementById('selected-filename');
     const selFilesize   = document.getElementById('selected-filesize');
+    const refInput      = document.getElementById('reference_number');
     const titleInput    = document.getElementById('title');
     const fromInput     = document.getElementById('received_from');
     const dateInput     = document.getElementById('date_issued');
@@ -286,6 +307,7 @@
     });
 
     // ── Live preview ──────────────────────────────────────────────────────
+    refInput.addEventListener('input',    () => document.getElementById('prev-ref-number').textContent     = refInput.value    || '—');
     titleInput.addEventListener('input',  () => document.getElementById('prev-title').textContent         = titleInput.value  || '—');
     fromInput.addEventListener('input',   () => document.getElementById('prev-received-from').textContent = fromInput.value   || '—');
     dateInput.addEventListener('change',  () => document.getElementById('prev-date').textContent          = formatDatePreview(dateInput.value));
@@ -301,7 +323,8 @@
     });
 
     // Initialise preview from old() values (on validation failure redirect)
-    document.getElementById('prev-title').textContent         = titleInput.value  || '—';
+    document.getElementById('prev-ref-number').textContent        = refInput.value    || '—';
+    document.getElementById('prev-title').textContent             = titleInput.value  || '—';
     document.getElementById('prev-received-from').textContent = fromInput.value   || '—';
     document.getElementById('prev-date').textContent          = formatDatePreview(dateInput.value);
     document.getElementById('prev-recipient').textContent     = recipInput.value  || '—';
@@ -313,7 +336,7 @@
     // ── Submit loading state ──────────────────────────────────────────────
     document.getElementById('doc-form').addEventListener('submit', function () {
         submitBtn.disabled = true;
-        submitLabel.textContent = 'Registering…';
+        submitLabel.textContent = 'Uploading…';
         submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
     });
 })();

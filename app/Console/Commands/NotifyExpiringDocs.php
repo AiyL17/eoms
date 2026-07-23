@@ -49,7 +49,7 @@ class NotifyExpiringDocs extends Command
                 $admin->notify(new DocExpiringNotification($doc, $warnDays));
             }
 
-            $this->info("Notified admins about expiring document: {$doc->doc_number}");
+            $this->info("Notified admins about expiring document: {$doc->reference_number}");
         }
 
         $this->info("Done. Sent expiry warnings for {$expiring->count()} document(s).");

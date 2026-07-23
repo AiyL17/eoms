@@ -31,10 +31,10 @@ class DocUpdated extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject("Document Updated: {$this->doc->doc_number}")
+            ->subject("Document Updated: {$this->doc->reference_number}")
             ->greeting("Hello {$notifiable->name},")
             ->line("{$this->updatedBy->name} made changes to a document.")
-            ->line("**{$this->doc->doc_number}** — {$this->doc->title}")
+            ->line("**{$this->doc->reference_number}** — {$this->doc->title}")
             ->action('View Document', route('documents.show', $this->doc))
             ->line('You are receiving this because you are associated with this document or are an DTMS administrator.');
     }
@@ -44,11 +44,11 @@ class DocUpdated extends Notification
         return [
             'type'            => 'doc_updated',
             'doc_id'          => $this->doc->id,
-            'doc_number'      => $this->doc->doc_number,
+            'reference_number' => $this->doc->reference_number,
             'title'           => $this->doc->title,
             'updated_by_id'   => $this->updatedBy->id,
             'updated_by_name' => $this->updatedBy->name,
-            'message'         => "{$this->doc->doc_number} was updated by {$this->updatedBy->name}",
+            'message'         => "{$this->doc->reference_number} was updated by {$this->updatedBy->name}",
         ];
     }
 }

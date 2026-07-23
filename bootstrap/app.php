@@ -47,6 +47,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Track last_seen_at for every authenticated web request.
         $middleware->appendToGroup('web', \App\Http\Middleware\TrackLastSeen::class);
+
+        // Bypass ngrok browser warning interstitial (harmless on non-ngrok hosts).
+        $middleware->appendToGroup('web', \App\Http\Middleware\BypassNgrokWarning::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

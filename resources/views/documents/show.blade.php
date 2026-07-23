@@ -85,6 +85,15 @@
         <div class="card" id="tour-doc-meta">
             <div class="p-6">
 
+                {{-- Reference Number --}}
+                <div class="flex items-center gap-2 mb-4 px-3 py-2 rounded-xl bg-violet-50 border border-violet-100">
+                    <svg class="w-3.5 h-3.5 text-violet-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5" />
+                    </svg>
+                    <span class="text-[11px] font-bold text-violet-400 uppercase tracking-widest">Reference No.</span>
+                    <span class="ml-auto text-sm font-bold text-violet-700 tracking-wide font-mono">{{ $doc->reference_number }}</span>
+                </div>
+
                 <h1 class="text-base font-bold text-slate-900 leading-snug mb-5">{{ $doc->title }}</h1>
 
                 {{-- Document Type --}}
@@ -111,6 +120,11 @@
 
                 {{-- Key metadata --}}
                 <div class="space-y-4">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs text-slate-400 font-medium">Reference No.</span>
+                        <span class="text-sm font-bold text-violet-700 text-right tracking-wide font-mono">{{ $doc->reference_number }}</span>
+                    </div>
+
                     <div class="flex justify-between items-start">
                         <span class="text-xs text-slate-400 font-medium">Date Received</span>
                         <span class="text-sm font-semibold text-slate-800 text-right">{{ $doc->date_issued->format('F d, Y') }}</span>

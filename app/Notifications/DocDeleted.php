@@ -44,7 +44,7 @@ class DocDeleted extends Notification
     {
         return [
             'type'            => 'doc_archived',
-            'doc_number'      => $this->docNumber,
+            'reference_number' => $this->docNumber,
             'title'           => $this->docTitle,
             'deleted_by_id'   => $this->deletedBy->id,
             'deleted_by_name' => $this->deletedBy->name,

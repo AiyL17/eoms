@@ -14,7 +14,7 @@ class Document extends Model
     protected $table = 'documents';
 
     protected $fillable = [
-        'doc_number',
+        'reference_number',
         'document_type',
         'title',
         'date_issued',
@@ -62,7 +62,7 @@ class Document extends Model
 
         // Fallback: LIKE search
         return $query->where(function ($q) use ($term) {
-            $q->where('doc_number', 'like', "%{$term}%")
+            $q->where('reference_number', 'like', "%{$term}%")
               ->orWhere('title', 'like', "%{$term}%")
               ->orWhere('received_from', 'like', "%{$term}%");
         });

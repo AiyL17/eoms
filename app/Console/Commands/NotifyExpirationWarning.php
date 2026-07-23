@@ -47,7 +47,7 @@ class NotifyExpirationWarning extends Command
                     $user->notify(new DocExpirationWarning($doc, $days));
                 }
 
-                $this->info("Notified {$recipients->count()} user(s) — {$doc->doc_number} expires in {$days} day(s).");
+                $this->info("Notified {$recipients->count()} user(s) — {$doc->reference_number} expires in {$days} day(s).");
                 $totalNotified++;
             }
         }

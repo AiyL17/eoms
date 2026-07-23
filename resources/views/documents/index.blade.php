@@ -5,11 +5,11 @@
 
 @section('header-actions')
     @if(auth()->user()->isAdmin() || \App\Models\Setting::get('staff_can_upload', '1') === '1')
-    <a href="{{ route('documents.create') }}" id="tour-header-btn" class="btn-primary btn-sm" title="Register Document">
+    <a href="{{ route('documents.create') }}" id="tour-header-btn" class="btn-primary btn-sm" title="Upload Document">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
-        <span class="hidden sm:inline">Register Document</span>
+        <span class="hidden sm:inline">Upload Document</span>
     </a>
     @endif
     <a href="{{ route('documents.export', request()->query()) }}"
@@ -109,19 +109,14 @@
                     @else
                         <span class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-600 border border-emerald-100">Outgoing</span>
                     @endif
+                    <span class="text-[11px] font-mono font-semibold text-violet-600">{{ $doc->reference_number }}</span>
                 </div>
                 <p class="text-sm font-semibold text-slate-800 leading-snug">{{ Str::limit($doc->title, 70) }}</p>
                 <div class="flex items-center gap-3 mt-2 text-xs text-slate-400">
                     <span>{{ $doc->date_issued->format('M d, Y') }}</span>
-                    @if($doc->received_from)
+                    @if($doc->recipient)
                     <span class="text-slate-200">·</span>
-                    <span class="truncate">{{ Str::limit($doc->received_from, 28) }}</span>
-                    @endif
-                    @if($doc->expiration_date)
-                    <span class="text-slate-200">·</span>
-                    <span class="{{ $doc->expiration_date->isPast() ? 'text-red-500 font-semibold' : (now()->diffInDays($doc->expiration_date) <= 7 ? 'text-amber-500' : 'text-slate-500') }}">
-                        Deadline {{ $doc->expiration_date->format('M d, Y') }}
-                    </span>
+                    <span class="truncate">{{ Str::limit($doc->recipient, 28) }}</span>
                     @endif
                 </div>
             </div>
@@ -141,7 +136,7 @@
             @if(request()->anyFilled(['search', 'document_type']))
                 <a href="{{ route('documents.index') }}" class="btn-secondary btn-sm">Clear Filters</a>
             @else
-                <a href="{{ route('documents.create') }}" class="btn-primary btn-sm">Register Document</a>
+                <a href="{{ route('documents.create') }}" class="btn-primary btn-sm">Upload Document</a>
             @endif
         </div>
         @endforelse
@@ -167,26 +162,37 @@
                     };
                 @endphp
                 <tr>
-                    <th class="w-24">Type</th>
+                    <th class="w-36">
+                        <a href="{{ $sortUrl('reference_number') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
+                            Reference No. {!! $sortIcon('reference_number') !!}
+                        </a>
+                    </th>
                     <th>Document Name</th>
                     <th class="w-32">
                         <a href="{{ $sortUrl('date_issued') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
                             Date Received {!! $sortIcon('date_issued') !!}
                         </a>
                     </th>
-                    <th class="w-36">Office / Origin</th>
-                    <th class="w-28 hidden xl:table-cell">Recipient</th>
-                    <th class="w-28">
-                        <a href="{{ $sortUrl('expiration_date') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
-                            Deadline {!! $sortIcon('expiration_date') !!}
-                        </a>
-                    </th>
+                    <th class="w-36">Recipient</th>
+                    <th class="w-28">Type</th>
                     <th class="w-16 text-center">Action</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($orders as $doc)
                 <tr class="group cursor-pointer" onclick="window.location='{{ route('documents.show', $doc) }}'">
+                    <td class="whitespace-nowrap">
+                        <span class="text-[13px] font-mono font-bold text-violet-700">{{ $doc->reference_number }}</span>
+                    </td>
+                    <td>
+                        <div class="text-[13px] font-semibold text-slate-800 group-hover:text-violet-700 transition-colors truncate max-w-xs" title="{{ $doc->title }}">
+                            {{ Str::limit($doc->title, 65) }}
+                        </div>
+                    </td>
+                    <td class="text-slate-500 whitespace-nowrap text-[13px]">{{ $doc->date_issued->format('M d, Y') }}</td>
+                    <td class="text-slate-600 text-[13px] truncate" title="{{ $doc->recipient }}">
+                        {{ Str::limit($doc->recipient ?? '—', 26) }}
+                    </td>
                     <td class="whitespace-nowrap">
                         @if($doc->document_type === 'incoming')
                             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 text-blue-600 text-[11px] font-semibold border border-blue-100">
@@ -198,27 +204,6 @@
                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>
                                 Outgoing
                             </span>
-                        @endif
-                    </td>
-                    <td>
-                        <div class="text-[13px] font-semibold text-slate-800 group-hover:text-violet-700 transition-colors truncate max-w-xs" title="{{ $doc->title }}">
-                            {{ Str::limit($doc->title, 65) }}
-                        </div>
-                    </td>
-                    <td class="text-slate-500 whitespace-nowrap text-[13px]">{{ $doc->date_issued->format('M d, Y') }}</td>
-                    <td class="text-slate-600 text-[13px] truncate" title="{{ $doc->received_from }}">
-                        {{ Str::limit($doc->received_from ?? '—', 26) }}
-                    </td>
-                    <td class="text-slate-600 text-[13px] truncate hidden xl:table-cell" title="{{ $doc->recipient }}">
-                        {{ Str::limit($doc->recipient ?? '—', 22) }}
-                    </td>
-                    <td class="text-[13px] whitespace-nowrap">
-                        @if($doc->expiration_date)
-                            <span class="{{ $doc->expiration_date->isPast() ? 'text-red-500 font-semibold' : (now()->diffInDays($doc->expiration_date) <= 7 ? 'text-amber-600' : 'text-slate-700') }}">
-                                {{ $doc->expiration_date->format('M d, Y') }}
-                            </span>
-                        @else
-                            <span class="text-slate-300">—</span>
                         @endif
                     </td>
                     <td class="text-center">
@@ -257,7 +242,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" class="py-16 text-center">
+                    <td colspan="6" class="py-16 text-center">
                         <div class="flex flex-col items-center">
                             <div class="w-14 h-14 bg-violet-50 rounded-2xl flex items-center justify-center mb-4 text-violet-400">
                                 <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
@@ -269,7 +254,7 @@
                             @if(request()->anyFilled(['search', 'document_type']))
                                 <a href="{{ route('documents.index') }}" class="btn-secondary btn-sm">Clear Filters</a>
                             @else
-                                <a href="{{ route('documents.create') }}" class="btn-primary btn-sm">Register Document</a>
+                                <a href="{{ route('documents.create') }}" class="btn-primary btn-sm">Upload Document</a>
                             @endif
                         </div>
                     </td>

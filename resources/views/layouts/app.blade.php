@@ -12,7 +12,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    {{-- Alpine.js is bundled via Vite (resources/js/app.js) --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
     <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
 </head>
@@ -1047,7 +1047,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-header-btn',
                 popover: {
                     title: ico('M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z') + 'Quick Actions',
-                    description: 'Page-specific action buttons appear here — like <strong>Register Document</strong> or <strong>Manage Users</strong>.',
+                    description: 'Page-specific action buttons appear here — like <strong>Upload Document</strong> or <strong>Manage Users</strong>.',
                     side: 'bottom', align: 'end',
                 }
             },
@@ -1179,7 +1179,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-header-btn',
                 popover: {
                     title: ico('M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z') + 'Quick Actions',
-                    description: 'The <strong>Register Document</strong> button here takes you directly to the upload form.',
+                    description: 'The <strong>Upload Document</strong> button here takes you directly to the upload form.',
                     side: 'bottom', align: 'end',
                 }
             },
@@ -1280,8 +1280,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
             {
                 element: '#tour-header-btn',
                 popover: {
-                    title: ico('M12 4.5v15m7.5-7.5h-15') + 'Register Document',
-                    description: 'Click <strong>Register Document</strong> to add a new document — fill in metadata and attach the PDF.',
+                    title: ico('M12 4.5v15m7.5-7.5h-15') + 'Upload Document',
+                    description: 'Click <strong>Upload Document</strong> to add a new document — fill in metadata and attach the PDF.',
                     side: 'bottom', align: 'end',
                 }
             },
@@ -1334,7 +1334,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-doc-meta',
                 popover: {
                     title: ico('M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z') + 'Document Metadata',
-                    description: 'Everything about this document in one panel — document type (Incoming or Outgoing), date received, office/origin, recipient, deadline, and who registered or last edited it.',
+                    description: 'Everything about this document in one panel — the unique <strong>Reference Number</strong>, document type (Incoming or Outgoing), date received, office/origin, recipient, deadline, and who registered or last edited it.',
                     side: 'left', align: 'start',
                 }
             },
@@ -1426,7 +1426,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-doc-form-details',
                 popover: {
                     title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z') + 'Document Information',
-                    description: 'Fill in the core details — <strong>Document Type</strong> (Incoming or Outgoing), <strong>Document Name</strong>, <strong>Office / Origin</strong>, <strong>Date Received</strong>, <strong>Recipient</strong>, and the optional <strong>Deadline</strong>.'
+                    description: 'Fill in the core details — <strong>Reference Number</strong> (your office\'s official numbering, must be unique), <strong>Document Type</strong> (Incoming or Outgoing), <strong>Document Name</strong>, <strong>Office / Origin</strong>, <strong>Date Received</strong>, <strong>Recipient</strong>, and the optional <strong>Deadline</strong>.'
                         + tip('The preview panel on the right updates in real time as you type.'),
                     side: 'right', align: 'start',
                 }
@@ -1439,7 +1439,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 },
                 popover: {
                     title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
-                    description: 'This panel updates in real time as you fill in the form — document type, name, office, dates, recipient, and attached file all reflect instantly before you submit.',
+                    description: 'This panel updates in real time as you fill in the form — reference number, document type, name, office, dates, recipient, and attached file all reflect instantly before you submit.',
                     side: 'left', align: 'start',
                 }
             },
@@ -1451,7 +1451,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-doc-form-basic',
                 popover: {
                     title: ico('M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z') + 'Document Information',
-                    description: 'Update the core details of this document — <strong>Document Type</strong> (Incoming or Outgoing), <strong>Document Name</strong>, <strong>Office / Origin</strong>, <strong>Date Received</strong>, <strong>Recipient</strong>, and the optional <strong>Deadline</strong>.',
+                    description: 'Update the core details of this document — <strong>Document Type</strong> (Incoming or Outgoing), <strong>Document Name</strong>, <strong>Office / Origin</strong>, <strong>Date Received</strong>, <strong>Recipient</strong>, and the optional <strong>Deadline</strong>.'
+                        + tip('The <strong>Reference Number</strong> is locked and cannot be changed after the document is created.'),
                     side: 'right', align: 'start',
                 }
             },
@@ -1480,7 +1481,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 },
                 popover: {
                     title: ico('M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z') + 'Live Preview',
-                    description: 'The preview panel updates in real time as you type — document type, name, office, dates, recipient, and the attached file all reflect your changes before you save.',
+                    description: 'The preview panel updates in real time as you type — reference number, document type, name, office, dates, recipient, and the attached file all reflect your changes before you save.'
+                        + tip('The <strong>Reference Number</strong> is fixed and shown here as a reminder — it cannot be changed after creation.'),
                     side: 'left', align: 'start',
                 }
             },
@@ -2014,8 +2016,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
         {
             icon: '<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />',
             iconBg: 'bg-sky-100', iconColor: 'text-sky-600',
-            title: 'Registering a New Document',
-            description: 'Click the <strong>"Register Document"</strong> button on the Documents page or dashboard to add a new document to the system.',
+            title: 'Uploading a New Document',
+            description: 'Click the <strong>"Upload Document"</strong> button on the Documents page or dashboard to add a new document to the system.',
             tips: [
                 'Fill in the <strong>Document Name</strong>, <strong>Office / Origin</strong>, date received, and recipient.',
                 'Attach the official <strong>PDF file</strong> — only PDF format is accepted.',

@@ -27,6 +27,22 @@
                 <h3 class="form-section-title">1 — Document Information</h3>
                 <div class="space-y-5">
 
+                    {{-- Reference Number (read-only) --}}
+                    <div>
+                        <label class="form-label">Reference Number</label>
+                        <div class="flex items-center gap-3 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                            <svg class="w-4 h-4 text-violet-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5" />
+                            </svg>
+                            <span class="text-sm font-bold text-violet-700 font-mono tracking-wide">{{ $doc->reference_number }}</span>
+                            <input type="hidden" name="reference_number" value="{{ $doc->reference_number }}">
+                        </div>
+                        <p class="form-hint mt-1.5 flex items-center gap-1.5">
+                            <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" /></svg>
+                            Reference number cannot be changed after creation.
+                        </p>
+                    </div>
+
                     {{-- Document Type --}}
                     <div>
                         <label class="form-label">Document Type</label>
@@ -207,6 +223,11 @@
             <div class="p-5 space-y-4">
 
                 <div>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Reference No.</p>
+                    <p class="text-sm font-bold text-violet-700 tracking-wide font-mono">{{ $doc->reference_number }}</p>
+                </div>
+
+                <div>
                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Document Type</p>
                     <p id="prev-doc-type" class="text-xs font-semibold text-slate-700">{{ $doc->document_type_label }}</p>
                 </div>
@@ -255,6 +276,10 @@
 
         {{-- Record info --}}
         <div class="bg-slate-50 rounded-2xl border border-slate-100 p-4 space-y-2 text-xs text-slate-500">
+            <div class="flex items-center justify-between">
+                <span class="font-medium">Reference No.</span>
+                <span class="font-bold text-violet-700 font-mono">{{ $doc->reference_number }}</span>
+            </div>
             <div class="flex items-center justify-between">
                 <span class="font-medium">Registered by</span>
                 <span class="font-semibold text-slate-700">{{ $doc->uploader->name ?? 'System' }}</span>

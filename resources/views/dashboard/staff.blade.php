@@ -4,11 +4,11 @@
 @section('page-title', 'My Dashboard')
 
 @section('header-actions')
-    <a href="{{ route('documents.create') }}" id="tour-header-btn" class="btn-primary btn-sm" title="Register Document">
+    <a href="{{ route('documents.create') }}" id="tour-header-btn" class="btn-primary btn-sm" title="Upload Document">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
-        <span class="hidden sm:inline">Register Document</span>
+        <span class="hidden sm:inline">Upload Document</span>
     </a>
 @endsection
 
@@ -93,7 +93,7 @@
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">My Recent Uploads</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Documents you have registered</p>
+                <p class="text-xs text-slate-400 mt-0.5">Documents you have uploaded</p>
             </div>
             <a href="{{ route('documents.index') }}" class="text-xs font-semibold text-violet-600 hover:text-violet-800 transition-colors flex items-center gap-1">
                 Browse All <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
@@ -104,7 +104,7 @@
             <a href="{{ route('documents.show', $doc) }}" class="flex items-start gap-3 px-4 py-3.5 hover:bg-violet-50/40 transition-colors">
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap mb-0.5">
-                        <span class="text-xs font-bold text-violet-700 font-mono">{{ $doc->doc_number }}</span>
+                        <span class="text-xs font-bold text-violet-700 font-mono">{{ $doc->reference_number }}</span>
                         <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded {{ $doc->document_type === 'incoming' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600' }}">{{ $doc->document_type_label }}</span>
                     </div>
                     <p class="text-xs text-slate-500 truncate">{{ $doc->title }}</p>
@@ -114,8 +114,8 @@
             </a>
             @empty
             <div class="py-12 text-center px-4">
-                <p class="text-sm font-semibold text-slate-700 mb-1">You haven't registered any documents yet</p>
-                <a href="{{ route('documents.create') }}" class="text-violet-600 text-sm font-semibold hover:underline">Register your first one →</a>
+                <p class="text-sm font-semibold text-slate-700 mb-1">You haven't uploaded any documents yet</p>
+                <a href="{{ route('documents.create') }}" class="text-violet-600 text-sm font-semibold hover:underline">Upload your first one →</a>
             </div>
             @endforelse
         </div>
@@ -133,7 +133,7 @@
                 <tbody>
                     @forelse($myRecentDocs as $doc)
                     <tr>
-                        <td class="font-bold text-slate-800 whitespace-nowrap text-[13px]">{{ $doc->doc_number }}</td>
+                        <td class="font-bold text-slate-800 whitespace-nowrap text-[13px]">{{ $doc->reference_number }}</td>
                         <td><div class="truncate max-w-[180px] text-slate-600 text-[13px]" title="{{ $doc->title }}">{{ $doc->title }}</div></td>
                         <td>
                             <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded {{ $doc->document_type === 'incoming' ? 'bg-blue-50 text-blue-600' : 'bg-emerald-50 text-emerald-600' }}">
@@ -151,7 +151,7 @@
                     <tr>
                         <td colspan="5" class="py-12 text-center">
                             <p class="text-sm font-semibold text-slate-700 mb-1">No documents yet</p>
-                            <a href="{{ route('documents.create') }}" class="text-violet-600 text-sm font-semibold hover:underline">Register your first one →</a>
+                            <a href="{{ route('documents.create') }}" class="text-violet-600 text-sm font-semibold hover:underline">Upload your first one →</a>
                         </td>
                     </tr>
                     @endforelse
@@ -225,9 +225,9 @@
                         <span class="action-badge-{{ $log->action }}">{{ $log->action_label }}</span>
                         @if($log->document)
                             @if($log->document->trashed())
-                                <a href="{{ route('documents.archive') }}" class="ml-1 font-semibold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->document->doc_number }}</a>
+                                <a href="{{ route('documents.archive') }}" class="ml-1 font-semibold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->document->reference_number }}</a>
                             @else
-                                <a href="{{ route('documents.show', $log->document) }}" class="ml-1 font-semibold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->document->doc_number }}</a>
+                                <a href="{{ route('documents.show', $log->document) }}" class="ml-1 font-semibold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->document->reference_number }}</a>
                             @endif
                         @else
                             <span class="ml-1 text-slate-400 italic">Deleted document</span>
@@ -245,7 +245,7 @@
         <div class="card-header">
             <div>
                 <h2 class="text-sm font-bold text-slate-800">My Uploads — Last 7 Days</h2>
-                <p class="text-xs text-slate-400 mt-0.5">Your daily registration count</p>
+                <p class="text-xs text-slate-400 mt-0.5">Your daily upload count</p>
             </div>
         </div>
         <div class="p-6">
@@ -270,7 +270,7 @@
             <div class="space-y-2">
                 <a href="{{ route('documents.create') }}" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-violet-50 text-slate-700 hover:text-violet-700 transition-colors group">
                     <svg class="w-4 h-4 text-slate-400 group-hover:text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" /></svg>
-                    <span class="text-sm font-medium">Register New Document</span>
+                    <span class="text-sm font-medium">Upload New Document</span>
                 </a>
                 <a href="{{ route('documents.index') }}" class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-violet-50 text-slate-700 hover:text-violet-700 transition-colors group">
                     <svg class="w-4 h-4 text-slate-400 group-hover:text-violet-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg>

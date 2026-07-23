@@ -11,11 +11,11 @@
             </svg>
             <span class="hidden sm:inline">Manage Users</span>
         </a>
-        <a href="{{ route('documents.create') }}" class="btn-primary btn-sm" title="Register Document">
+        <a href="{{ route('documents.create') }}" class="btn-primary btn-sm" title="Upload Document">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            <span class="hidden sm:inline">Register Document</span>
+            <span class="hidden sm:inline">Upload Document</span>
         </a>
     </div>
 @endsection
@@ -292,9 +292,9 @@
                         <span class="action-badge-{{ $log->action }}">{{ $log->action_label }}</span>
                         @if($log->document)
                             @if($log->document->trashed())
-                                <a href="{{ route('documents.archive') }}" class="ml-1 font-semibold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->document->doc_number }}</a>
+                                <a href="{{ route('documents.archive') }}" class="ml-1 font-semibold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->document->reference_number }}</a>
                             @else
-                                <a href="{{ route('documents.show', $log->document) }}" class="ml-1 font-semibold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->document->doc_number }}</a>
+                                <a href="{{ route('documents.show', $log->document) }}" class="ml-1 font-semibold text-violet-600 hover:text-violet-800 transition-colors">{{ $log->document->reference_number }}</a>
                             @endif
                         @else
                             <span class="ml-1 text-slate-400 italic">Deleted document</span>

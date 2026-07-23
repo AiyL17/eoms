@@ -31,7 +31,7 @@ class DocumentController extends Controller
         }
 
         // ── Sorting ───────────────────────────────────────────────────────────
-        $sortable = ['doc_number', 'date_issued', 'expiration_date'];
+        $sortable = ['reference_number', 'date_issued', 'expiration_date'];
         $sort     = in_array($request->sort, $sortable) ? $request->sort : null;
         $dir      = $request->dir === 'asc' ? 'asc' : 'desc';
 
@@ -70,6 +70,7 @@ class DocumentController extends Controller
         }
 
         $validated = $request->validate([
+            'reference_number'=> 'required|string|max:255|unique:documents,reference_number',
             'title'           => 'required|string|max:500',
             'document_type'   => 'required|in:incoming,outgoing',
             'received_from'   => 'required|string|max:255',
@@ -78,22 +79,20 @@ class DocumentController extends Controller
             'recipient'       => 'required|string|max:255',
             'pdf_file'        => 'required|file|mimes:pdf|max:20480',
         ], [
-            'pdf_file.max'          => 'The PDF file must not exceed 20 MB.',
-            'expiration_date.after' => 'The expiration date must be after the date received.',
+            'reference_number.required' => 'The reference number is required.',
+            'reference_number.unique'   => 'This reference number is already in use.',
+            'pdf_file.max'              => 'The PDF file must not exceed 20 MB.',
+            'expiration_date.after'     => 'The expiration date must be after the date received.',
         ]);
 
         DB::transaction(function () use ($request, $validated) {
-            // Auto-generate document number using the DB auto-increment ID
-            // (resolved after insert; doc_number is updated in a second pass)
-
             // Store the PDF
             $file             = $request->file('pdf_file');
             $originalFilename = preg_replace('/[^a-zA-Z0-9\-_\.]/', '_', $file->getClientOriginalName());
             $storedPath       = $file->store('documents', 'local');
 
-            // Temporary placeholder so the unique constraint is satisfied
             $doc = Document::create([
-                'doc_number'        => 'PENDING',
+                'reference_number'  => $validated['reference_number'],
                 'document_type'     => $validated['document_type'],
                 'title'             => $validated['title'],
                 'received_from'     => $validated['received_from'],
@@ -106,14 +105,10 @@ class DocumentController extends Controller
                 'uploaded_by'       => auth()->id(),
             ]);
 
-            // Build document number from the real primary key
-            $docNumber = 'Doc. No. ' . $doc->id;
-            $doc->update(['doc_number' => $docNumber]);
-
             // Log the creation
             DocActivityLog::record($doc, 'created', null, [
-                'doc_number' => $docNumber,
-                'title'      => $doc->title,
+                'reference_number' => $doc->reference_number,
+                'title'            => $doc->title,
             ]);
 
             // Notify all admins that a new document was registered
@@ -126,7 +121,7 @@ class DocumentController extends Controller
 
         return redirect()
             ->route('documents.index')
-            ->with('success', 'Document registered successfully.');
+            ->with('success', 'Document uploaded successfully.');
     }
 
     // ─── Show ─────────────────────────────────────────────────────────────────
@@ -155,6 +150,7 @@ class DocumentController extends Controller
     public function update(Request $request, Document $Document)
     {
         $validated = $request->validate([
+            'reference_number'=> 'required|string|max:255|unique:documents,reference_number,' . $Document->id,
             'title'           => 'required|string|max:500',
             'document_type'   => 'required|in:incoming,outgoing',
             'received_from'   => 'required|string|max:255',
@@ -164,12 +160,14 @@ class DocumentController extends Controller
             'pdf_file'        => 'nullable|file|mimes:pdf|max:20480',
             'log_notes'       => 'nullable|string|max:1000',
         ], [
-            'expiration_date.after' => 'The expiration date must be after the date received.',
+            'reference_number.required' => 'The reference number is required.',
+            'reference_number.unique'   => 'This reference number is already in use.',
+            'expiration_date.after'     => 'The expiration date must be after the date received.',
         ]);
 
         DB::transaction(function () use ($request, $validated, $Document) {
             $oldValues = $Document->only([
-                'title', 'received_from', 'recipient', 'date_issued', 'expiration_date', 'document_type',
+                'reference_number', 'title', 'received_from', 'recipient', 'date_issued', 'expiration_date', 'document_type',
             ]);
 
             // Capture document_type change before the model is updated
@@ -199,7 +197,7 @@ class DocumentController extends Controller
             $Document->update($validated);
 
             $newValues = $Document->only([
-                'title', 'received_from', 'recipient', 'date_issued', 'expiration_date', 'document_type',
+                'reference_number', 'title', 'received_from', 'recipient', 'date_issued', 'expiration_date', 'document_type',
             ]);
 
             DocActivityLog::record($Document, 'updated', $oldValues, $newValues, $logNotes);
@@ -236,12 +234,12 @@ class DocumentController extends Controller
 
     public function destroy(Document $Document)
     {
-        $docNumber = $Document->doc_number;
+        $docNumber = $Document->reference_number;
         $docTitle  = $Document->title;
         $uploader  = $Document->uploader;
         $deletedBy = auth()->user();
 
-        DocActivityLog::record($Document, 'deleted', ['doc_number' => $docNumber], null);
+        DocActivityLog::record($Document, 'deleted', ['reference_number' => $docNumber], null);
         $Document->delete();
 
         if ($uploader && $uploader->id !== $deletedBy->id) {
@@ -269,7 +267,7 @@ class DocumentController extends Controller
             $query->search($request->search);
         }
 
-        $sortable = ['doc_number', 'title', 'deleted_at', 'uploaded_by'];
+        $sortable = ['reference_number', 'title', 'deleted_at', 'uploaded_by'];
         $sort     = in_array($request->sort, $sortable) ? $request->sort : null;
         $dir      = $request->dir === 'asc' ? 'asc' : 'desc';
 
@@ -296,12 +294,12 @@ class DocumentController extends Controller
         $Document->restore();
 
         DocActivityLog::record($Document, 'restored', null, [
-            'doc_number' => $Document->doc_number,
+            'reference_number' => $Document->reference_number,
         ]);
 
         return redirect()
             ->route('documents.archive')
-            ->with('success', "Document {$Document->doc_number} has been restored.");
+            ->with('success', "Document {$Document->reference_number} has been restored.");
     }
 
     // ─── Force-delete (permanent) ─────────────────────────────────────────────
@@ -319,8 +317,8 @@ class DocumentController extends Controller
             Storage::disk('local')->deleteDirectory($archiveDir);
         }
 
-        $docNumber = $Document->doc_number;
-        DocActivityLog::record($Document, 'force_deleted', ['doc_number' => $docNumber], null);
+        $docNumber = $Document->reference_number;
+        DocActivityLog::record($Document, 'force_deleted', ['reference_number' => $docNumber], null);
         $Document->forceDelete();
 
         return redirect()

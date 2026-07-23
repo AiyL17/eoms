@@ -15,4 +15,6 @@ export default defineConfig({
             ignored: ['**/storage/framework/views/**'],
         },
     },
+    // Use a relative base path so built assets work on any domain (ngrok, localhost, etc.)
+    base: '/build/',
 });

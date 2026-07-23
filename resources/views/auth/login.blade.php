@@ -128,7 +128,7 @@
                         @enderror
                     </div>
 
-                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
                         <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
                             <input type="checkbox" name="remember"
                                    class="w-4 h-4 rounded border-slate-300 text-violet-600 focus:ring-violet-500">

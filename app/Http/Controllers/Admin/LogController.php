@@ -27,7 +27,7 @@ class LogController extends Controller
         if ($request->filled('search')) {
             $query->whereHas('document', function ($q) use ($request) {
                 $q->withTrashed()
-                  ->where('doc_number', 'like', '%' . $request->search . '%')
+                  ->where('reference_number', 'like', '%' . $request->search . '%')
                   ->orWhere('title', 'like', '%' . $request->search . '%');
             });
         }

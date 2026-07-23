@@ -23,7 +23,7 @@ class ExportController extends Controller
             $query->where('document_type', $request->document_type);
         }
 
-        $sortable = ['doc_number', 'date_issued'];
+        $sortable = ['reference_number', 'date_issued'];
         $sort     = in_array($request->sort, $sortable) ? $request->sort : null;
         $dir      = $request->dir === 'asc' ? 'asc' : 'desc';
         if ($sort) {
@@ -34,14 +34,14 @@ class ExportController extends Controller
 
         $csv = Writer::createFromString();
         $csv->insertOne([
-            'Document Number', 'Document Type', 'Title',
+            'Reference Number', 'Document Type', 'Title',
             'Date Received', 'Expiration Date', 'Office / Origin', 'Recipient',
             'Uploaded By', 'File Size', 'Created At',
         ]);
 
         foreach ($orders as $doc) {
             $csv->insertOne([
-                $doc->doc_number,
+                $doc->reference_number,
                 $doc->document_type_label,
                 $doc->title,
                 $doc->date_issued?->format('Y-m-d'),
@@ -73,7 +73,7 @@ class ExportController extends Controller
 
         $csv->insertOne(['=== DOCUMENT DETAILS ===']);
         $csv->insertOne(['Field', 'Value']);
-        $csv->insertOne(['Document Number',  $Document->doc_number]);
+        $csv->insertOne(['Reference Number', $Document->reference_number]);
         $csv->insertOne(['Document Type',    $Document->document_type_label]);
         $csv->insertOne(['Title',            $Document->title]);
         $csv->insertOne(['Date Received',    $Document->date_issued?->format('F d, Y')]);
@@ -99,7 +99,7 @@ class ExportController extends Controller
             ]);
         }
 
-        $filename = 'document-' . preg_replace('/[^a-z0-9\-]/', '-', strtolower($Document->doc_number))
+        $filename = 'document-' . preg_replace('/[^a-z0-9\-]/', '-', strtolower($Document->reference_number))
                    . '-' . now()->format('Y-m-d') . '.csv';
 
         return response((string) $csv, 200, [

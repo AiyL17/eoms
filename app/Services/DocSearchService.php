@@ -38,11 +38,11 @@ class DocSearchService
             // Remove existing row then insert fresh (FTS5 doesn't support ON CONFLICT)
             DB::statement('DELETE FROM doc_search_index WHERE doc_id = ?', [$doc->id]);
             DB::statement(
-                'INSERT INTO doc_search_index (doc_id, doc_number, title, received_from)
+                'INSERT INTO doc_search_index (doc_id, reference_number, title, received_from)
                  VALUES (?, ?, ?, ?)',
                 [
                     $doc->id,
-                    $doc->doc_number,
+                    $doc->reference_number,
                     $doc->title,
                     $doc->received_from ?? '',
                 ]

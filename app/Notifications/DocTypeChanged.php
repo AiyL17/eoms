@@ -31,9 +31,9 @@ class DocTypeChanged extends Notification
         $changerRole = ucfirst($this->changedBy->role);
 
         return (new MailMessage)
-            ->subject("Document Type Changed: {$this->doc->doc_number}")
+            ->subject("Document Type Changed: {$this->doc->reference_number}")
             ->greeting("Hello {$notifiable->name},")
-            ->line("{$this->changedBy->name} ({$changerRole}) changed the document type of **{$this->doc->doc_number}** from **{$oldLabel}** to **{$newLabel}**.")
+            ->line("{$this->changedBy->name} ({$changerRole}) changed the document type of **{$this->doc->reference_number}** from **{$oldLabel}** to **{$newLabel}**.")
             ->line("**Document:** {$this->doc->title}")
             ->line("**Office / Origin:** {$this->doc->received_from}")
             ->line("**Recipient:** {$this->doc->recipient}")
@@ -50,13 +50,13 @@ class DocTypeChanged extends Notification
         return [
             'type'            => 'doc_type_changed',
             'doc_id'          => $this->doc->id,
-            'doc_number'      => $this->doc->doc_number,
+            'reference_number' => $this->doc->reference_number,
             'title'           => $this->doc->title,
             'old_type'        => $this->oldType,
             'new_type'        => $this->newType,
             'changed_by_id'   => $this->changedBy->id,
             'changed_by_name' => $this->changedBy->name,
-            'message'         => "{$this->changedBy->name} ({$changerRole}) changed {$this->doc->doc_number} document type from {$oldLabel} to {$newLabel}.",
+            'message'         => "{$this->changedBy->name} ({$changerRole}) changed {$this->doc->reference_number} document type from {$oldLabel} to {$newLabel}.",
             'url'             => route('documents.show', $this->doc),
         ];
     }
