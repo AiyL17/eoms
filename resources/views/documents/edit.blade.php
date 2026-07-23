@@ -101,10 +101,10 @@
                         </div>
                     </div>
 
-                    {{-- Expiration Date --}}
+                    {{-- Deadline --}}
                     <div>
                         <label for="expiration_date" class="form-label">
-                            Expiration Date
+                            Deadline
                             <span class="text-slate-400 font-normal ml-1">(optional)</span>
                         </label>
                         <input type="date" name="expiration_date" id="expiration_date"
@@ -113,7 +113,7 @@
                         @error('expiration_date') <p class="form-error">{{ $message }}</p> @enderror
                         <p class="form-hint mt-1.5 flex items-center gap-1.5">
                             <svg class="w-3.5 h-3.5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
-                            Leave blank if the document has no fixed expiration.
+                            Leave blank if the document has no fixed deadline.
                         </p>
                     </div>
 
@@ -233,7 +233,7 @@
                 </div>
 
                 <div id="prev-expiry-wrap" class="{{ $doc->expiration_date ? '' : 'hidden' }}">
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Expiration Date</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Deadline</p>
                     <p id="prev-expiry" class="text-xs font-semibold text-amber-600">{{ $doc->expiration_date?->format('M d, Y') ?? '—' }}</p>
                 </div>
 

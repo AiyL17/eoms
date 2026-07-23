@@ -179,10 +179,15 @@ select.form-input {
 
 /* ── Stat card ──────────────────────────────────────────────────── */
 .stat-card {
-    @apply bg-white rounded-2xl shadow-sm border border-slate-100 p-5 flex items-center gap-4 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5;
+    @apply bg-white rounded-2xl shadow-sm border border-slate-100 p-4 flex flex-col gap-3
+           sm:flex-row sm:items-center sm:gap-4 sm:p-5
+           transition-all duration-300 hover:shadow-md hover:-translate-y-0.5;
 }
 .stat-icon {
-    @apply w-12 h-12 rounded-xl flex items-center justify-center shrink-0;
+    @apply w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0;
+}
+.stat-card .text-2xl {
+    @apply text-xl sm:text-2xl;
 }
 
 /* ── Section label inside forms ─────────────────────────────────── */

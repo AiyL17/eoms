@@ -4,11 +4,11 @@
 @section('page-title', 'My Dashboard')
 
 @section('header-actions')
-    <a href="{{ route('documents.create') }}" id="tour-header-btn" class="btn-primary btn-sm">
+    <a href="{{ route('documents.create') }}" id="tour-header-btn" class="btn-primary btn-sm" title="Register Document">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
-        Register Document
+        <span class="hidden sm:inline">Register Document</span>
     </a>
 @endsection
 

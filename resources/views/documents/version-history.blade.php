@@ -123,7 +123,7 @@
                             'received_from'   => 'Office / Origin',
                             'recipient'       => 'Recipient',
                             'date_issued'     => 'Date Received',
-                            'expiration_date' => 'Expiration Date',
+                            'expiration_date' => 'Deadline',
                         ];
                     @endphp
                     @foreach($allKeys as $key)

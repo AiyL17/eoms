@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard') — DTMS</title>
     <meta name="description" content="Document Management System — City Government">
@@ -321,7 +321,7 @@
                 @endif
                 </div>
             </div>
-            <div class="flex items-center gap-2 shrink-0" id="tour-header-actions">
+            <div class="flex items-center gap-2 shrink-0 min-w-0 overflow-hidden" id="tour-header-actions">
 
                 {{-- Page-specific action buttons --}}
                 @yield('header-actions')
@@ -762,11 +762,12 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
 {{-- Floating Help Button --}}
 <button id="tour-help-btn"
         onclick="startPageTour()"
-        class="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-[9990] w-12 h-12 rounded-full shadow-lg
+        class="fixed right-4 sm:right-6 z-[9990] w-12 h-12 rounded-full shadow-lg
                bg-violet-600 hover:bg-violet-700 text-white
                flex items-center justify-center
                transition-all duration-200 hover:scale-110 hover:shadow-violet-600/40 hover:shadow-xl
                focus:outline-none focus:ring-4 focus:ring-violet-500/30"
+        style="bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));"
         aria-label="Start page tour"
         title="Help &amp; Tour">
     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
@@ -1272,7 +1273,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 popover: {
                     title: ico('M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z') + 'Documents Table',
                     description: 'All documents listed here. Click any row to open the full detail page.'
-                        + tip('The <strong>Date Received</strong> and <strong>Expiration</strong> column headers are clickable to sort. Use the swap icon in the Action column to toggle a document between Incoming and Outgoing.'),
+                        + tip('The <strong>Date Received</strong> and <strong>Deadline</strong> column headers are clickable to sort. Use the swap icon in the Action column to toggle a document between Incoming and Outgoing.'),
                     side: 'top', align: 'start',
                 }
             },
@@ -1333,7 +1334,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-doc-meta',
                 popover: {
                     title: ico('M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z') + 'Document Metadata',
-                    description: 'Everything about this document in one panel — document type (Incoming or Outgoing), date received, office/origin, recipient, expiration date, and who registered or last edited it.',
+                    description: 'Everything about this document in one panel — document type (Incoming or Outgoing), date received, office/origin, recipient, deadline, and who registered or last edited it.',
                     side: 'left', align: 'start',
                 }
             },
@@ -1425,7 +1426,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-doc-form-details',
                 popover: {
                     title: ico('M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z') + 'Document Information',
-                    description: 'Fill in the core details — <strong>Document Type</strong> (Incoming or Outgoing), <strong>Document Name</strong>, <strong>Office / Origin</strong>, <strong>Date Received</strong>, <strong>Recipient</strong>, and the optional <strong>Expiration Date</strong>.'
+                    description: 'Fill in the core details — <strong>Document Type</strong> (Incoming or Outgoing), <strong>Document Name</strong>, <strong>Office / Origin</strong>, <strong>Date Received</strong>, <strong>Recipient</strong>, and the optional <strong>Deadline</strong>.'
                         + tip('The preview panel on the right updates in real time as you type.'),
                     side: 'right', align: 'start',
                 }
@@ -1450,7 +1451,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-doc-form-basic',
                 popover: {
                     title: ico('M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z') + 'Document Information',
-                    description: 'Update the core details of this document — <strong>Document Type</strong> (Incoming or Outgoing), <strong>Document Name</strong>, <strong>Office / Origin</strong>, <strong>Date Received</strong>, <strong>Recipient</strong>, and the optional <strong>Expiration Date</strong>.',
+                    description: 'Update the core details of this document — <strong>Document Type</strong> (Incoming or Outgoing), <strong>Document Name</strong>, <strong>Office / Origin</strong>, <strong>Date Received</strong>, <strong>Recipient</strong>, and the optional <strong>Deadline</strong>.',
                     side: 'right', align: 'start',
                 }
             },
@@ -1753,7 +1754,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
         if (!steps || steps.length === 0) {
             /* No tour for this page — show a friendly toast */
             const msg = document.createElement('div');
-            msg.className = 'fixed bottom-24 right-6 z-[9999] bg-white border border-violet-100 shadow-xl rounded-2xl px-5 py-4 flex items-center gap-3 text-sm font-medium text-slate-700 pointer-events-none';
+            msg.className = 'fixed bottom-28 right-4 sm:bottom-24 sm:right-6 z-[9999] bg-white border border-violet-100 shadow-xl rounded-2xl px-5 py-4 flex items-center gap-3 text-sm font-medium text-slate-700 pointer-events-none';
             msg.style.animation = 'toast-slide-in .3s cubic-bezier(.34,1.56,.64,1) both';
             msg.innerHTML = `
                 <div class="w-8 h-8 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center shrink-0">

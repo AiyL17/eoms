@@ -13,21 +13,22 @@
     <div class="flex items-center gap-2" id="tour-header-btn">
         <a href="{{ route('documents.export-single', $doc) }}" class="btn-secondary btn-sm" title="Export document details as CSV">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
-            Export
+            <span class="hidden sm:inline">Export</span>
         </a>
         <a href="{{ route('documents.version-history', $doc) }}" class="btn-secondary btn-sm" title="Version History">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            History
+            <span class="hidden sm:inline">History</span>
         </a>
-        <a href="{{ route('documents.edit', $doc) }}" class="btn-secondary btn-sm">
+        <a href="{{ route('documents.edit', $doc) }}" class="btn-secondary btn-sm" title="Edit document">
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" /></svg>
-            Edit
+            <span class="hidden sm:inline">Edit</span>
         </a>
         @if(auth()->user()->isAdmin())
         <form action="{{ route('documents.destroy', $doc) }}" method="POST">
             @csrf
             @method('DELETE')
             <button type="submit" class="btn-archive btn-sm"
+                    title="Archive document"
                     data-confirm="Archive this document? It can be restored from the Archive."
                     data-confirm-title="Confirm Archive"
                     data-confirm-subtitle="The document will be moved to the archive and can be restored later."
@@ -36,7 +37,7 @@
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z" />
                 </svg>
-                Archive
+                <span class="hidden sm:inline">Archive</span>
             </button>
         </form>
         @endif
@@ -127,14 +128,14 @@
 
                     @if($doc->expiration_date)
                     <div class="flex justify-between items-start">
-                        <span class="text-xs text-slate-400 font-medium">Expiration Date</span>
+                        <span class="text-xs text-slate-400 font-medium">Deadline</span>
                         <span class="text-sm font-semibold text-right
                             {{ $doc->expiration_date->isPast() ? 'text-red-600' : (now()->diffInDays($doc->expiration_date) <= 7 ? 'text-amber-600' : 'text-slate-800') }}">
                             {{ $doc->expiration_date->format('F d, Y') }}
                             @if($doc->expiration_date->isPast())
-                                <span class="block text-[11px] font-normal text-red-400">Expired</span>
+                                <span class="block text-[11px] font-normal text-red-400">Past deadline</span>
                             @elseif(now()->diffInDays($doc->expiration_date) <= 7)
-                                <span class="block text-[11px] font-normal text-amber-400">Expires soon</span>
+                                <span class="block text-[11px] font-normal text-amber-400">Deadline soon</span>
                             @endif
                         </span>
                     </div>

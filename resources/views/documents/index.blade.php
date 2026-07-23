@@ -5,11 +5,11 @@
 
 @section('header-actions')
     @if(auth()->user()->isAdmin() || \App\Models\Setting::get('staff_can_upload', '1') === '1')
-    <a href="{{ route('documents.create') }}" id="tour-header-btn" class="btn-primary btn-sm">
+    <a href="{{ route('documents.create') }}" id="tour-header-btn" class="btn-primary btn-sm" title="Register Document">
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
-        Register Document
+        <span class="hidden sm:inline">Register Document</span>
     </a>
     @endif
     <a href="{{ route('documents.export', request()->query()) }}"
@@ -19,7 +19,7 @@
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
         </svg>
-        Export CSV
+        <span class="hidden sm:inline">Export CSV</span>
     </a>
 @endsection
 
@@ -120,7 +120,7 @@
                     @if($doc->expiration_date)
                     <span class="text-slate-200">·</span>
                     <span class="{{ $doc->expiration_date->isPast() ? 'text-red-500 font-semibold' : (now()->diffInDays($doc->expiration_date) <= 7 ? 'text-amber-500' : 'text-slate-500') }}">
-                        Exp. {{ $doc->expiration_date->format('M d, Y') }}
+                        Deadline {{ $doc->expiration_date->format('M d, Y') }}
                     </span>
                     @endif
                 </div>
@@ -178,7 +178,7 @@
                     <th class="w-36">Recipient</th>
                     <th class="w-36">
                         <a href="{{ $sortUrl('expiration_date') }}" class="inline-flex items-center gap-1 group hover:text-violet-700 transition-colors">
-                            Expiration {!! $sortIcon('expiration_date') !!}
+                            Deadline {!! $sortIcon('expiration_date') !!}
                         </a>
                     </th>
                     <th class="w-20 text-center">Action</th>
