@@ -1296,9 +1296,9 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
             {
                 element: '#tour-export-csv',
                 popover: {
-                    title: ico('M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3') + 'Export CSV',
-                    description: 'Downloads all currently filtered documents as a CSV file — useful for reporting and offline analysis.'
-                        + tip('Apply filters first, then click Export CSV to download only the matching records.'),
+                    title: ico('M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3') + 'Export Excel',
+                    description: 'Downloads all currently filtered documents as an Excel (.xlsx) file — one sheet per year, sorted by date, with auto-sized columns.'
+                        + tip('Apply filters first, then click Export Excel to download only the matching records.'),
                     side: 'bottom', align: 'end',
                 }
             },
@@ -1363,7 +1363,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-header-btn',
                 popover: {
                     title: ico('M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5') + 'Action Buttons',
-                    description: '<strong>Export</strong> downloads the full document record as a CSV for reports and offline recordkeeping.'
+                    description: '<strong>Export</strong> downloads the full document record as an Excel (.xlsx) file for reports and offline recordkeeping.'
                         + '<br><br><strong>History</strong> opens the version history — every edit and status change with who made it.'
                         + '<br><br><strong>Edit</strong> opens the edit form to update details or change the document type.'
                         + '<br><br><strong>Archive</strong> soft-deletes the document (restorable from the Archive page).',
