@@ -18,7 +18,13 @@ class DocExpirationWarning extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        $channels = ['database'];
+
+        if (config('mail.default') !== 'log') {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -33,8 +39,8 @@ class DocExpirationWarning extends Notification
             ->line("Office / Origin: {$this->doc->received_from}")
             ->line("Date Received: {$this->doc->date_issued->format('F d, Y')}")
             ->action('View Document', route('documents.show', $this->doc))
-            ->line('Please take the necessary action before the expiration date.')
-            ->line('You are receiving this because you are a member of the DTMS team.');
+            ->line('Please take the necessary action before the expiration date to avoid disruption.')
+            ->line('You are receiving this notification because you are a member of the DTMS team.');
     }
 
     public function toArray(object $notifiable): array

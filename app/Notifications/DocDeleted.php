@@ -37,7 +37,7 @@ class DocDeleted extends Notification
             ->line("**{$this->docNumber}** — {$this->docTitle}")
             ->line('The record has been moved to the archive. Administrators can restore or permanently delete it from the Archive page.')
             ->action('Go to Archive', route('documents.archive'))
-            ->line('You are receiving this because you uploaded this document or are an DTMS administrator.');
+            ->line('You are receiving this notification because you uploaded this document or are a DTMS administrator.');
     }
 
     public function toDatabase(object $notifiable): array

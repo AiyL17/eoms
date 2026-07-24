@@ -21,7 +21,13 @@ class DocTypeChanged extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        $channels = ['database'];
+
+        if (config('mail.default') !== 'log') {
+            $channels[] = 'mail';
+        }
+
+        return $channels;
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -38,7 +44,7 @@ class DocTypeChanged extends Notification
             ->line("**Office / Origin:** {$this->doc->received_from}")
             ->line("**Recipient:** {$this->doc->recipient}")
             ->action('View Document', route('documents.show', $this->doc))
-            ->line('You are receiving this because you are a member of the DTMS team.');
+            ->line('You are receiving this notification because you are a member of the DTMS team.');
     }
 
     public function toArray(object $notifiable): array

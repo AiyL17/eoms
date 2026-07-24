@@ -39,7 +39,7 @@ class DocExpiringNotification extends Notification
             ->line("Archived on: {$this->doc->deleted_at->format('M d, Y')}")
             ->action('Go to Archive', route('documents.archive'))
             ->line('To prevent permanent deletion, restore the record from the Archive page before the deadline.')
-            ->line('You are receiving this because you are an administrator of DTMS.');
+            ->line('You are receiving this notification because you are a DTMS administrator.');
     }
 
     public function toDatabase(object $notifiable): array

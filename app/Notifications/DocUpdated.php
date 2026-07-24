@@ -36,7 +36,7 @@ class DocUpdated extends Notification
             ->line("{$this->updatedBy->name} made changes to a document.")
             ->line("**{$this->doc->reference_number}** — {$this->doc->title}")
             ->action('View Document', route('documents.show', $this->doc))
-            ->line('You are receiving this because you are associated with this document or are an DTMS administrator.');
+            ->line('You are receiving this notification because you are associated with this document or are a DTMS administrator.');
     }
 
     public function toDatabase(object $notifiable): array

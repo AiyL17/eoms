@@ -38,7 +38,7 @@ class DocUploaded extends Notification
             ->line("**{$this->doc->reference_number}** — {$this->doc->title}")
             ->line("Date Received: {$this->doc->date_issued->format('M d, Y')}")
             ->action('View Document', route('documents.show', $this->doc))
-            ->line('You are receiving this because you are an administrator of DTMS.');
+            ->line('You are receiving this notification because you are a DTMS administrator.');
     }
 
     public function toDatabase(object $notifiable): array
