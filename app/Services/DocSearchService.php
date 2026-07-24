@@ -37,12 +37,20 @@ class DocSearchService
         try {
             // Remove existing row then insert fresh (FTS5 doesn't support ON CONFLICT)
             DB::statement('DELETE FROM doc_search_index WHERE doc_id = ?', [$doc->id]);
+
+            // Store both the original reference number AND a normalised (separator-stripped)
+            // copy so that searches with or without dashes/slashes both hit this document.
+            $refNormal = static::normalise($doc->reference_number);
+            $refIndexed = $doc->reference_number !== $refNormal
+                ? $doc->reference_number . ' ' . $refNormal
+                : $doc->reference_number;
+
             DB::statement(
                 'INSERT INTO doc_search_index (doc_id, reference_number, title, received_from)
                  VALUES (?, ?, ?, ?)',
                 [
                     $doc->id,
-                    $doc->reference_number,
+                    $refIndexed,
                     $doc->title,
                     $doc->received_from ?? '',
                 ]
@@ -147,22 +155,46 @@ class DocSearchService
     }
 
     /**
+     * Normalise a reference number / search term by stripping common separators
+     * (dashes, slashes, dots, spaces) so that "21-32103-123" and "2132103123"
+     * both resolve to the same token and match each other.
+     */
+    public static function normalise(string $value): string
+    {
+        return preg_replace('/[\-\/\.\s]+/', '', $value);
+    }
+
+    /**
      * Sanitise user input to safe FTS5 query syntax.
      * Converts "hello world" → `hello* world*` (prefix match on each token).
+     * Also emits a normalised (separator-stripped) token so that queries like
+     * "2132103123" still match a stored reference number of "21-32103-123".
      */
     private static function sanitiseFtsQuery(string $term): string
     {
-        // Remove FTS5 special characters except spaces
+        // Remove FTS5 special characters except spaces and dashes
         $clean = preg_replace('/["\'\(\)\*\:\^]/', '', $term);
         $clean = trim($clean);
 
         if (empty($clean)) return '';
 
-        // Split into tokens and append * for prefix matching
-        $tokens = preg_split('/\s+/', $clean);
-        $tokens = array_filter($tokens);
-        $tokens = array_map(fn ($t) => '"' . str_replace('"', '', $t) . '"*', $tokens);
+        // Split into whitespace-delimited tokens
+        $tokens = array_filter(preg_split('/\s+/', $clean));
 
-        return implode(' ', $tokens);
+        $parts = [];
+        foreach ($tokens as $t) {
+            $t = str_replace('"', '', $t);
+            // Original token (handles exact / partial matches with separators intact)
+            $parts[] = '"' . $t . '"*';
+
+            // Normalised token (strips separators so "2132103123" matches "21-32103-123")
+            $normalised = static::normalise($t);
+            if ($normalised !== $t && $normalised !== '') {
+                $parts[] = '"' . $normalised . '"*';
+            }
+        }
+
+        // Join with OR so either the original or the normalised form matches
+        return implode(' OR ', $parts);
     }
 }

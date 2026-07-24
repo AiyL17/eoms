@@ -226,6 +226,17 @@
                 <span>Documents</span>
             </a>
 
+            @if(!auth()->user()->isAdmin())
+            <a href="{{ route('activity.index') }}"
+               id="tour-nav-activity"
+               class="nav-link {{ request()->routeIs('activity.index') ? 'active' : '' }}">
+                <svg class="w-4.5 h-4.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>My Activity</span>
+            </a>
+            @endif
+
             @if(auth()->user()->isAdmin())
             <p class="px-3 pt-5 pb-2 text-[10px] font-bold text-violet-300/60 uppercase tracking-widest">Administration</p>
 
@@ -1164,7 +1175,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-sidebar',
                 popover: {
                     title: ico('M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 00-1.883 2.542l.857 6a2.25 2.25 0 002.227 1.932H19.05a2.25 2.25 0 002.227-1.932l.857-6a2.25 2.25 0 00-1.883-2.542m-16.5 0V6A2.25 2.25 0 016 3.75h3.879a1.5 1.5 0 011.06.44l2.122 2.12a1.5 1.5 0 001.06.44H18A2.25 2.25 0 0120.25 9v.776') + 'Navigation Sidebar',
-                    description: 'All sections you have access to are here — Dashboard and Documents.',
+                    description: 'All sections you have access to are here — Dashboard, Documents, and Administration tools.',
                     side: 'right', align: 'start',
                 }
             },
@@ -1181,6 +1192,14 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 popover: {
                     title: ico('M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z') + 'Documents',
                     description: 'Browse and search all documents in the system. Click any row to view the full document.',
+                    side: 'right', align: 'start',
+                }
+            },
+            {
+                element: '#tour-nav-activity',
+                popover: {
+                    title: ico('M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z') + 'My Activity',
+                    description: 'A personal log of every action you\'ve taken — uploads, edits, downloads, archives, and more. Scoped only to your account.',
                     side: 'right', align: 'start',
                 }
             },
@@ -1280,8 +1299,42 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '#tour-doc-filters',
                 popover: {
                     title: ico('M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z') + 'Search & Filters',
-                    description: 'Search by document name, office, or recipient. Narrow results by <strong>Document Type</strong> (Incoming or Outgoing).'
-                        + tip('Active filters appear as chips below the bar. Click the × to clear them.'),
+                    description: 'This bar lets you narrow down the document list using multiple filters. Each filter works independently or in combination.'
+                        + tip('Active filters appear as chips below the bar. Click the <strong>×</strong> button to clear them all at once.'),
+                    side: 'bottom', align: 'start',
+                }
+            },
+            {
+                element: '#tour-doc-filter-search',
+                popover: {
+                    title: ico('M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z') + 'Search',
+                    description: 'Type here to search across <strong>document name</strong>, <strong>office</strong>, and <strong>recipient</strong>. Partial matches are supported.',
+                    side: 'bottom', align: 'start',
+                }
+            },
+            {
+                element: '#tour-doc-filter-type',
+                popover: {
+                    title: ico('M9 3.75H6.912a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859M12 3v8.25m0 0l-3-3m3 3l3-3') + 'Document Type',
+                    description: 'Filter by <strong>Incoming</strong> or <strong>Outgoing</strong> documents. Leave it on <strong>All Types</strong> to see everything.',
+                    side: 'bottom', align: 'start',
+                }
+            },
+            {
+                element: '#tour-doc-filter-uploader',
+                popover: {
+                    title: ico('M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z') + 'Filter by Uploader',
+                    description: 'Select a user to view only documents they uploaded. Useful for reviewing a specific staff member\'s submissions.'
+                        + tip('Combine this with the search and document type filters to narrow results further.'),
+                    side: 'bottom', align: 'start',
+                }
+            },
+            {
+                element: '#tour-doc-filter-mine',
+                popover: {
+                    title: ico('M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z') + 'My Documents',
+                    description: 'Toggle this to instantly filter the list down to only documents <strong>you</strong> uploaded — handy when the list is shared across many users.'
+                        + tip('The toggle submits the filter automatically — no need to click the Filter button.'),
                     side: 'bottom', align: 'start',
                 }
             },
@@ -1312,6 +1365,15 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 }
             },
             {
+                element: '#tour-doc-archive-btn',
+                popover: {
+                    title: ico('M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z') + 'Archive Document',
+                    description: 'Click the <strong>archive icon</strong> to move a document to the archive. A confirmation dialog will appear before it is archived.'
+                        + tip('Archived documents are not permanently deleted — administrators can view and restore them from the <strong>Archive</strong> page.'),
+                    side: 'top', align: 'center',
+                }
+            },
+            {
                 element: '#tour-header-btn',
                 popover: {
                     title: ico('M12 4.5v15m7.5-7.5h-15') + 'Upload Document',
@@ -1334,6 +1396,52 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                     title: ico('M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0') + 'Notifications',
                     description: 'You\'ll be notified here whenever a document is uploaded, updated, or its status changes.',
                     side: 'bottom', align: 'end',
+                }
+            },
+        ],
+
+        /* ── My Activity (personal log feed) ────────────────────────────── */
+        'activity.index': [
+            {
+                element: '#tour-activity-filters',
+                popover: {
+                    title: ico('M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z') + 'Filters',
+                    description: 'Narrow your activity log using the filters below. All filters can be combined.'
+                        + tip('Active filters appear as chips below the bar. Click the <strong>×</strong> to clear them all.'),
+                    side: 'bottom', align: 'start',
+                }
+            },
+            {
+                element: '#tour-activity-filter-search',
+                popover: {
+                    title: ico('M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z') + 'Search',
+                    description: 'Search by <strong>reference number</strong> or <strong>title</strong> to find activity related to a specific document.',
+                    side: 'bottom', align: 'start',
+                }
+            },
+            {
+                element: '#tour-activity-filter-type',
+                popover: {
+                    title: ico('M9 3.75H6.912a2.25 2.25 0 00-2.15 1.588L2.35 13.177a2.25 2.25 0 00-.1.661V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 00-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 012.012 1.244l.256.512a2.25 2.25 0 002.013 1.244h3.218a2.25 2.25 0 002.013-1.244l.256-.512a2.25 2.25 0 012.013-1.244h3.859M12 3v8.25m0 0l-3-3m3 3l3-3') + 'Document Type',
+                    description: 'Filter activity to only show actions on <strong>Incoming</strong> or <strong>Outgoing</strong> documents.',
+                    side: 'bottom', align: 'start',
+                }
+            },
+            {
+                element: '#tour-activity-filter-action',
+                popover: {
+                    title: ico('M9 12.75l3 3m0 0l3-3m-3 3v-7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z') + 'Action Type',
+                    description: 'Filter by a specific action — for example, show only <strong>Downloads</strong> or only <strong>Uploads</strong>.',
+                    side: 'bottom', align: 'start',
+                }
+            },
+            {
+                element: '#tour-activity-table',
+                popover: {
+                    title: ico('M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z') + 'Activity Log',
+                    description: 'Each row shows the <strong>timestamp</strong>, the <strong>action taken</strong>, and the <strong>document</strong> it applies to. Click a document title to open it.'
+                        + tip('The <strong>Timestamp</strong> and <strong>Action</strong> column headers are sortable.'),
+                    side: 'top', align: 'start',
                 }
             },
         ],
@@ -1683,8 +1791,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 popover: {
                     title: ico('M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z') + 'Search & Filters',
                     description: 'Narrow down the audit trail with three filters:'
-                        + tip('<strong>Search</strong> — find entries by document number or title keyword.')
-                        + tip('<strong>All Types</strong> — filter by document type: Incoming or Outgoing.')
+                        + tip('<strong>Search</strong> — find entries by reference number or title keyword.')
+                        + tip('<strong>All Actions</strong> — filter by action type: Uploaded, Updated, Archived, and more.')
                         + tip('<strong>All Users</strong> — show activity from a specific staff member or admin only.')
                         + '<br>Active filters appear as chips above the table. Click the <strong>✕</strong> button to clear all at once.',
                     side: 'bottom', align: 'start',
@@ -1762,7 +1870,7 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
                 element: '[data-tour="archive-filters"]',
                 popover: {
                     title: ico('M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z') + 'Search Archive',
-                    description: 'Search archived documents by <strong>document number</strong> or <strong>title</strong>. The active search term appears as a chip above the results. Use the <strong>✕ clear</strong> button to reset.',
+                    description: 'Search archived documents by <strong>reference number</strong> or <strong>title</strong>. The active search term appears as a chip above the results. Use the <strong>✕ clear</strong> button to reset.',
                     side: 'bottom', align: 'start',
                 }
             },
@@ -1877,8 +1985,8 @@ document.querySelectorAll('[data-toast]').forEach(function (toast) {
 
         const sidebarElementIds = [
             '#tour-sidebar', '#tour-nav-dashboard', '#tour-nav-docs',
-            '#tour-nav-users', '#tour-nav-logs', '#tour-nav-archive',
-            '#tour-nav-settings', '#tour-sidebar-profile',
+            '#tour-nav-activity', '#tour-nav-users', '#tour-nav-logs',
+            '#tour-nav-archive', '#tour-nav-settings', '#tour-sidebar-profile',
             '#tour-sidebar-profile-link', '#tour-sidebar-signout',
         ];
 

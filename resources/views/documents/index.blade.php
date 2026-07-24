@@ -38,14 +38,14 @@
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                         </svg>
                     </div>
-                    <input type="text" name="search" id="search" value="{{ request('search') }}"
+                    <input type="text" name="search" id="tour-doc-filter-search" value="{{ request('search') }}"
                            placeholder="Search by document name, office, recipient…"
                            class="form-input form-input-icon">
                 </div>
 
                 {{-- Document Type --}}
                 <div class="w-full lg:w-40 shrink-0">
-                    <select name="document_type" id="document_type" class="form-input">
+                    <select name="document_type" id="tour-doc-filter-type" class="form-input">
                         <option value="">All Types</option>
                         @foreach($documentTypes as $value => $label)
                             <option value="{{ $value }}" {{ request('document_type') === $value ? 'selected' : '' }}>{{ $label }}</option>
@@ -53,12 +53,41 @@
                     </select>
                 </div>
 
+                {{-- Uploaded By filter (admin only) --}}
+                @if(auth()->user()->isAdmin())
+                <div class="w-full lg:w-48 shrink-0">
+                    <select name="uploader" id="tour-doc-filter-uploader" class="form-input">
+                        <option value="">All Users</option>
+                        @foreach($uploadersList as $u)
+                            <option value="{{ $u->id }}" {{ $uploaderFilter === $u->id ? 'selected' : '' }}>
+                                {{ $u->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+
+                {{-- My Documents toggle (staff only) --}}
+                @if(auth()->user()->isStaff())
+                <div class="w-full lg:w-auto shrink-0">
+                    <label id="tour-doc-filter-mine" class="inline-flex items-center gap-2 cursor-pointer select-none px-3 py-2 rounded-lg border transition-colors
+                                  {{ $myDocs ? 'bg-violet-50 border-violet-300 text-violet-700' : 'bg-white border-slate-200 text-slate-500 hover:border-violet-300 hover:text-violet-600' }}">
+                        <input type="checkbox" name="my_docs" value="1" class="hidden" {{ $myDocs ? 'checked' : '' }}
+                               onchange="this.form.submit()">
+                        <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                        </svg>
+                        <span class="text-sm font-medium whitespace-nowrap">My Documents</span>
+                    </label>
+                </div>
+                @endif
+
                 {{-- Actions --}}
                 <div class="flex gap-2 w-full lg:w-auto shrink-0">
                     <button type="submit" class="btn-primary h-[42px] px-5 w-full lg:w-auto">
                         Filter
                     </button>
-                    @if(request()->anyFilled(['search', 'document_type']))
+                    @if(request()->anyFilled(['search', 'document_type', 'my_docs', 'uploader']))
                         <a href="{{ route('documents.index') }}"
                            class="btn-secondary h-[42px] px-4 w-full lg:w-auto text-slate-400 hover:text-slate-600"
                            title="Clear filters">
@@ -81,8 +110,20 @@
         <p class="text-xs font-semibold text-slate-500">
             {{ number_format($orders->total()) }} {{ Str::plural('record', $orders->total()) }} found
         </p>
-        @if(request()->anyFilled(['search', 'document_type']))
+        @if(request()->anyFilled(['search', 'document_type', 'my_docs', 'uploader']))
         <div class="flex items-center gap-2 flex-wrap">
+            @if($myDocs)
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-violet-50 text-violet-700 text-xs font-medium rounded-full border border-violet-100">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                    My Documents
+                </span>
+            @endif
+            @if($uploaderFilter)
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-violet-50 text-violet-700 text-xs font-medium rounded-full border border-violet-100">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
+                    Uploaded by: {{ $uploadersList->firstWhere('id', $uploaderFilter)?->name ?? 'Unknown' }}
+                </span>
+            @endif
             @if(request('search'))
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-violet-50 text-violet-700 text-xs font-medium rounded-full border border-violet-100">
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
@@ -133,7 +174,7 @@
             </div>
             <p class="text-sm font-bold text-slate-800 mb-1">No records found</p>
             <p class="text-sm text-slate-500 mb-5">No documents match your current filters.</p>
-            @if(request()->anyFilled(['search', 'document_type']))
+            @if(request()->anyFilled(['search', 'document_type', 'my_docs', 'uploader']))
                 <a href="{{ route('documents.index') }}" class="btn-secondary btn-sm">Clear Filters</a>
             @else
                 <a href="{{ route('documents.create') }}" class="btn-primary btn-sm">Upload Document</a>
@@ -236,12 +277,30 @@
                             <a href="{{ route('documents.show', $doc) }}"
                                @if($loop->first) id="tour-doc-view-btn" @endif
                                title="View document"
-                               class="inline-flex items-center text-violet-600 hover:text-violet-800 transition-colors p-1.5 rounded-lg hover:bg-violet-50">
+                               class="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors p-1.5 rounded-lg hover:bg-blue-50">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
                             </a>
+                            {{-- Archive button --}}
+                            <form action="{{ route('documents.destroy', $doc) }}" method="POST"
+                                  data-confirm="Archive &quot;{{ Str::limit($doc->title, 40) }}&quot;?"
+                                  data-confirm-title="Confirm Archive"
+                                  data-confirm-subtitle="The document will be moved to the archive and can be restored later."
+                                  data-confirm-action="Archive"
+                                  data-confirm-variant="archive">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit"
+                                        @if($loop->first) id="tour-doc-archive-btn" @endif
+                                        title="Archive document"
+                                        class="inline-flex items-center text-violet-600 hover:text-violet-800 transition-colors p-1.5 rounded-lg hover:bg-violet-50">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.375c0 .621.504 1.125 1.125 1.125z" />
+                                    </svg>
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
@@ -256,7 +315,7 @@
                             </div>
                             <p class="text-sm font-bold text-slate-800 mb-1">No records found</p>
                             <p class="text-sm text-slate-500 mb-5">No documents match your current filters.</p>
-                            @if(request()->anyFilled(['search', 'document_type']))
+                            @if(request()->anyFilled(['search', 'document_type', 'my_docs', 'uploader']))
                                 <a href="{{ route('documents.index') }}" class="btn-secondary btn-sm">Clear Filters</a>
                             @else
                                 <a href="{{ route('documents.create') }}" class="btn-primary btn-sm">Upload Document</a>

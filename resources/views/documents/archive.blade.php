@@ -34,7 +34,7 @@
                         </svg>
                     </div>
                     <input type="text" name="search" id="search" value="{{ request('search') }}"
-                           placeholder="Search by document number, title…"
+                           placeholder="Search by reference number, title…"
                            class="form-input form-input-icon">
                 </div>
 

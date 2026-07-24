@@ -61,10 +61,19 @@ class Document extends Model
         }
 
         // Fallback: LIKE search
-        return $query->where(function ($q) use ($term) {
+        // Also try a normalised (separator-stripped) version of the term against
+        // reference_number so that "2132103123" still matches "21-32103-123".
+        $normalised = \App\Services\DocSearchService::normalise($term);
+
+        return $query->where(function ($q) use ($term, $normalised) {
             $q->where('reference_number', 'like', "%{$term}%")
               ->orWhere('title', 'like', "%{$term}%")
               ->orWhere('received_from', 'like', "%{$term}%");
+
+            if ($normalised !== $term && $normalised !== '') {
+                // Strip separators from the stored reference_number column for comparison
+                $q->orWhereRaw("REPLACE(REPLACE(REPLACE(reference_number, '-', ''), '/', ''), '.', '') LIKE ?", ["%{$normalised}%"]);
+            }
         });
     }
 

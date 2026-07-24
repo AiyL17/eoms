@@ -1,25 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\DocActivityLog;
-use App\Models\User;
+use App\Models\Document;
 use Illuminate\Http\Request;
 
-class LogController extends Controller
+class ActivityController extends Controller
 {
     public function index(Request $request)
     {
-        $query = DocActivityLog::with(['user', 'document'])->latest();
-
-        if ($request->filled('user_id')) {
-            $query->where('user_id', $request->user_id);
-        }
-
-        if ($request->filled('action')) {
-            $query->where('action', $request->action);
-        }
+        $query = DocActivityLog::with('document')
+            ->where('user_id', auth()->id())
+            ->latest();
 
         if ($request->filled('search')) {
             $query->whereHas('document', function ($q) use ($request) {
@@ -27,6 +20,16 @@ class LogController extends Controller
                   ->where('reference_number', 'like', '%' . $request->search . '%')
                   ->orWhere('title', 'like', '%' . $request->search . '%');
             });
+        }
+
+        if ($request->filled('doc_type')) {
+            $query->whereHas('document', function ($q) use ($request) {
+                $q->withTrashed()->where('document_type', $request->doc_type);
+            });
+        }
+
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
         }
 
         // ── Sorting ───────────────────────────────────────────────────────────
@@ -38,9 +41,9 @@ class LogController extends Controller
             $query->reorder()->orderBy($sort, $dir);
         }
 
-        $logs    = $query->paginate(25)->withQueryString();
-        $users   = User::orderBy('name')->get(['id', 'name']);
-        $actions = [
+        $logs     = $query->paginate(25)->withQueryString();
+        $docTypes = Document::documentTypes();
+        $actions  = [
             'created'       => 'Uploaded',
             'updated'       => 'Updated',
             'deleted'       => 'Archived',
@@ -50,6 +53,6 @@ class LogController extends Controller
             'force_deleted' => 'Permanently Deleted',
         ];
 
-        return view('admin.logs.index', compact('logs', 'users', 'actions', 'sort', 'dir'));
+        return view('activity.index', compact('logs', 'docTypes', 'actions', 'sort', 'dir'));
     }
 }

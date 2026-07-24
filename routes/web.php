@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\LogController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
@@ -41,6 +42,9 @@ Route::middleware(['auth', 'maintenance'])->group(function () {
 
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // My Activity (personal log feed — staff only; admins have System Logs)
+    Route::get('/my-activity', [ActivityController::class, 'index'])->name('activity.index')->middleware('role:staff');
 
     // Notifications
     Route::get('/notifications',             [NotificationController::class, 'index'])->name('notifications.index');
@@ -84,10 +88,9 @@ Route::middleware(['auth', 'maintenance'])->group(function () {
         Route::get('/{document}/version-history/open',[DocumentController::class, 'openArchived'])->name('version-history.open');
         Route::patch('/{document}/toggle-type', [DocumentController::class, 'toggleType'])->name('toggle-type');
 
-        // Admin-only destroy
+        // Any authenticated user can soft-delete (archive) a document
         Route::delete('/{document}', [DocumentController::class, 'destroy'])
-            ->name('destroy')
-            ->middleware('role:admin');
+            ->name('destroy');
     });
 
     // ── Admin-Only Routes ──────────────────────────────────────────────────────

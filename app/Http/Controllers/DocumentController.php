@@ -30,6 +30,23 @@ class DocumentController extends Controller
             $query->where('document_type', $request->document_type);
         }
 
+        // ── My Documents filter (staff only) ──────────────────────────────────
+        $myDocs = $request->boolean('my_docs');
+        if ($myDocs) {
+            $query->where('uploaded_by', auth()->id());
+        }
+
+        // ── Uploader filter (admin only) ───────────────────────────────────────
+        $uploaderFilter = null;
+        $uploadersList  = collect();
+        if (auth()->user()->isAdmin()) {
+            $uploadersList = User::orderBy('name')->get(['id', 'name']);
+            if ($request->filled('uploader')) {
+                $uploaderFilter = (int) $request->uploader;
+                $query->where('uploaded_by', $uploaderFilter);
+            }
+        }
+
         // ── Sorting ───────────────────────────────────────────────────────────
         $sortable = ['reference_number', 'date_issued', 'expiration_date'];
         $sort     = in_array($request->sort, $sortable) ? $request->sort : null;
@@ -43,7 +60,10 @@ class DocumentController extends Controller
 
         $documentTypes = Document::documentTypes();
 
-        return view('documents.index', compact('orders', 'sort', 'dir', 'documentTypes'));
+        return view('documents.index', compact(
+            'orders', 'sort', 'dir', 'documentTypes', 'myDocs',
+            'uploaderFilter', 'uploadersList'
+        ));
     }
 
     // ─── Create ───────────────────────────────────────────────────────────────
